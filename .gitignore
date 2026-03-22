@@ -1,0 +1,21 @@
+# JetBrains Rider / IntelliJ
+.idea/
+*.iml
+*.sln.iml
+
+# Rider / ReSharper user-specific files
+*.DotSettings.user
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+
+# .NET build outputs
+bin/
+obj/
+TestResults/
+*.dotCover
+
+# Local project-memory data
+context_portal/
