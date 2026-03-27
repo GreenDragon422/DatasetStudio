@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Studio Pro Dataset Tagger - Inspector Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f96b06",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#23170f",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation (Minimal header for Focused View) -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-4 py-3 bg-[#181411]">
+<div class="flex items-center gap-4 text-white">
+<button aria-label="Go back" class="flex items-center justify-center p-2 rounded hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+</button>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Cyberpunk Cityscapes - Image #0042</h2>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded bg-primary/20 border border-primary/30 text-primary text-sm font-medium">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                Needs Review
+            </div>
+<button aria-label="Settings" class="flex items-center justify-center p-2 rounded hover:bg-white/10 transition-colors text-slate-400">
+<span class="material-symbols-outlined text-xl">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Sidebar (Folders) -->
+<aside class="w-[240px] flex-shrink-0 border-r border-white/10 bg-[#181411] flex flex-col">
+<div class="p-4 border-b border-white/10">
+<h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Workflow</h3>
+</div>
+<div class="flex-1 overflow-y-auto p-2 space-y-1">
+<button class="w-full flex items-center gap-3 px-3 py-2 text-left rounded hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder</span>
+<span class="text-sm font-medium text-slate-300">Inbox</span>
+<span class="ml-auto text-xs bg-white/10 px-1.5 py-0.5 rounded text-slate-400">12</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-left rounded bg-primary/20 border-l-2 border-primary text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="text-sm font-medium">Needs Review</span>
+<span class="ml-auto text-xs bg-primary/20 px-1.5 py-0.5 rounded text-primary">89</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-left rounded hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder</span>
+<span class="text-sm font-medium text-slate-300">Processing</span>
+<span class="ml-auto text-xs bg-white/10 px-1.5 py-0.5 rounded text-slate-400">4</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-left rounded hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder</span>
+<span class="text-sm font-medium text-slate-300">Ready for Training</span>
+<span class="ml-auto text-xs bg-white/10 px-1.5 py-0.5 rounded text-slate-400">1.2k</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-left rounded hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder</span>
+<span class="text-sm font-medium text-slate-300">Exported</span>
+</button>
+</div>
+</aside>
+<!-- Center Image Viewer -->
+<main class="flex-1 bg-[#0f0a07] relative flex items-center justify-center p-8">
+<!-- Image Container -->
+<div class="relative w-full h-full max-w-4xl max-h-full flex items-center justify-center">
+<img alt="Neon lit cyberpunk street scene at night" class="max-w-full max-h-full object-contain rounded border border-white/5 shadow-2xl" data-alt="Neon lit cyberpunk street scene at night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-v8H17nAabogLGwmKZe6U_ru9TNpnpUu9ly_1KHVZeI-hinki0rJoOu8MvbwJtfxkV52ciShNSQuVy6JmiXBs1sd-u0zcdiVk0vWiT8UTtomp9Vja2a0jycYQEnnRHXmXK9OdFImbQbc_cmqZ_W6ckPOqbsPEY9YZ6qhiwqGj6bjACTjr9_8yWFX6oXzPy_TlKuNGx_gHfUAfBP_eajvNyqZ7RmsyFVwjMk2g83TM5PUFq4bEpILOiCRstbMod7lmekAHxhEWhxWI"/>
+<!-- Overlay AI Loading State (Hidden by default, showing for demonstration) -->
+<!-- <div class="absolute inset-0 bg-black/50 flex items-center justify-center rounded">
+                    <span class="material-symbols-outlined text-primary text-4xl animate-spin">progress_activity</span>
+                </div> -->
+</div>
+<!-- Navigation Overlays -->
+<button aria-label="Previous Image" class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/40 text-white/70 hover:bg-black/80 hover:text-white transition-all backdrop-blur-sm">
+<span class="material-symbols-outlined text-3xl">chevron_left</span>
+</button>
+<button aria-label="Next Image" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/40 text-white/70 hover:bg-black/80 hover:text-white transition-all backdrop-blur-sm">
+<span class="material-symbols-outlined text-3xl">chevron_right</span>
+</button>
+</main>
+<!-- Right Inspector Sidebar -->
+<aside class="w-[320px] flex-shrink-0 border-l border-white/10 bg-[#181411] flex flex-col">
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- Prefix Block -->
+<section>
+<h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">lock</span> Fixed Prefix
+                    </h3>
+<div class="bg-white/5 border border-white/10 rounded p-3 font-mono text-xs text-slate-300 leading-relaxed">
+                        cyberpunk, futuristic, sci-fi, masterpiece, best quality, highres
+                    </div>
+</section>
+<!-- Pinned Tags Row -->
+<section>
+<h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Quick Tags</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-2.5 py-1 bg-white/10 hover:bg-primary/80 hover:text-white border border-white/10 hover:border-primary rounded text-xs font-medium text-slate-300 transition-colors">neon_lights</button>
+<button class="px-2.5 py-1 bg-white/10 hover:bg-primary/80 hover:text-white border border-white/10 hover:border-primary rounded text-xs font-medium text-slate-300 transition-colors">rain</button>
+<button class="px-2.5 py-1 bg-white/10 hover:bg-primary/80 hover:text-white border border-white/10 hover:border-primary rounded text-xs font-medium text-slate-300 transition-colors">night</button>
+<button class="px-2.5 py-1 bg-white/10 hover:bg-primary/80 hover:text-white border border-white/10 hover:border-primary rounded text-xs font-medium text-slate-300 transition-colors">cityscape</button>
+<button class="px-2.5 py-1 bg-white/10 hover:bg-primary/80 hover:text-white border border-white/10 hover:border-primary rounded text-xs font-medium text-slate-300 transition-colors">solo</button>
+</div>
+</section>
+<!-- Tag Input & List -->
+<section class="flex flex-col gap-3">
+<h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Instance Tags</h3>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">add</span>
+<input autofocus="" class="w-full bg-[#231e1a] border border-white/20 focus:border-primary focus:ring-1 focus:ring-primary rounded h-[32px] pl-9 pr-3 text-sm text-white placeholder-slate-500 font-mono transition-all" placeholder="Add tag..." type="text" value="glowing_signs"/>
+<!-- Auto-suggest dropdown simulation -->
+<div class="absolute left-0 right-0 top-full mt-1 bg-[#231e1a] border border-white/10 rounded shadow-lg z-10 overflow-hidden">
+<div class="px-3 py-1.5 text-xs text-slate-400 bg-white/5 border-b border-white/10">Suggestions</div>
+<button class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-primary/20 hover:text-primary font-mono focus:bg-primary/20 focus:outline-none">glowing_signs</button>
+<button class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-primary/20 hover:text-primary font-mono focus:bg-primary/20 focus:outline-none">glowing_eyes</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<!-- Applied Tags -->
+<div class="group flex items-center gap-1 px-2.5 py-1 bg-[#231e1a] border border-white/10 rounded text-sm text-slate-200 font-mono">
+<span>alleyway</span>
+<button class="text-slate-500 hover:text-red-400 transition-colors focus:outline-none"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+<div class="group flex items-center gap-1 px-2.5 py-1 bg-[#231e1a] border border-white/10 rounded text-sm text-slate-200 font-mono">
+<span>wet_streets</span>
+<button class="text-slate-500 hover:text-red-400 transition-colors focus:outline-none"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+<div class="group flex items-center gap-1 px-2.5 py-1 bg-[#231e1a] border border-white/10 rounded text-sm text-slate-200 font-mono">
+<span>dark</span>
+<button class="text-slate-500 hover:text-red-400 transition-colors focus:outline-none"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+<div class="group flex items-center gap-1 px-2.5 py-1 bg-[#231e1a] border border-white/10 rounded text-sm text-slate-200 font-mono border-l-2 border-l-yellow-500">
+<span>vending_machine</span>
+<button class="text-slate-500 hover:text-red-400 transition-colors focus:outline-none"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+<div class="group flex items-center gap-1 px-2.5 py-1 bg-[#231e1a] border border-white/10 rounded text-sm text-slate-200 font-mono">
+<span>hologram</span>
+<button class="text-slate-500 hover:text-red-400 transition-colors focus:outline-none"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+</div>
+</section>
+</div>
+<!-- Actions -->
+<div class="p-4 border-t border-white/10 bg-[#181411]">
+<button class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded font-medium text-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#181411] focus:ring-primary">
+<span>Commit &amp; Next</span>
+<span class="material-symbols-outlined text-[18px]">keyboard_return</span>
+</button>
+</div>
+</aside>
+</div>
+<!-- Bottom Area: Hint Bar & Terminal -->
+<div class="flex-shrink-0 flex flex-col border-t border-white/10">
+<!-- Hint Bar -->
+<div class="h-[24px] bg-[#1a1512] border-b border-white/5 flex items-center px-4 overflow-hidden">
+<p class="text-[11px] text-slate-400 font-mono whitespace-nowrap">
+<span class="text-slate-300 font-semibold">[Enter]</span> Commit &amp; Auto-Advance  •  
+                <span class="text-slate-300 font-semibold">[Arrows]</span> Prev/Next Image  •  
+                <span class="text-slate-300 font-semibold">[ [ ] / [ ] ]</span> Prev/Next Folder  • 
+                <span class="text-slate-300 font-semibold">[Ctrl+Shift+C/V]</span> Copy/Paste Tags
+            </p>
+</div>
+<!-- Command Terminal -->
+<div class="h-[32px] bg-[#0f0a07] flex items-center px-4">
+<span class="text-primary font-mono text-sm mr-2 select-none">&gt;_</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-slate-300 font-mono placeholder-slate-600 p-0" placeholder="Enter command (e.g., /filter cyberpunk)" type="text"/>
+</div>
+</div>
+</body></html>

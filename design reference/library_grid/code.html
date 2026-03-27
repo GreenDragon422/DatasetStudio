@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Studio Pro - Dataset Tagger - Library Grid</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f96b06",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#23170f",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display overflow-hidden">
+<!-- Top Bar (64px) -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#3a2f27] px-6 h-16 shrink-0 bg-[#181411]">
+<div class="flex items-center gap-8 w-full max-w-[1440px] mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-4 text-white w-60 shrink-0">
+<div class="size-5 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Studio Pro</h2>
+</div>
+<!-- Quick Filter -->
+<div class="flex-1 max-w-2xl flex items-center">
+<div class="flex w-full items-center rounded h-10 bg-[#3a2f27] focus-within:ring-1 focus-within:ring-primary transition-shadow">
+<div class="text-[#bba89b] flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</div>
+<input class="w-full bg-transparent border-none text-white text-sm focus:ring-0 placeholder:text-[#bba89b] px-2" placeholder="Filter by tags... (Press '/')" type="text"/>
+<div class="px-3 text-[#bba89b] text-xs font-mono bg-[#2a221c] rounded-r h-full flex items-center border-l border-[#4a3f37]">/</div>
+</div>
+</div>
+<!-- AI Model Dropdown -->
+<div class="flex items-center gap-4 ml-auto shrink-0">
+<button class="flex items-center justify-center gap-2 h-10 px-4 bg-[#3a2f27] hover:bg-[#4a3f37] border border-[#4a3f37] text-white text-sm font-medium rounded transition-colors">
+<span class="material-symbols-outlined text-[18px] text-primary">psychology</span>
+<span>AI Model: ResNet-50 v2</span>
+<span class="material-symbols-outlined text-[18px] text-[#bba89b]">arrow_drop_down</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 overflow-hidden relative">
+<!-- Left Sidebar (240px) -->
+<aside class="w-[240px] shrink-0 bg-[#181411] border-r border-[#3a2f27] flex flex-col overflow-y-auto">
+<div class="p-4 flex flex-col gap-6">
+<!-- Workflow Stages -->
+<div class="flex flex-col gap-2">
+<h3 class="text-[#bba89b] text-xs font-bold uppercase tracking-wider mb-1 px-2">Workflow Stages</h3>
+<button class="flex items-center gap-3 px-3 py-2 rounded bg-primary/20 border-l-2 border-primary text-white hover:bg-[#3a2f27] transition-colors group text-left w-full">
+<span class="material-symbols-outlined text-[18px] text-primary">inbox</span>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-medium truncate">01_Inbox</p>
+</div>
+<span class="text-xs text-[#bba89b] font-mono">142</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 rounded border-l-2 border-transparent text-[#bba89b] hover:text-white hover:bg-[#3a2f27] transition-colors group text-left w-full">
+<span class="material-symbols-outlined text-[18px]">memory</span>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-medium truncate">02_Processing</p>
+</div>
+<span class="text-xs font-mono">38</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 rounded border-l-2 border-transparent text-[#bba89b] hover:text-white hover:bg-[#3a2f27] transition-colors group text-left w-full">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-medium truncate">03_Reviewed</p>
+</div>
+<span class="text-xs font-mono">812</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2 rounded border-l-2 border-transparent text-[#bba89b] hover:text-white hover:bg-[#3a2f27] transition-colors group text-left w-full">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-medium truncate">04_Ready</p>
+</div>
+<span class="text-xs font-mono">4.2k</span>
+</button>
+</div>
+<!-- Custom Folders -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between mb-1 px-2">
+<h3 class="text-[#bba89b] text-xs font-bold uppercase tracking-wider">Sub-Categories</h3>
+<button class="text-[#bba89b] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+<button class="flex items-center gap-3 px-3 py-1.5 rounded border-l-2 border-transparent text-[#bba89b] hover:text-white hover:bg-[#3a2f27] transition-colors text-left w-full">
+<span class="material-symbols-outlined text-[18px]">folder</span>
+<p class="text-sm truncate">character_portraits</p>
+</button>
+<button class="flex items-center gap-3 px-3 py-1.5 rounded border-l-2 border-transparent text-[#bba89b] hover:text-white hover:bg-[#3a2f27] transition-colors text-left w-full">
+<span class="material-symbols-outlined text-[18px]">folder</span>
+<p class="text-sm truncate">environments</p>
+</button>
+<button class="flex items-center gap-3 px-3 py-1.5 rounded border-l-2 border-transparent text-[#bba89b] hover:text-white hover:bg-[#3a2f27] transition-colors text-left w-full">
+<span class="material-symbols-outlined text-[18px]">folder</span>
+<p class="text-sm truncate">props_weapons</p>
+</button>
+</div>
+</div>
+</aside>
+<!-- Image Grid (Fluid Center) -->
+<main class="flex-1 flex flex-col bg-[#110e0c] relative overflow-hidden">
+<!-- Grid Toolbar -->
+<div class="flex items-center justify-between px-4 py-2 bg-[#181411] border-b border-[#2a221c] shrink-0">
+<div class="flex items-center gap-3">
+<div class="text-white text-sm font-medium">01_Inbox</div>
+<div class="text-[#bba89b] text-xs font-mono bg-[#2a221c] px-2 py-0.5 rounded">142 items</div>
+<div class="h-4 w-px bg-[#3a2f27] mx-2"></div>
+<button class="text-[#bba89b] hover:text-white text-xs flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">select_all</span>
+                        Select All (x)
+                    </button>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-xs text-[#bba89b]">
+<span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-[#CC241D]"></div> Untagged</span>
+<span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-[#D79921]"></div> Auto-tagged</span>
+<span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-[#98971A]"></div> Ready</span>
+</div>
+<div class="h-4 w-px bg-[#3a2f27]"></div>
+<div class="flex items-center gap-2 text-[#bba89b]">
+<span class="material-symbols-outlined text-[16px]">photo_size_select_small</span>
+<input class="w-24 h-1 bg-[#3a2f27] rounded-lg appearance-none cursor-pointer accent-primary" max="400" min="100" type="range" value="160"/>
+<span class="material-symbols-outlined text-[16px]">photo_size_select_actual</span>
+</div>
+</div>
+</div>
+<!-- The Grid -->
+<div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+<div class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 auto-rows-max">
+<!-- Selected Thumbnail -->
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-primary overflow-hidden cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center opacity-90" data-alt="Neon lit cyberpunk street" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCa8XhvllLj1v_MogmlCdzBxUY4s_0I8RM9ew3XNrQaHGXb_rhtl14HeqxSmCu9wcOzUi2e7AsNhHmvOH4WOf62EO6DxfCoxtXkw6fBxJm3FZRMQeEMrkZqyFouFAL7f0lywECUEjQWQFzKLk3sFaaQcblpEcYaZduOsTVFfdNL3613KdtbHIHqSwTw7l5Tet4jvDK4ygQeHTbhnv-lnQEMy7dECSM1QFGvejYJ846sigUdruH8xUT8Gq2_OXoNeNo_yWxdeIDG9KAY');"></div>
+<!-- Checkbox -->
+<div class="absolute top-2 left-2 w-5 h-5 bg-primary rounded-[2px] flex items-center justify-center border border-primary z-10 shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">check</span>
+</div>
+<!-- Status Dot -->
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#D79921] border-2 border-[#1e1915] z-10 shadow-sm" title="Auto-tagged (Needs Review)"></div>
+</div>
+<!-- Focus/Hover Thumbnail -->
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-[#4a3f37] hover:border-primary/50 overflow-hidden cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-opacity group-hover:opacity-90" data-alt="Programmer writing code on dark screen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBP_HrV5DGORgFCY4_e3zUKkOqSvyI4sHauI7w-dBuFC7HGaa1WWdnSCZI0aGYT3Mdxif1O_LZDn5bXf9PSgMLLwN1pIf5FQkyccpHUl4qfd88mVZcqkftpdCIN9PnsxYkSnG9dVNI07U1GmGo0hC3hSrBpDrHpDeJOqqUfPVNRMHnmapytcca93QcdTRV7Y1UIjNj42VkQ-81xdYD9F8YDnWG0Oolh455-31LYVmmkcWZMlyE7BD7DWXhuSiOqfq-9QjWSTmGKNMzk');"></div>
+<!-- Checkbox (Hidden until hover) -->
+<div class="absolute top-2 left-2 w-5 h-5 bg-[#181411]/80 rounded-[2px] flex items-center justify-center border border-[#4a3f37] z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+</div>
+<!-- Status Dot -->
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#CC241D] border-2 border-[#1e1915] z-10 shadow-sm" title="Untagged"></div>
+</div>
+<!-- Standard Thumbnails -->
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-transparent hover:border-[#4a3f37] overflow-hidden cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-opacity group-hover:opacity-90" data-alt="Cyberpunk hacker room setup" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCmT3j2RfWO8ax7YpBG7DepVQ0lMZymDpJQ5YvHRDhZ6qgpz_bVxEddfPjDGYXjud5AOjTmHSKwsBOQv3Uoek5JjE03VhxxFLGMsHPxHGpgX_7xj_QnrTVk0EWvWyJj32r7GWDyuiMpOhqiV7OtZqT7ok6SHOsNg1Ou_O0uisLpve8vumr9oHdWfQYANpxOd2ESCm0Xwg8lv0zK0h9UWqzxR1CyS2JBto2M4P04SGVMjw1gSTU2TjZszrVC7mEVE4VFKRzt4WpK25vl');"></div>
+<div class="absolute top-2 left-2 w-5 h-5 bg-[#181411]/80 rounded-[2px] border border-[#4a3f37] z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#98971A] border-2 border-[#1e1915] z-10 shadow-sm" title="Ready"></div>
+</div>
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-transparent hover:border-[#4a3f37] overflow-hidden cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-opacity group-hover:opacity-90" data-alt="Abstract glowing neon geometric shapes" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBcl3UzRfPnxzMWbL7aowaRjTU4qrI_NWw0M48h-mYSImCOXpTrSUU5k4CrdfCO6FNmND7Dlzl5oZoEfWFtnwUhKG8QDdpAo8TmqP-5hVNpgFR3b-IOIUeTsQt0ZHaVM3qlQs9Re-9fPdPUa7SLcQRVjSBddJU8XbLMXVeBgDaLNPLhp1Ryml1xMbyz-33NGKQlS_9bozutg0bbuE3pdtPrmGPRy_Kg_34Uz5Lz9qaJv4Cn6Vq4-KbQSOD8yY9zIOpIHknsPXqaybJ0');"></div>
+<div class="absolute top-2 left-2 w-5 h-5 bg-[#181411]/80 rounded-[2px] border border-[#4a3f37] z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#D79921] border-2 border-[#1e1915] z-10 shadow-sm"></div>
+</div>
+<!-- AI Processing Thumbnail -->
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-transparent overflow-hidden cursor-not-allowed">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 grayscale" data-alt="Matrix style code rain" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC-CjJPhKvaQdyGnqmvG7e3OKH1E3wbO4sHjtaKUpoqKXqJEn9Yb_2PeTe2NWAnJWLcS52N8VPUzXMcFnUZ2GFjH7ZXede7h-0euTqSt0xbwVtH_ydiNHasopZrn8TXZrflul7H4mUawQ1JopDXVZRkTEsECtLk2ci-ygvIsuAaIWioPpxDVUtCHUifXDuHyK5IRjcHUF6olpw1fnsxgTCUDvFxovl_nnagf5ubTtZifa7jtliQkIQ-bxDY_ut-1XVkg4MZ-wbt2vv_');"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[24px] animate-spin">sync</span>
+</div>
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#CC241D] border-2 border-[#1e1915] z-10 shadow-sm"></div>
+</div>
+<!-- More Thumbnails... -->
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-transparent hover:border-[#4a3f37] overflow-hidden cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-opacity group-hover:opacity-90" data-alt="Hardware circuit board close up" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAn7_UIXdlBf83VrNjtvQ1bJm_wrDOdfAFAGa3T6UawQEY3E8hTVsv3dTDWwI1IsOPaIMigKpUeTvx12Xc_gBc6K1FWAN-xwMdHlBRJYQBpg5_SFiNMxfqk-d5_cx832_QyXX7ENqSLuwhJEEZU5u3Ck6XGQaHrLCKD5PIdB1VeSfklRU40y6Mxmgojq58b1Mf7xuJD4yp0yXB6COjTzFyuF8okkw2qwFq_vSDGnyZsle3G36fy7474iyqZq9I69qE3TV1muvdaKYuc');"></div>
+<div class="absolute top-2 left-2 w-5 h-5 bg-[#181411]/80 rounded-[2px] border border-[#4a3f37] z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#98971A] border-2 border-[#1e1915] z-10 shadow-sm"></div>
+</div>
+<div class="relative group aspect-square rounded-sm bg-[#1e1915] border-2 border-transparent hover:border-[#4a3f37] overflow-hidden cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-opacity group-hover:opacity-90" data-alt="Server racks in data center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDlzx9qqCljiViVGF8JJ07hS9CEq2mQAL5zDM3BJzcbAPWhvdgOnqpsc9w3hz8QTdYq3-TSVE48KpjPHQATGzeihQmMcPjs_RYZ5TwBl8o9LIBQerG6qvJlx93mFc6Hg-n7uQRRvW4A-tzeVWqPRUPJpdKBXetDwI9pnFYZXh79WvycfqsH4MdTHGsXZp_ecaw54QgGKj2wsJRXz_xfxJBBLd9cv8nEJPtcfm8gL05AjZI_azRZyGHBhlfqg76R0Cn9WcWCZThH9Zgl');"></div>
+<div class="absolute top-2 left-2 w-5 h-5 bg-[#181411]/80 rounded-[2px] border border-[#4a3f37] z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-2 right-2 w-3 h-3 rounded-full bg-[#98971A] border-2 border-[#1e1915] z-10 shadow-sm"></div>
+</div>
+</div>
+</div>
+<!-- Floating Batch Tagging Popovers (Simulated Active State) -->
+<!-- Add Tag Popover (+) -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 bg-[#23170f] border border-[#4a3f37] rounded-md shadow-2xl z-50 flex flex-col overflow-hidden">
+<div class="flex items-center gap-2 px-3 py-2 border-b border-[#3a2f27] bg-[#181411]">
+<span class="text-primary font-mono font-bold">+</span>
+<input autofocus="" class="w-full bg-transparent border-none text-white text-sm focus:ring-0 p-0 font-mono" placeholder="Add tag to selection..." type="text" value="cyber"/>
+</div>
+<div class="flex flex-col max-h-48 overflow-y-auto">
+<button class="flex items-center justify-between px-3 py-1.5 text-sm text-white bg-primary/20 border-l-2 border-primary text-left font-mono">
+<span>cyberpunk</span>
+<span class="text-[#bba89b] text-xs">1.2k</span>
+</button>
+<button class="flex items-center justify-between px-3 py-1.5 text-sm text-[#bba89b] hover:bg-[#3a2f27] border-l-2 border-transparent text-left font-mono">
+<span>cybernetics</span>
+<span class="text-[#bba89b] text-xs">430</span>
+</button>
+<button class="flex items-center justify-between px-3 py-1.5 text-sm text-[#bba89b] hover:bg-[#3a2f27] border-l-2 border-transparent text-left font-mono">
+<span>cyborg</span>
+<span class="text-[#bba89b] text-xs">89</span>
+</button>
+</div>
+</div>
+<!-- Remove Tag Popover (-) (Hidden for layout clarity, but structural example below) -->
+<!--
+            <div class="absolute top-1/3 left-1/3 w-64 bg-[#23170f] border border-[#4a3f37] rounded-md shadow-2xl z-50 flex flex-col overflow-hidden opacity-50 pointer-events-none">
+                <div class="flex items-center gap-2 px-3 py-2 border-b border-[#3a2f27] bg-[#181411]">
+                    <span class="text-[#CC241D] font-mono font-bold">-</span>
+                    <input type="text" class="w-full bg-transparent border-none text-white text-sm focus:ring-0 p-0 font-mono" placeholder="Remove tag...">
+                </div>
+                <div class="flex flex-col max-h-48 overflow-y-auto">
+                    <button class="flex items-center justify-between px-3 py-1.5 text-sm text-[#bba89b] hover:bg-[#3a2f27] border-l-2 border-transparent text-left font-mono">
+                        <span>neon</span>
+                        <span class="text-[#CC241D] text-xs">(42)</span>
+                    </button>
+                </div>
+            </div>
+            -->
+</main>
+</div>
+<!-- Command Terminal (32px Bottom) -->
+<footer class="h-8 shrink-0 bg-[#0a0807] border-t border-[#2a221c] flex items-center px-4">
+<div class="flex items-center gap-2 w-full font-mono text-sm">
+<span class="text-primary font-bold">&gt;_</span>
+<input class="flex-1 bg-transparent border-none text-white focus:ring-0 p-0 placeholder:text-[#4a3f37] text-sm" placeholder="Type command or macro..." type="text"/>
+<div class="flex gap-4 text-xs text-[#7C6F64]">
+<span>[x] Select</span>
+<span>[+] Add Tag</span>
+<span>[-] Remove Tag</span>
+<span>[[] Prev Folder</span>
+<span>[]] Next Folder</span>
+</div>
+</div>
+</footer>
+<style>
+        /* Custom Scrollbar for dense grid feel */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #110e0c;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3a2f27;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4a3f37;
+        }
+    </style>
+</body></html>

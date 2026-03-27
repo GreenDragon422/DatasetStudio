@@ -1,0 +1,234 @@
+# Studio Pro Dataset Tagger
+
+## Product Overview
+
+**The Pitch:** A high-density, keyboard-first desktop environment for rapidly curating and tagging image datasets for AI inference training. It eliminates repetitive metadata entry through automatic background AI tagging for untagged images, workflow staging, and lightning-fast folder-level batch manipulation.
+
+**For:** AI researchers, dataset curators, and machine learning engineers who need to process thousands of images without breaking flow state.
+
+**Device:** desktop (Avalonia/XAML)
+
+**Design Direction:** A warm, Gruvbox Light Medium professional utility emphasizing a structured, XAML-friendly component layout. Zero-distraction earthy interfaces with high-contrast accents, prioritizing data density and visual hierarchy over whitespace. 
+
+**Inspired by:** Adobe Lightroom Classic, Blender, DaVinci Resolve.
+
+---
+
+## Screens
+
+- **Projects Hub:** Grid of recent dataset projects with progress metrics and master root folder auto-discovery. (Acts as the main dataset library).
+- **Library Grid:** Dense masonry/grid view of dataset images with left-hand workflow folder tree.
+- **Inspector Mode:** Split layout with large image preview, persistent tag editor, and fixed prefix display.
+- **Project Configuration:** Modal/overlay for setting global project prefixes, default tags, root folders, AI models, and custom workflow stages.
+- **Global Tag Dictionary:** Centralized manager for standardizing tags, setting aliases, and reviewing usage frequencies across all datasets.
+
+---
+
+## Key Flows
+
+**Rapid Batch Folder Tagging:** User needs to modify tags for an entire folder efficiently.
+
+1. User is on **Library Grid** -> views the "Inbox" folder where background AI has automatically tagged new images lacking tag files.
+2. User types `+` -> an autocomplete popup appears. User types `cyberpunk`, selects it, and it appends to all images in the folder (skipping duplicates).
+3. User types `-` -> a popup of existing tags in the folder appears with frequencies (e.g., `banana (3)`). User selects `banana` to instantly remove it from all images in the folder.
+
+---
+
+<details>
+<summary>Design System</summary>
+
+## Color Palette
+
+- **Primary:** `#D65D0E` - Focus outlines, active selections, primary CTAs (Gruvbox Orange)
+- **Background:** `#FBF1C7` - Main application wrapper (Gruvbox Light bg0)
+- **Surface:** `#EBDBB2` - Panels, sidebars, cards (Gruvbox Light bg1)
+- **Surface Elevated:** `#D5C4A1` - Hover states, input backgrounds, active rows (Gruvbox Light bg2)
+- **Text:** `#3C3836` - Primary labels, standard text (Gruvbox Light fg1)
+- **Muted:** `#7C6F64` - Helper text, inactive icons, borders (Gruvbox Light fg4)
+- **Accent:** `#98971A` - Success states, "Ready for Training" indicators (Gruvbox Green)
+- **Warning:** `#D79921` - Needs review indicators (Gruvbox Yellow)
+- **Error:** `#CC241D` - Untagged/Error states (Gruvbox Red)
+
+## Typography
+
+Industrial, legible at small sizes, distinctly technical.
+
+- **Headings:** `IBM Plex Sans`, 600, 18-24px
+- **Body:** `IBM Plex Sans`, 400, 13px (compact for high density)
+- **Tags & Metadata:** `IBM Plex Mono`, 500, 12px
+- **Buttons:** `IBM Plex Sans`, 500, 12px, uppercase tracking 0.5px
+
+**Style notes:** Hard 2px border radiuses, sharp 1px borders instead of drop shadows. Unapologetically boxy. Active states use a 1px solid `#D65D0E` border rather than background color changes to preserve the earthy, paper-like atmosphere. Designed mapping well to XAML ControlTemplates and ResourceDictionaries.
+
+## Design Tokens
+
+```css
+:root {
+  --color-primary: #D65D0E;
+  --color-background: #FBF1C7;
+  --color-surface: #EBDBB2;
+  --color-surface-elevated: #D5C4A1;
+  --color-text: #3C3836;
+  --color-muted: #7C6F64;
+  --color-accent: #98971A;
+  --color-warning: #D79921;
+  --color-error: #CC241D;
+  --font-ui: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --border-subtle: 1px solid #D5C4A1;
+}
+```
+
+</details>
+
+---
+
+<details>
+<summary>Screen Specifications</summary>
+
+### Projects Hub
+
+**Purpose:** Entry point to select or create a dataset project mapped to a local root folder (functions as your primary dataset library).
+
+**Layout:** 64px top top-bar, central fluid grid of project cards maximizing the main application area.
+
+**Key Elements:**
+- **Project Card:** `#EBDBB2` background, 2px radius, displays project name, root folder path, total images, and progress bar (`#D65D0E`).
+- **New Project Button:** `#D65D0E` background, `#FBF1C7` text, top right placement.
+- **Auto-Discovery Input:** A directory picker within the top-bar to map a master root directory, automatically discovering and creating projects for all contained subfolders using their folder names.
+
+**States:**
+- **Empty:** "No datasets found. Create your first project or point to a master folder." centered with a subtle dashed border.
+
+**Components:**
+- **Progress Bar:** 4px height, `#D5C4A1` track, `#D65D0E` fill.
+
+**Interactions:**
+- **Hover Card:** Border becomes 1px solid `#D65D0E`, cursor pointer.
+- **Select Master Root:** Triggers a background scan that instantly populates the grid with newly created project cards named after each subfolder discovered.
+
+### Library Grid
+
+**Purpose:** Mass selection, drag-and-drop staging, batch tag operations, and macro-level dataset review.
+
+**Layout:** Three columns: 240px Left Sidebar (Folders), Fluid Center (Grid), 64px Top Bar.
+
+**Key Elements:**
+- **Folder Tree:** Vertically stacked list representing the workflow folder sequence within the project's root folder. Displays pure folder names, strictly removing any numeric prefixes for a cleaner view.
+- **Top Bar Controls:** Displays the **Project Name** purely on its own without any prefix clearly in the top left. Also contains an "AI Model" selection dropdown that reads from a simple JSON file for background tagging, and a Quick-Filter Bar (an `IBM Plex Mono` text input for live filtering the grid by tags).
+- **Image Grid:** Auto-fill grid (minmax 160px). Images crop to 1:1 square for consistency. Untagged images in grid show an AI processing icon while being background-tagged.
+- **Zoom Slider:** Bottom right of grid, controls thumbnail size (100px to 400px).
+
+**States:**
+- **Empty Folder:** Centered text "Folder is empty. Drag images here to stage."
+- **Batch Add Popup (+):** Floating autocomplete list of known tags, triggered by typing `+`.
+- **Batch Remove Popup (-):** Floating list of existing folder tags with frequencies (e.g., `banana (3)`), triggered by typing `-`.
+
+**Components:**
+- **Thumbnail:** `#FBF1C7` background, image centered, on hover shows a tiny `#D65D0E` checkbox in top-left corner. Includes a visual status dot in the bottom-right corner (Red `#CC241D` = untagged, Yellow `#D79921` = auto-tagged/needs review, Green `#98971A` = ready).
+- **Folder Item:** 28px height, 8px padding, `#7C6F64` text. Active state: `#3C3836` text, `#D5C4A1` background, left border 2px solid `#D65D0E`.
+
+**Interactions:**
+- **Drag Image:** Thumbnail opacity drops to 50%, custom cursor. Drop on Folder Item triggers brief `#98971A` flash on folder.
+- **Press '/':** Instantly focuses the Quick-Filter bar to filter the grid by tags.
+- **Press Arrow Keys:** Fast spatial navigation to highlight images within the grid.
+- **Press 'x':** Toggles selection of the currently highlighted image(s) for batch operations.
+- **Press '[' or ']':** Instantly moves the currently selected image(s) to the previous (`[`) or next (`]`) workflow folder in the sequence.
+- **Press 'Alt+[' or 'Alt+]':** Instantly navigates the active view between workflow folders without moving the current image.
+- **Type '+':** Opens the Add Tag popup to append a tag to all images in the active folder (or current selection).
+- **Type '-':** Opens the Remove Tag popup to delete a specific tag from all images in the active folder (or current selection).
+- **Press Ctrl+Shift+C / Ctrl+Shift+V:** Quickly copy and paste a whole set of tags from one image to another.
+- **Double-click Thumbnail:** Transitions to Inspector Mode.
+
+### Inspector Mode
+
+**Purpose:** Quickly browsing, initial tagging, filtering images, and precision metadata review of a single image.
+
+**Layout:** Three columns: 240px Left Sidebar (Folders), Fluid Center (Large Image Viewer), 320px Right Sidebar (Inspector).
+
+**Key Elements:**
+- **Viewer:** Center pane, scales image to fit while preserving aspect ratio. `#FBF1C7` background.
+- **Prefix Block:** Top of Inspector. `#D5C4A1` box, `IBM Plex Mono`, displays fixed project tags (e.g., `lora_style, masterpiece`). Read-only.
+- **Pinned Tags Row:** Quick-access row of buttons just below the prefix block for 1-click addition of common tags that the AI might miss.
+- **Tag Input:** 32px height input field, persistent focus, auto-suggest dropdown for previously used tags.
+- **Applied Tags List:** Wrapping flexbox of tag pills below the input.
+
+**States:**
+- **Loading Image / AI Auto-tagging:** Spinning `#D65D0E` 16px circle centered in Viewer or over the tag list if generating initial tags.
+
+**Components:**
+- **Tag Pill:** `#EBDBB2` background, 1px solid `#D5C4A1`, 2px radius, `#3C3836` text. Includes an `x` icon (`#7C6F64`).
+- **Hint Bar:** Bottom of screen, 24px height, `#EBDBB2`. Text: `[Enter] Commit & Auto-Advance | [Arrows] Prev/Next Image | [ [ ] / [ ] ] Prev/Next Folder`.
+
+**Interactions:**
+- **Press Enter:** Commits the current tag input and immediately auto-advances to the next unreviewed image.
+- **Type any letter:** Immediately focuses the Tag Input and begins text entry without requiring a mouse click.
+- **Click 'x' on Tag:** Removes tag instantly, no confirmation.
+- **Click Pinned Tag:** Instantly appends the tag to the current image.
+- **Press Left/Right Arrow:** Animates current image sliding out, adjacent image slides in.
+- **Press '[' or ']':** Instantly moves the current image to the previous or next workflow folder in the sequence and auto-advances to the next image.
+- **Press Ctrl+Shift+C / Ctrl+Shift+V:** Copy and paste the full set of tags to/from the clipboard.
+
+### Project Configuration
+
+**Purpose:** Establish immutable dataset rules, root directories, and workflow stages.
+
+**Layout:** Centered modal, 600px width, `#EBDBB2` background.
+
+**Key Elements:**
+- **Root Folder Selector:** Input and browse button to map the project to an arbitrary Root Folder on the disk.
+- **AI Model Dropdown:** Selection menu for the background tagging model (reads from a simple JSON configuration).
+- **Prefix Editor:** Textarea for fixed keyword prefixes prepended to all exports.
+- **Workflow Stages Builder:** Draggable list of folder names that dictates the sequence within the root directory.
+- **Resolution Target:** Input for crop/resize target (e.g., `512x512`, `1024x1024`).
+- **Save Action:** Bottom right, `#D65D0E` button.
+
+**States:**
+- **Error:** If Prefix contains invalid characters, border turns `#CC241D` and error text appears below.
+
+**Components:**
+- **Modal Wrapper:** `#FBF1C7` overlay at 80% opacity, modal centered with 1px `#D5C4A1` border.
+
+**Interactions:**
+- **Click Save:** Modal closes, settings instantly applied to current session.
+
+### Global Tag Dictionary
+
+**Purpose:** Manage global tag standards, configure aliases so variations are automatically handled, and audit tag frequencies across all existing projects.
+
+**Layout:** Two-column split layout: 240px Left Sidebar (Categories/Filters), Fluid Center (DataGrid of tags).
+
+**Key Elements:**
+- **Search/Filter Bar:** Top-anchored input to quickly find specific tags across all datasets.
+- **Tag DataGrid:** Sortable columns for Tag Name, Alias, Global Frequency, and Action (Edit/Merge/Delete).
+
+**States:**
+- **Inline Editing:** Row transitions into an active input state for renaming or setting aliases.
+
+**Components:**
+- **Table Row:** `IBM Plex Mono` for tag names, `#3C3836` text. Hover state uses `#D5C4A1` background.
+
+**Interactions:**
+- **Double-click Row:** Enters Edit Mode to standardize a tag name or configure a specific alias.
+
+</details>
+
+---
+
+<details>
+<summary>Build Guide</summary>
+
+**Stack:** Avalonia / XAML (C#)
+
+**Build Order:**
+1. **Inspector Mode:** Start here. It defines the core UI components (inputs, tags, sidebars, dense typography) and color palette under extreme density. Setup XAML ResourceDictionaries for the Gruvbox tokens. Ensure Enter key auto-advance routing is solid.
+2. **Library Grid:** Reuses the left sidebar from Inspector, introduces the grid layout (ItemsControl/ListBox with WrapPanel or UniformGrid), thumbnail templates with status dots, and handles global keyboard routing for Arrow Keys, `x`, `/`, and `[` / `]`.
+3. **Projects Hub & Global Tag Dictionary:** Establish the global entry points, arbitrary root folder mapping (including auto-discovery), and the DataGrid-based tag manager.
+4. **Project Configuration:** Modal overlay built on top of the established design system.
+
+</details>

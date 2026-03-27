@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Studio Pro Dataset Tagger - Project Configuration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#D65D0E",
+                        "background-light": "#FBF1C7",
+                        "background-dark": "#FBF1C7", // Using Gruvbox Light bg0 as requested
+                        "surface": "#EBDBB2",
+                        "surface-elevated": "#D5C4A1",
+                        "text-main": "#3C3836",
+                        "muted": "#7C6F64",
+                        "accent": "#98971A",
+                        "warning": "#D79921",
+                        "error": "#CC241D",
+                    },
+                    fontFamily: {
+                        "display": ["'IBM Plex Sans'", "sans-serif"],
+                        "mono": ["'IBM Plex Mono'", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "2px",
+                        "lg": "2px",
+                        "xl": "2px",
+                        "full": "2px"
+                    },
+                    borderWidth: {
+                        "DEFAULT": "1px",
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #FBF1C7;
+            color: #3C3836;
+        }
+        .font-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        
+        /* Custom Scrollbar for dense UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #EBDBB2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D5C4A1;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7C6F64;
+        }
+
+        /* Focus rings */
+        input:focus, textarea:focus, select:focus, button:focus-visible {
+            outline: none;
+            border-color: #D65D0E !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body class="bg-background-dark min-h-screen flex items-center justify-center p-4">
+<!-- Background Wash Overlay (80% opacity of #FBF1C7) -->
+<div class="fixed inset-0 bg-[#FBF1C7]/80 z-0"></div>
+<!-- Modal Wrapper -->
+<div class="relative z-10 w-full max-w-[600px] bg-surface border border-[#D5C4A1] rounded shadow-sm flex flex-col max-h-[921px]">
+<!-- Modal Header -->
+<div class="px-6 py-4 border-b border-[#D5C4A1] flex justify-between items-center bg-surface shrink-0">
+<h1 class="text-text-main text-[18px] font-semibold leading-tight tracking-tight">Project Configuration</h1>
+<button aria-label="Close" class="text-muted hover:text-text-main transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="close">close</span>
+</button>
+</div>
+<!-- Scrollable Form Content -->
+<div class="p-6 overflow-y-auto flex flex-col gap-6">
+<!-- Root Folder Selector -->
+<div class="flex flex-col gap-2">
+<label class="text-text-main text-[13px] font-medium leading-normal">Root Folder</label>
+<div class="flex gap-2 items-start">
+<input class="font-mono flex-1 bg-background-dark border border-[#D5C4A1] rounded h-8 px-3 text-[12px] text-text-main placeholder:text-muted focus:border-primary transition-colors" readonly="" type="text" value="C:\Datasets\Cyberpunk_Cityscapes"/>
+<button class="shrink-0 h-8 px-4 bg-surface-elevated border border-[#D5C4A1] hover:border-primary text-text-main text-[12px] font-medium uppercase tracking-[0.5px] rounded transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="folder_open">folder_open</span>
+                        Browse
+                    </button>
+</div>
+<p class="text-[11px] text-muted">Master directory containing workflow stage subfolders.</p>
+</div>
+<!-- AI Model Dropdown -->
+<div class="flex flex-col gap-2">
+<label class="text-text-main text-[13px] font-medium leading-normal">AI Tagging Model</label>
+<div class="relative">
+<select class="w-full appearance-none bg-background-dark border border-[#D5C4A1] rounded h-8 px-3 pr-8 text-[13px] text-text-main focus:border-primary transition-colors cursor-pointer">
+<option>WD14 ViT v2 (Recommended)</option>
+<option>WD14 ConvNext v2</option>
+<option>DeepDanbooru</option>
+<option>CLIP Interrogator</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none text-[18px]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+<!-- Prefix Editor (Error State Example) -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<label class="text-text-main text-[13px] font-medium leading-normal">Global Prefix Tags</label>
+<span class="text-[11px] text-muted font-mono">Comma separated</span>
+</div>
+<!-- Error State Border (#CC241D) -->
+<textarea class="font-mono w-full bg-background-dark border border-error rounded min-h-[64px] p-3 text-[12px] text-text-main resize-y focus:border-error transition-colors">lora_style, masterpiece, best quality, @cyberpunk</textarea>
+<!-- Error Text -->
+<div class="flex items-center gap-1 text-error mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="error">error</span>
+<p class="text-[11px] font-medium">Invalid character detected: '@' is not allowed.</p>
+</div>
+</div>
+<!-- Workflow Stages Builder -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<label class="text-text-main text-[13px] font-medium leading-normal">Workflow Stages</label>
+<span class="text-[11px] text-muted">Drag to reorder</span>
+</div>
+<div class="flex flex-col gap-1 border border-[#D5C4A1] rounded bg-background-dark p-1">
+<!-- Stage Item -->
+<div class="flex items-center gap-2 bg-surface p-1 border border-transparent hover:border-[#D5C4A1] rounded group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-muted text-[16px] cursor-grab active:cursor-grabbing px-1" data-icon="drag_indicator">drag_indicator</span>
+<input class="font-mono flex-1 bg-transparent border-none h-6 px-1 text-[12px] text-text-main focus:bg-background-dark focus:ring-0" type="text" value="01_Inbox"/>
+<button class="text-muted hover:text-error px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Stage Item -->
+<div class="flex items-center gap-2 bg-surface p-1 border border-transparent hover:border-[#D5C4A1] rounded group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-muted text-[16px] cursor-grab active:cursor-grabbing px-1" data-icon="drag_indicator">drag_indicator</span>
+<input class="font-mono flex-1 bg-transparent border-none h-6 px-1 text-[12px] text-text-main focus:bg-background-dark focus:ring-0" type="text" value="02_Review"/>
+<button class="text-muted hover:text-error px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Stage Item -->
+<div class="flex items-center gap-2 bg-surface p-1 border border-transparent hover:border-[#D5C4A1] rounded group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-muted text-[16px] cursor-grab active:cursor-grabbing px-1" data-icon="drag_indicator">drag_indicator</span>
+<input class="font-mono flex-1 bg-transparent border-none h-6 px-1 text-[12px] text-text-main focus:bg-background-dark focus:ring-0" type="text" value="03_Ready"/>
+<button class="text-muted hover:text-error px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Add Stage Button -->
+<button class="flex items-center gap-2 text-muted hover:text-text-main hover:bg-surface-elevated p-1 rounded transition-colors mt-1 text-[12px] font-medium w-full">
+<span class="material-symbols-outlined text-[16px] px-1" data-icon="add">add</span>
+                        Add Stage
+                    </button>
+</div>
+</div>
+<!-- Resolution Target -->
+<div class="flex flex-col gap-2">
+<label class="text-text-main text-[13px] font-medium leading-normal">Resolution Target</label>
+<div class="flex items-center gap-2">
+<div class="relative flex-1 max-w-[120px]">
+<input class="font-mono w-full bg-background-dark border border-[#D5C4A1] rounded h-8 px-3 pr-6 text-[12px] text-text-main text-right focus:border-primary transition-colors" type="text" value="512"/>
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-muted font-mono">W</span>
+</div>
+<span class="text-muted font-mono text-[12px]">x</span>
+<div class="relative flex-1 max-w-[120px]">
+<input class="font-mono w-full bg-background-dark border border-[#D5C4A1] rounded h-8 px-3 pr-6 text-[12px] text-text-main text-right focus:border-primary transition-colors" type="text" value="512"/>
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-muted font-mono">H</span>
+</div>
+<span class="text-[11px] text-muted ml-2">Pixels (Used for final export scaling)</span>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="px-6 py-4 border-t border-[#D5C4A1] flex justify-end items-center gap-3 bg-surface shrink-0">
+<button class="h-8 px-4 text-text-main hover:bg-surface-elevated text-[12px] font-medium uppercase tracking-[0.5px] rounded transition-colors border border-transparent">
+                Cancel
+            </button>
+<button class="h-8 px-6 bg-primary text-background-dark text-[12px] font-medium uppercase tracking-[0.5px] rounded hover:bg-[#b84e0b] transition-colors border border-transparent shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="save">save</span>
+                Save
+            </button>
+</div>
+</div>
+</body></html>

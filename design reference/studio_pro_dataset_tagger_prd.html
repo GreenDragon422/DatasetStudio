@@ -1,0 +1,201 @@
+# Studio Pro Dataset Tagger
+
+## Product Overview
+
+**The Pitch:** A high-density, keyboard-driven desktop environment for rapidly curating and tagging image datasets for AI inference training. It strips away visual clutter in favor of raw speed, enabling machine learning engineers to process thousands of images without moving their hands from the keyboard.
+
+**For:** Machine learning engineers and dataset curators who need maximum throughput and precision over aesthetics.
+
+**Device:** desktop
+
+**Design Direction:** Industrial, warm-toned utilitarianism. High-information density, rigid grid alignments, and a tactile, mechanical feel driven by high-contrast action colors. 
+
+**Inspired by:** Blender, Ableton Live
+
+---
+
+## Screens
+
+- **Projects Hub:** Root dashboard for scanning directories and launching active dataset projects.
+- **Library Grid:** High-density gallery view with asynchronous folder tree navigation.
+- **Inspector Mode:** Focused single-image tagging interface with persistent rapid-entry input.
+- **Project Configuration:** Schema definition, export parameters, and directory mapping.
+- **Global Tag Dictionary:** Centralized tag taxonomy manager mapping base tags to multiple aliases.
+
+---
+
+## Key Flows
+
+**Rapid Sequential Tagging:** Curate a large batch of images.
+1. User is on **Inspector Mode** -> sees `Image preview` and `Active tags list`.
+2. User types `tag_name` and hits `Enter` -> Tag applies, focus remains in input field.
+3. User hits `]` -> Auto-saves tags, advances immediately to the next image in the directory, pre-focusing the input.
+
+**Batch Tag Application:** Apply common traits to a subset of images.
+1. User is on **Library Grid** -> `Shift + Click` selects 15 images.
+2. User hits `+` -> Opens `Batch Tag Input` modal.
+3. User types `outdoor, daylight` and hits `Enter` -> Tags are appended to all 15 text files instantly.
+
+---
+
+<details>
+<summary>Design System</summary>
+
+## Color Palette
+
+- **Primary:** `#D6611B` - Action Orange (Buttons, focus rings, active states)
+- **Background:** `#F9F1C7` - Background Cream (App background, main content area)
+- **Surface:** `#E3D5B5` - Muted Sand (Sidebars, input backgrounds, modal surfaces)
+- **Text:** `#4A453F` - Deep Charcoal (All primary typography, icons)
+- **Muted:** `#9C9284` - Disabled text, subtle borders (Derived from Deep Charcoal)
+- **Accent:** `#D32F2F` - Error Red (Destructive actions, missing files, validation errors)
+
+## Typography
+
+Utilizing the requested utilitarian stack, styled for maximum legibility at small sizes.
+
+- **Headings:** Inter, 700, 18-24px, `-0.5px` tracking
+- **Body:** Roboto Mono, 400, 13px, `1.5` line-height
+- **Small text:** Roboto Mono, 400, 11px, `1.2` line-height
+- **Buttons:** Inter, 600, 12px, uppercase, `0.5px` tracking
+
+**Style notes:** Hard edges (`0px` border radius), heavy `1px` and `2px` solid borders `#4A453F`. Focus states use a rigid `2px` outline in `#D6611B` with `0px` offset. The application should feel like physical machinery control panel.
+
+## Design Tokens
+
+```css
+:root {
+  --color-primary: #D6611B;
+  --color-background: #F9F1C7;
+  --color-surface: #E3D5B5;
+  --color-text: #4A453F;
+  --color-muted: #9C9284;
+  --color-error: #D32F2F;
+  --font-heading: 'Inter', sans-serif;
+  --font-mono: 'Roboto Mono', monospace;
+  --radius: 0px;
+  --spacing: 8px;
+  --border-standard: 1px solid var(--color-text);
+  --border-heavy: 2px solid var(--color-text);
+}
+```
+
+</details>
+
+---
+
+<details>
+<summary>Screen Specifications</summary>
+
+### Projects Hub
+
+**Purpose:** Entry point for selecting or creating new dataset projects via directory auto-discovery.
+
+**Layout:** Centered 800px column on a `#F9F1C7` background. `64px` header.
+
+**Key Elements:**
+- **Auto-Discovery Bar:** `48px` input field, `#E3D5B5` background. Button to right: `SCAN`.
+- **Project List:** Vertical stack of project cards. `1px` `#4A453F` borders.
+- **Stats Block:** Within project card: total images, tagged percentage, last modified date in `11px` Roboto Mono.
+
+**States:**
+- **Empty:** "No projects detected in default directory." displayed in `13px` `#9C9284`.
+- **Loading:** Scanning indicator: rotating ASCII `[` `\` `]` `/` in `#D6611B`.
+
+**Components:**
+- **Project Card:** `100% width`, `80px` height. `#F9F1C7` bg. Hover: `#E3D5B5` bg.
+
+**Interactions:**
+- **Click [Project Card]:** Routes to Library Grid for that project.
+- **Hover [Project Card]:** Background fills `#E3D5B5`, cursor pointer.
+
+### Library Grid
+
+**Purpose:** High-level curation, batch selection, and free folder navigation.
+
+**Layout:** Three-column layout. Left: `240px` folder tree. Center: fluid grid. Right: `280px` context panel.
+
+**Key Elements:**
+- **Project Header:** Top left, absolute positioning. Project name in `18px` Inter, bold. *No numeric prefixes shown in UI*.
+- **Folder Tree:** Vertically scrolling list on `#E3D5B5`. Clicking a folder updates the grid *without* changing the active tagging image.
+- **Image Grid:** `160px` thumbnails. `2px` transparent border. `[Shift + Click]` selects range.
+
+**States:**
+- **Loading:** Skeleton thumbnails in `#E3D5B5`.
+
+**Components:**
+- **Thumbnail:** `160px x 160px` object-fit cover. `1px` bottom border for filename (`11px` Roboto Mono, truncate).
+- **Selection Box:** Active selection renders `2px solid #D6611B` border.
+
+**Interactions:**
+- **Click [Thumbnail]:** Double click launches Inspector Mode on that image.
+- **Press [+] / [-]:** Opens Batch Add/Remove Tag modal when items are selected.
+
+### Inspector Mode
+
+**Purpose:** Rapid, sequential tag review and entry.
+
+**Layout:** Two panes. Left: `70%` image preview. Right: `30%` tagging workspace, `#E3D5B5` background.
+
+**Key Elements:**
+- **Viewport:** Centers the active image. Maximize available space. `#F9F1C7` background.
+- **Tag Input:** Fixed at top of right panel. `40px` height. Permanent focus.
+- **Active Tags List:** Flow layout of existing tags below the input.
+- **Workflow Navigation:** `[` (Previous), `]` (Next) indicators bottom right.
+
+**Components:**
+- **Tag Pill:** `24px` height, `#F9F1C7` background, `1px solid #4A453F`. `[x]` icon on hover.
+- **Autocomplete Dropdown:** Drops down from Tag Input. Highlights match in `#D6611B`.
+
+**Interactions:**
+- **Press [Enter]:** Applies typed tag, clears input. If input is empty, triggers `]` (Next).
+- **Press [ ] ]:** Saves current text file, advances to next image, auto-focuses Tag Input.
+
+### Project Configuration
+
+**Purpose:** Set directory paths, define tagging schemas, and configure export formats.
+
+**Layout:** Centered 600px form layout.
+
+**Key Elements:**
+- **Directory Mapping:** Inputs for `Images Path` and `Tags Path`.
+- **Export Format Toggle:** Radio buttons: `.txt (Booru style)`, `JSON`, `CSV`.
+- **Validation Rule Input:** Text area for required tags or restricted tags.
+
+**Components:**
+- **Input Field:** `40px` height, `#E3D5B5` background, `1px solid #4A453F`. Focus: `2px solid #D6611B`.
+
+### Global Tag Dictionary
+
+**Purpose:** Manage standardized tagging taxonomy across all projects.
+
+**Layout:** Split view. Left: `300px` searchable tag list. Right: Detail and alias configuration pane.
+
+**Key Elements:**
+- **Base Tag List:** Alphabetical list of all known tags.
+- **Alias Manager:** Input field mapped to base tag. E.g., `blonde_hair` accepts aliases `blonde`, `blond`.
+- **Conflict Resolution:** Highlights cyclical aliases in `#D32F2F`.
+
+**Components:**
+- **Alias Tag:** Smaller pill, `20px` height. Dashed border `1px dashed #4A453F`.
+
+**Interactions:**
+- **Press [Delete]:** Removes selected alias.
+
+</details>
+
+---
+
+<details>
+<summary>Build Guide</summary>
+
+**Stack:** HTML + Tailwind CSS v3 + JavaScript (Electron/Tauri target)
+
+**Build Order:**
+1. **Design System & Typography Setup:** Implement the exact color variables and load Inter / Roboto Mono. Ensure global resets force `0px` radius.
+2. **Library Grid:** Build the complex 3-column layout. Implement the folder tree (left) and fluid image grid (center).
+3. **Inspector Mode:** Build the high-density tagging pane. Hook up keyboard event listeners (`Enter`, `[`, `]`, `+`, `-`).
+4. **Global Tag Dictionary:** Build the dual-pane taxonomy manager.
+5. **Projects Hub & Configuration:** Build the entry forms and configuration toggles.
+
+</details>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Studio Pro Dataset Tagger - Projects Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f96b06",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#23170f",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col overflow-hidden">
+<!-- Top Control Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-300 dark:border-[#3a2f27] px-6 py-3 h-16 bg-white dark:bg-[#181411] shrink-0">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="size-6 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] text-slate-900 dark:text-white">Studio Pro</h2>
+</div>
+<div class="h-6 w-px bg-slate-300 dark:bg-[#3a2f27]"></div>
+<label class="flex flex-col min-w-40 w-80 h-9">
+<div class="flex w-full flex-1 items-stretch rounded h-full bg-slate-100 dark:bg-[#27201b] border border-slate-300 dark:border-[#55453a] focus-within:border-primary focus-within:ring-1 focus-within:ring-primary overflow-hidden transition-colors">
+<div class="text-slate-500 dark:text-[#bba89b] flex items-center justify-center pl-3 pr-2">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+</div>
+<input class="w-full bg-transparent border-none text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-0 px-0 placeholder:text-slate-500 dark:placeholder:text-[#bba89b]" placeholder="Master Root Directory (e.g., C:\Datasets\...)" value="D:\AI_Training\Master_Datasets"/>
+<button class="px-3 hover:bg-slate-200 dark:hover:bg-[#3a2f27] transition-colors text-slate-500 dark:text-[#bba89b]">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+</label>
+</div>
+<button class="flex items-center justify-center rounded h-9 px-4 bg-primary hover:bg-primary/90 transition-colors text-white text-sm font-bold tracking-[0.015em]">
+<span class="material-symbols-outlined mr-2 text-[18px]">add</span>
+<span>New Project</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto p-6 flex flex-col">
+<!-- Section Header -->
+<div class="flex items-center justify-between mb-6">
+<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Projects Library</h1>
+<div class="flex items-center gap-2 text-sm text-slate-500 dark:text-[#bba89b]">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+<span>Sort by: Last Modified</span>
+</div>
+</div>
+<!-- Project Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+<!-- Project Card 1 -->
+<button class="text-left flex flex-col rounded bg-white dark:bg-[#1f1a16] border border-slate-300 dark:border-[#3a2f27] hover:border-primary dark:hover:border-primary transition-colors focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary group">
+<div class="p-4 border-b border-slate-100 dark:border-[#2a231e] w-full flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="text-slate-400 dark:text-[#8b7a6b] group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white truncate" title="Cyberpunk_Cityscapes">Cyberpunk_Cityscapes</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-[#55453a] text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="p-4 w-full flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-mono text-slate-500 dark:text-[#8b7a6b] truncate">\cyberpunk_cityscapes\</span>
+<div class="flex justify-between items-end mt-1">
+<span class="text-sm font-medium text-slate-700 dark:text-[#d5c4a1]">1,204 Images</span>
+<span class="text-xs font-bold text-primary">85% Tagged</span>
+</div>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#2a231e] rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</button>
+<!-- Project Card 2 -->
+<button class="text-left flex flex-col rounded bg-white dark:bg-[#1f1a16] border border-slate-300 dark:border-[#3a2f27] hover:border-primary dark:hover:border-primary transition-colors focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary group">
+<div class="p-4 border-b border-slate-100 dark:border-[#2a231e] w-full flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="text-slate-400 dark:text-[#8b7a6b] group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white truncate" title="Mecha_Designs">Mecha_Designs</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-[#55453a] text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="p-4 w-full flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-mono text-slate-500 dark:text-[#8b7a6b] truncate">\mecha_designs\</span>
+<div class="flex justify-between items-end mt-1">
+<span class="text-sm font-medium text-slate-700 dark:text-[#d5c4a1]">850 Images</span>
+<span class="text-xs font-bold text-primary">42% Tagged</span>
+</div>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#2a231e] rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 42%"></div>
+</div>
+</div>
+</button>
+<!-- Project Card 3 -->
+<button class="text-left flex flex-col rounded bg-white dark:bg-[#1f1a16] border border-slate-300 dark:border-[#3a2f27] hover:border-primary dark:hover:border-primary transition-colors focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary group">
+<div class="p-4 border-b border-slate-100 dark:border-[#2a231e] w-full flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="text-slate-400 dark:text-[#8b7a6b] group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white truncate" title="Vintage_Posters">Vintage_Posters</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-[#55453a] text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="p-4 w-full flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-mono text-slate-500 dark:text-[#8b7a6b] truncate">\vintage_posters\</span>
+<div class="flex justify-between items-end mt-1">
+<span class="text-sm font-medium text-slate-700 dark:text-[#d5c4a1]">3,402 Images</span>
+<span class="text-xs font-bold text-primary">12% Tagged</span>
+</div>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#2a231e] rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 12%"></div>
+</div>
+</div>
+</button>
+<!-- Project Card 4 (Complete) -->
+<button class="text-left flex flex-col rounded bg-white dark:bg-[#1f1a16] border border-slate-300 dark:border-[#3a2f27] hover:border-primary dark:hover:border-primary transition-colors focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary group">
+<div class="p-4 border-b border-slate-100 dark:border-[#2a231e] w-full flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="text-green-600 dark:text-green-500 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white truncate" title="Anime_Backgrounds">Anime_Backgrounds</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-[#55453a] text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="p-4 w-full flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-mono text-slate-500 dark:text-[#8b7a6b] truncate">\anime_backgrounds\</span>
+<div class="flex justify-between items-end mt-1">
+<span class="text-sm font-medium text-slate-700 dark:text-[#d5c4a1]">512 Images</span>
+<span class="text-xs font-bold text-green-600 dark:text-green-500">100% Ready</span>
+</div>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#2a231e] rounded-full h-1.5 overflow-hidden">
+<div class="bg-green-600 dark:bg-green-500 h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</button>
+<!-- Create New Project Placeholder Card -->
+<button class="text-left flex flex-col items-center justify-center rounded bg-transparent border-2 border-dashed border-slate-300 dark:border-[#3a2f27] hover:border-primary dark:hover:border-primary hover:bg-primary/5 transition-colors focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary group min-h-[160px]">
+<span class="material-symbols-outlined text-slate-400 dark:text-[#55453a] group-hover:text-primary text-[32px] mb-2">add_circle</span>
+<span class="text-sm font-bold text-slate-500 dark:text-[#8b7a6b] group-hover:text-primary">Create Empty Project</span>
+</button>
+</div>
+</main>
+<!-- Bottom Command Terminal -->
+<footer class="h-8 bg-slate-900 dark:bg-black border-t border-slate-700 dark:border-[#3a2f27] flex items-center px-4 shrink-0 font-mono text-sm">
+<span class="text-primary font-bold mr-2">&gt;_</span>
+<input class="flex-1 bg-transparent border-none text-slate-300 dark:text-[#d5c4a1] focus:outline-none focus:ring-0 p-0" placeholder="Enter command (e.g., 'scan root', 'new project')..." type="text"/>
+</footer>
+</body></html>

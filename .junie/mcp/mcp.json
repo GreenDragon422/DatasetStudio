@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "dataset-studio": {
+      "url": "http://127.0.0.1:2456/mcp/dataset-studio"
+    }
+  }
+}
