@@ -305,6 +305,126 @@ Key routing rules:
 - In Inspector Mode, any letter key auto-focuses the tag input (requirement 3.6). Arrow keys navigate images. `[`/`]` move the current image between stages. `Delete` recycles the current image.
 - The `HintBar` content updates reactively based on `CurrentScreen` and `IsTextInputFocused` state.
 
+### Keyboard Shortcut Reference Per Screen
+
+Each screen exposes a `HintText` string property on its ViewModel. The `HintBar` displays this text in IBM Plex Mono at the bottom of every screen. The text updates reactively when context changes (e.g., a popup opens, a TextBox gains focus). The exact strings below are the canonical HintBar content for each screen state.
+
+#### Projects Hub
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| `Enter` | Open selected project | `Enter: Open` |
+| `↑` `↓` | Navigate project cards | `↑↓: Navigate` |
+| `N` | New project | `N: New Project` |
+
+**HintBar default:** `↑↓: Navigate  Enter: Open  N: New Project`
+
+#### Library Grid — Grid Focused (no TextBox, no popup)
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| `↑` `↓` `←` `→` | Navigate thumbnails | `←↑↓→: Navigate` |
+| `x` | Toggle selection on focused image | `X: Select` |
+| `+` | Open Batch Add popup | `+: Batch Add` |
+| `-` | Open Batch Remove popup | `-: Batch Remove` |
+| `[` | Move selected image(s) to previous stage | `[: Move Prev` |
+| `]` | Move selected image(s) to next stage | `]: Move Next` |
+| `Alt+[` | Navigate to previous stage folder | `Alt+[: Prev Folder` |
+| `Alt+]` | Navigate to next stage folder | `Alt+]: Next Folder` |
+| `Delete` | Recycle selected image(s) | `Del: Delete` |
+| `/` | Focus Quick Filter bar | `/: Filter` |
+| `Enter` or double-click | Open image in Inspector Mode | `Enter: Inspect` |
+| `Ctrl+Shift+C` | Copy tag set of focused image | `Ctrl+Shift+C: Copy Tags` |
+| `Ctrl+Shift+V` | Paste tag set onto focused image | `Ctrl+Shift+V: Paste Tags` |
+| `Escape` | Unfocus TextBox / return to grid | `Esc: Back` |
+
+**HintBar default:** `←↑↓→: Navigate  X: Select  +: Add  -: Remove  []: Move  Del: Delete  /: Filter  Enter: Inspect`
+
+#### Library Grid — Batch Add Popup Open
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| Type text | Filter/search tags | _(implicit)_ |
+| `Enter` | Commit selected tag to batch | `Enter: Apply Tag` |
+| `↑` `↓` | Navigate autocomplete suggestions | `↑↓: Navigate` |
+| `Escape` | Close popup | `Esc: Cancel` |
+
+**HintBar:** `↑↓: Navigate  Enter: Apply Tag  Esc: Cancel`
+
+#### Library Grid — Batch Remove Popup Open
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| `↑` `↓` | Navigate tag list | `↑↓: Navigate` |
+| `Enter` | Remove selected tag from batch | `Enter: Remove Tag` |
+| `Escape` | Close popup | `Esc: Cancel` |
+
+**HintBar:** `↑↓: Navigate  Enter: Remove Tag  Esc: Cancel`
+
+#### Library Grid — Quick Filter Focused
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| Type text | Filter images by tag content | _(implicit)_ |
+| `Escape` | Clear filter and return focus to grid | `Esc: Clear & Back` |
+
+**HintBar:** `Type to filter  Esc: Clear & Back`
+
+#### Inspector Mode — Tag Input Focused (default state)
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| Type text | Enter tag text (auto-suggest active) | _(implicit)_ |
+| `Enter` | Commit tag, auto-advance to next untagged | `Enter: Commit Tag` |
+| `↑` `↓` | Navigate auto-suggest dropdown | `↑↓: Suggestions` |
+| `Escape` | Navigate back to Library Grid | `Esc: Back to Grid` |
+
+**HintBar:** `Enter: Commit & Next  ↑↓: Suggestions  Esc: Back to Grid`
+
+#### Inspector Mode — Image Navigation (tag input not focused)
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| `←` | Previous image | `←: Prev Image` |
+| `→` | Next image | `→: Next Image` |
+| `[` | Move image to previous stage | `[: Move Prev` |
+| `]` | Move image to next stage | `]: Move Next` |
+| `Delete` | Recycle current image | `Del: Delete` |
+| `Ctrl+Shift+C` | Copy tag set | `Ctrl+Shift+C: Copy Tags` |
+| `Ctrl+Shift+V` | Paste tag set | `Ctrl+Shift+V: Paste Tags` |
+| Any letter | Auto-focus tag input | _(implicit)_ |
+| `Escape` | Navigate back to Library Grid | `Esc: Back to Grid` |
+
+**HintBar:** `←→: Navigate  []: Move Stage  Del: Delete  Type: Tag  Esc: Back to Grid`
+
+> **Note:** In Inspector Mode, the tag input has persistent focus by default (requirement 3.6). The "image navigation" state only applies when the user explicitly clicks outside the tag input or when the auto-suggest popup is dismissed. Any letter key immediately re-focuses the tag input.
+
+#### Tag Dictionary
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| `/` | Focus search bar | `/: Search` |
+| `↑` `↓` | Navigate DataGrid rows | `↑↓: Navigate` |
+| `Enter` | Edit selected row (inline) | `Enter: Edit` |
+| `Delete` | Delete selected tag | `Del: Delete` |
+| `Escape` | Exit edit mode / unfocus search | `Esc: Cancel` |
+
+**HintBar default:** `↑↓: Navigate  /: Search  Enter: Edit  Del: Delete`
+
+#### Project Configuration Modal
+
+| Key | Action | HintBar Label |
+|---|---|---|
+| `Tab` | Move between form fields | `Tab: Next Field` |
+| `Enter` | Save and close (when Save button focused) | `Enter: Save` |
+| `Escape` | Cancel and close modal | `Esc: Cancel` |
+
+**HintBar:** `Tab: Next Field  Enter: Save  Esc: Cancel`
+
+### HintBar Implementation Rule
+
+Each ViewModel MUST expose a `HintText` string property (via `[ObservableProperty]`) that returns the exact HintBar string for the current screen state. When context changes (popup opens, TextBox gains/loses focus, screen switches), the ViewModel MUST update `HintText` to reflect the new available shortcuts. The HintBar control binds to this property and renders it in IBM Plex Mono 12px on a 24px-height bar.
+
 ## Data Models
 
 ### Core Models
