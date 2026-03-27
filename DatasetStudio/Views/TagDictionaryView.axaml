@@ -44,6 +44,7 @@
                     <TextBlock Text="Categories"
                                Classes="heading-medium" />
                     <ListBox ItemsSource="{Binding Categories}"
+                             Classes="category-list"
                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
                 </StackPanel>
             </Border>

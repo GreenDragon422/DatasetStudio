@@ -27,9 +27,8 @@
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding ProjectName}"
                                Classes="heading-medium" />
-                    <TextBlock Text="Library Grid · batch review, folder staging, and multi-image tag operations."
-                               Classes="mono"
-                               Foreground="{DynamicResource BrushMuted}"
+                    <TextBlock Text="Review Workspace · choose a workflow stage, review staged images, filter by tags, and prepare batch tag edits."
+                               Classes="mono screen-subtitle"
                                TextWrapping="Wrap" />
                 </StackPanel>
 
@@ -57,8 +56,18 @@
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
               ColumnSpacing="16">
-            <controls:WorkflowStageList ItemsSource="{Binding Stages}"
-                                        SelectedItem="{Binding ActiveStage, Mode=TwoWay}" />
+            <Grid RowDefinitions="Auto,Auto,*"
+                  RowSpacing="8">
+                <TextBlock Text="Workflow stages"
+                           Classes="heading-medium" />
+                <TextBlock Grid.Row="1"
+                           Text="Pick the current folder/stage to review or retag."
+                           Classes="mono screen-subtitle"
+                           TextWrapping="Wrap" />
+                <controls:WorkflowStageList Grid.Row="2"
+                                            ItemsSource="{Binding Stages}"
+                                            SelectedItem="{Binding ActiveStage, Mode=TwoWay}" />
+            </Grid>
 
             <Grid Grid.Column="1"
                   RowDefinitions="*,Auto"

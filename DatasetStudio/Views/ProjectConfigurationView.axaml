@@ -20,9 +20,8 @@
             <TextBlock Text="Project Configuration"
                        Classes="heading-large" />
             <TextBlock Text="Update the project folder, AI model, prefix tags, and workflow stages."
-                       Classes="mono"
-                       TextWrapping="Wrap"
-                       Foreground="{DynamicResource BrushMuted}" />
+                       Classes="mono screen-subtitle"
+                       TextWrapping="Wrap" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -35,6 +34,7 @@
                         <Grid ColumnDefinitions="136,*"
                               ColumnSpacing="12">
                             <TextBlock Text="Project name"
+                                       Classes="form-label"
                                        VerticalAlignment="Center" />
                             <TextBox x:Name="ProjectNameTextBox"
                                      Grid.Column="1"
@@ -46,6 +46,7 @@
                               ColumnDefinitions="136,*,Auto"
                               ColumnSpacing="12">
                             <TextBlock Text="Root folder"
+                                       Classes="form-label"
                                        VerticalAlignment="Center" />
                             <TextBox x:Name="RootFolderPathTextBox"
                                      Grid.Column="1"
@@ -60,6 +61,7 @@
                               ColumnDefinitions="136,*"
                               ColumnSpacing="12">
                             <TextBlock Text="AI model"
+                                       Classes="form-label"
                                        VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1"
                                       MinWidth="0"
@@ -83,7 +85,8 @@
 
                         <StackPanel Grid.Row="3"
                                     Spacing="6">
-                            <TextBlock Text="Prefix tags" />
+                            <TextBlock Text="Prefix tags"
+                                       Classes="form-label" />
                             <Border Classes="prefix-tags-frame"
                                     Classes.error="{Binding HasPrefixTagsError}"
                                     Padding="0">
