@@ -9,15 +9,6 @@ namespace DatasetStudio.Services;
 
 public class FileSystemService : IFileSystemService
 {
-    private static readonly HashSet<string> SupportedImageExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".webp",
-        ".bmp",
-    };
-
     public Task<IReadOnlyList<string>> DiscoverProjectFoldersAsync(string masterRootPath)
     {
         if (!Directory.Exists(masterRootPath))
@@ -43,7 +34,7 @@ public class FileSystemService : IFileSystemService
 
         List<string> imageFiles = Directory
             .EnumerateFiles(folderPath)
-            .Where(filePath => SupportedImageExtensions.Contains(Path.GetExtension(filePath)))
+            .Where(ImageFileTypeRules.IsSupportedImagePath)
             .OrderBy(filePath => filePath, StringComparer.OrdinalIgnoreCase)
             .ToList();
 

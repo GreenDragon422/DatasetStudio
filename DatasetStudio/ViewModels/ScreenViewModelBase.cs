@@ -8,4 +8,12 @@ public abstract partial class ScreenViewModelBase : ViewModelBase
         : base(messenger)
     {
     }
+
+    public virtual void OnScreenActivated()
+    {
+    }
+
+    public virtual void OnScreenDeactivated()
+    {
+    }
 }

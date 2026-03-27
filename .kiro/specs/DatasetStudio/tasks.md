@@ -409,12 +409,13 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-27): Review Workspace and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Library Grid also now loads the shared AI model registry into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 2.21, 3.13_
 
-- [ ] 41. Wire FileSystemWatcher for live updates
-  - [ ] 41.1 On project open — start FileSystemWatcher on project root via IFileSystemService.WatchFolder
-  - [ ] 41.2 On folder structure change (subfolder add/remove/rename) — refresh WorkflowStage list in sidebar
-  - [ ] 41.3 On file change in active folder (image add/remove) — refresh image list in LibraryGrid
-  - [ ] 41.4 On source image modification — invalidate thumbnail cache via IThumbnailCacheService.InvalidateAsync
-  - [ ] 41.5 On project close/switch — dispose previous FileSystemWatcher
+- [x] 41. Wire FileSystemWatcher for live updates
+  - [x] 41.1 On project open — start FileSystemWatcher on project root via IFileSystemService.WatchFolder
+  - [x] 41.2 On folder structure change (subfolder add/remove/rename) — refresh WorkflowStage list in sidebar
+  - [x] 41.3 On file change in active folder (image add/remove) — refresh image list in LibraryGrid
+  - [x] 41.4 On source image modification — invalidate thumbnail cache via IThumbnailCacheService.InvalidateAsync
+  - [x] 41.5 On project close/switch — dispose previous FileSystemWatcher
+  - Progress note (2026-03-28): Review Workspace and Inspector Mode now attach debounced project-root watchers while active, refresh stage and image state on folder/image/tag/config changes, and detach those watchers again through the shared screen activation lifecycle when navigation moves away. Review Workspace also invalidates changed image thumbnails before reloading. Coverage was expanded with screen activation tests plus watcher-driven stage/image refresh tests in both viewmodel suites, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 15.3, 15.5_
 
 - [ ] 42. Final integration checkpoint

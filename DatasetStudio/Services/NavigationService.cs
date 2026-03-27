@@ -53,7 +53,12 @@ public class NavigationService : INavigationService
             return;
         }
 
-        mainWindowViewModel.CurrentView = backStack.Pop();
+        ScreenViewModelBase? currentViewModel = mainWindowViewModel.CurrentView;
+        currentViewModel?.OnScreenDeactivated();
+
+        ScreenViewModelBase previousViewModel = backStack.Pop();
+        mainWindowViewModel.CurrentView = previousViewModel;
+        previousViewModel.OnScreenActivated();
     }
 
     private void NavigateToCore(ScreenViewModelBase nextViewModel)
@@ -65,9 +70,11 @@ public class NavigationService : INavigationService
 
         if (mainWindowViewModel.CurrentView is not null)
         {
+            mainWindowViewModel.CurrentView.OnScreenDeactivated();
             backStack.Push(mainWindowViewModel.CurrentView);
         }
 
         mainWindowViewModel.CurrentView = nextViewModel;
+        nextViewModel.OnScreenActivated();
     }
 }

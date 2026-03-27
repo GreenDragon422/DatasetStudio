@@ -13,8 +13,22 @@ public sealed class TestScreenViewModel : ScreenViewModelBase, INavigationAware
 
     public object? LastNavigationParameter { get; private set; }
 
+    public int ActivationCount { get; private set; }
+
+    public int DeactivationCount { get; private set; }
+
     public void OnNavigatedTo(object parameter)
     {
         LastNavigationParameter = parameter;
+    }
+
+    public override void OnScreenActivated()
+    {
+        ActivationCount++;
+    }
+
+    public override void OnScreenDeactivated()
+    {
+        DeactivationCount++;
     }
 }

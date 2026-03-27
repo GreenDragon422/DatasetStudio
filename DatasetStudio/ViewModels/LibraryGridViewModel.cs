@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
@@ -27,10 +28,14 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     private readonly IMessenger messenger;
     private readonly IStatePersistenceService statePersistenceService;
     private readonly List<LibraryGridImageViewModel> allImages;
+    private readonly object projectWatcherStateGate;
 
     private Project? currentProject;
+    private FileSystemWatcher? projectWatcher;
+    private CancellationTokenSource? projectWatcherRefreshCancellationSource;
     private bool isIgnoringInternalImageMovedMessages;
     private bool isRestoringPersistedProjectState;
+    private HashSet<string> pendingThumbnailInvalidationPaths;
 
     public LibraryGridViewModel(
         IFileSystemService fileSystemService,
@@ -57,6 +62,8 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
         allImages = new List<LibraryGridImageViewModel>();
+        projectWatcherStateGate = new object();
+        pendingThumbnailInvalidationPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         Stages = new ObservableCollection<LibraryGridStageViewModel>();
         Images = new ObservableCollection<LibraryGridImageViewModel>();
         SelectedImages = new ObservableCollection<LibraryGridImageViewModel>();
@@ -157,6 +164,16 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         ProjectName = string.IsNullOrWhiteSpace(project.Name) ? Path.GetFileName(project.RootFolderPath) : project.Name;
         StatusText = string.Format("Loading library for {0}...", ProjectName);
         _ = RestoreProjectStateAndLoadAsync(project);
+    }
+
+    public override void OnScreenActivated()
+    {
+        ConfigureProjectWatcher();
+    }
+
+    public override void OnScreenDeactivated()
+    {
+        DetachProjectWatcher();
     }
 
     [RelayCommand]
@@ -791,6 +808,171 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         {
             isRestoringPersistedProjectState = false;
         }
+    }
+
+    private void ConfigureProjectWatcher()
+    {
+        DetachProjectWatcher();
+
+        if (currentProject is null || string.IsNullOrWhiteSpace(currentProject.RootFolderPath) || !Directory.Exists(currentProject.RootFolderPath))
+        {
+            return;
+        }
+
+        FileSystemWatcher fileSystemWatcher = fileSystemService.WatchFolder(currentProject.RootFolderPath);
+        fileSystemWatcher.Changed += OnProjectWatcherChanged;
+        fileSystemWatcher.Created += OnProjectWatcherChanged;
+        fileSystemWatcher.Deleted += OnProjectWatcherChanged;
+        fileSystemWatcher.Renamed += OnProjectWatcherRenamed;
+        fileSystemWatcher.EnableRaisingEvents = true;
+        projectWatcher = fileSystemWatcher;
+    }
+
+    private void DetachProjectWatcher()
+    {
+        projectWatcherRefreshCancellationSource?.Cancel();
+        projectWatcherRefreshCancellationSource?.Dispose();
+        projectWatcherRefreshCancellationSource = null;
+
+        lock (projectWatcherStateGate)
+        {
+            pendingThumbnailInvalidationPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        if (projectWatcher is null)
+        {
+            return;
+        }
+
+        projectWatcher.Changed -= OnProjectWatcherChanged;
+        projectWatcher.Created -= OnProjectWatcherChanged;
+        projectWatcher.Deleted -= OnProjectWatcherChanged;
+        projectWatcher.Renamed -= OnProjectWatcherRenamed;
+        projectWatcher.Dispose();
+        projectWatcher = null;
+    }
+
+    private void OnProjectWatcherChanged(object? sender, FileSystemEventArgs eventArgs)
+    {
+        _ = sender;
+        QueueProjectWatcherRefresh(eventArgs.FullPath);
+    }
+
+    private void OnProjectWatcherRenamed(object? sender, RenamedEventArgs eventArgs)
+    {
+        _ = sender;
+        QueueProjectWatcherRefresh(eventArgs.OldFullPath, eventArgs.FullPath);
+    }
+
+    private void QueueProjectWatcherRefresh(params string?[] fullPaths)
+    {
+        if (currentProject is null || string.IsNullOrWhiteSpace(currentProject.RootFolderPath))
+        {
+            return;
+        }
+
+        bool shouldRefresh = false;
+
+        lock (projectWatcherStateGate)
+        {
+            foreach (string? fullPath in fullPaths)
+            {
+                if (!ShouldReactToProjectChange(fullPath))
+                {
+                    continue;
+                }
+
+                shouldRefresh = true;
+
+                if (!string.IsNullOrWhiteSpace(fullPath) && ImageFileTypeRules.IsSupportedImagePath(fullPath))
+                {
+                    pendingThumbnailInvalidationPaths.Add(fullPath);
+                }
+            }
+        }
+
+        if (!shouldRefresh)
+        {
+            return;
+        }
+
+        projectWatcherRefreshCancellationSource?.Cancel();
+        projectWatcherRefreshCancellationSource?.Dispose();
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        projectWatcherRefreshCancellationSource = cancellationTokenSource;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(350, cancellationTokenSource.Token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+
+            await RefreshFromProjectWatcherAsync().ConfigureAwait(false);
+        });
+    }
+
+    private bool ShouldReactToProjectChange(string? fullPath)
+    {
+        if (currentProject is null || string.IsNullOrWhiteSpace(fullPath))
+        {
+            return false;
+        }
+
+        string relativePath = Path.GetRelativePath(currentProject.RootFolderPath, fullPath);
+        if (relativePath.StartsWith("..", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(relativePath, ".datasetstudio.json", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (ImageFileTypeRules.IsSupportedImagePath(fullPath))
+        {
+            return true;
+        }
+
+        if (string.Equals(Path.GetExtension(fullPath), ".txt", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        string[] pathSegments = relativePath
+            .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+
+        return pathSegments.Length > 0 && string.IsNullOrWhiteSpace(Path.GetExtension(fullPath));
+    }
+
+    private async Task RefreshFromProjectWatcherAsync()
+    {
+        HashSet<string> thumbnailPathsToInvalidate;
+
+        lock (projectWatcherStateGate)
+        {
+            thumbnailPathsToInvalidate = pendingThumbnailInvalidationPaths;
+            pendingThumbnailInvalidationPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        foreach (string thumbnailPath in thumbnailPathsToInvalidate)
+        {
+            await thumbnailCacheService.InvalidateAsync(thumbnailPath).ConfigureAwait(true);
+        }
+
+        if (currentProject is null)
+        {
+            return;
+        }
+
+        await LoadStagesCoreAsync().ConfigureAwait(true);
+        StatusText = string.Format("Detected on-disk changes in {0}.", ProjectName);
     }
 
     private Task PersistCurrentProjectStateAsync()

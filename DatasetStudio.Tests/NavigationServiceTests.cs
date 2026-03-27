@@ -25,6 +25,7 @@ public class NavigationServiceTests
 
         Assert.That(mainWindowViewModel.CurrentView, Is.TypeOf<TestScreenViewModel>());
         Assert.That(((TestScreenViewModel)mainWindowViewModel.CurrentView!).LastNavigationParameter, Is.SameAs(navigationParameter));
+        Assert.That(((TestScreenViewModel)mainWindowViewModel.CurrentView!).ActivationCount, Is.EqualTo(1));
     }
 
     [Test]
@@ -47,6 +48,10 @@ public class NavigationServiceTests
         navigationService.GoBack();
 
         Assert.That(mainWindowViewModel.CurrentView, Is.SameAs(firstScreenViewModel));
+        Assert.That(((TestScreenViewModel)firstScreenViewModel).ActivationCount, Is.EqualTo(2));
+        Assert.That(((TestScreenViewModel)firstScreenViewModel).DeactivationCount, Is.EqualTo(1));
+        Assert.That(((TestScreenViewModel)secondScreenViewModel).ActivationCount, Is.EqualTo(1));
+        Assert.That(((TestScreenViewModel)secondScreenViewModel).DeactivationCount, Is.EqualTo(1));
     }
 
     private static ServiceProvider CreateServiceProvider(StrongReferenceMessenger messenger)

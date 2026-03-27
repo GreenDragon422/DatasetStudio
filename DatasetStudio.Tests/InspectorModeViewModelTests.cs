@@ -48,6 +48,53 @@ public class InspectorModeViewModelTests
     }
 
     [Test]
+    public async Task ProjectWatcher_ActiveFolderChange_RefreshesImageList_AndKeepsCurrentImage()
+    {
+        InspectorTestProjectContext testProjectContext = await CreateProjectContextAsync().ConfigureAwait(false);
+
+        InspectorModeViewModel viewModel = CreateViewModel(testProjectContext);
+        viewModel.OnNavigatedTo(testProjectContext.Project);
+        viewModel.OnScreenActivated();
+
+        await WaitForConditionAsync(() => viewModel.CurrentImage is not null && viewModel.ImageList.Count == 2).ConfigureAwait(false);
+
+        string reviewFolderPath = Path.GetDirectoryName(testProjectContext.CatImagePath) ?? string.Empty;
+        string birdImagePath = Path.Combine(reviewFolderPath, "bird.png");
+        await File.WriteAllBytesAsync(birdImagePath, TinyPngBytes).ConfigureAwait(false);
+
+        await WaitForConditionAsync(() =>
+            viewModel.ImageList.Count == 3
+            && viewModel.CurrentImage is not null
+            && string.Equals(viewModel.CurrentImage.FilePath, testProjectContext.CatImagePath, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+
+        Assert.That(viewModel.ImageList.Select(image => image.FilePath), Does.Contain(birdImagePath));
+        Assert.That(viewModel.CurrentImage?.FilePath, Is.EqualTo(testProjectContext.CatImagePath));
+
+        viewModel.OnScreenDeactivated();
+    }
+
+    [Test]
+    public async Task ProjectWatcher_FolderStructureChange_RefreshesStages()
+    {
+        InspectorTestProjectContext testProjectContext = await CreateProjectContextAsync().ConfigureAwait(false);
+
+        InspectorModeViewModel viewModel = CreateViewModel(testProjectContext);
+        viewModel.OnNavigatedTo(testProjectContext.Project);
+        viewModel.OnScreenActivated();
+
+        await WaitForConditionAsync(() => viewModel.Stages.Count == 1).ConfigureAwait(false);
+
+        string trainFolderPath = Path.Combine(testProjectContext.Project.RootFolderPath, "03_Train");
+        Directory.CreateDirectory(trainFolderPath);
+
+        await WaitForConditionAsync(() => viewModel.Stages.Any(stage => string.Equals(stage.FolderName, "03_Train", StringComparison.OrdinalIgnoreCase))).ConfigureAwait(false);
+
+        Assert.That(viewModel.Stages.Select(stage => stage.FolderName), Does.Contain("03_Train"));
+
+        viewModel.OnScreenDeactivated();
+    }
+
+    [Test]
     public async Task CommitTagCommand_ResolvesAliasPersistsTagAndAdvancesToNextPendingImage()
     {
         InspectorTestProjectContext testProjectContext = await CreateProjectContextAsync().ConfigureAwait(false);
@@ -188,7 +235,7 @@ public class InspectorModeViewModelTests
 
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
-        for (int attempt = 0; attempt < 100; attempt++)
+        for (int attempt = 0; attempt < 300; attempt++)
         {
             if (condition())
             {

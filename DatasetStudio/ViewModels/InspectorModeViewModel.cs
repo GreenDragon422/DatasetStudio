@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
@@ -26,6 +27,8 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
     private readonly IStatePersistenceService statePersistenceService;
 
     private Project? currentProject;
+    private FileSystemWatcher? projectWatcher;
+    private CancellationTokenSource? projectWatcherRefreshCancellationSource;
     private bool isSynchronizingStageSelection;
     private bool isIgnoringNextImageMovedMessage;
     private bool isRestoringPersistedProjectState;
@@ -134,6 +137,16 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             : string.Join(", ", project.PrefixTags);
         StatusText = string.Format("Loading Inspector Mode for {0}...", ProjectName);
         _ = RestoreProjectStateAndLoadAsync(project);
+    }
+
+    public override void OnScreenActivated()
+    {
+        ConfigureProjectWatcher();
+    }
+
+    public override void OnScreenDeactivated()
+    {
+        DetachProjectWatcher();
     }
 
     partial void OnActiveStageChanged(LibraryGridStageViewModel? value)
@@ -545,6 +558,144 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         {
             isRestoringPersistedProjectState = false;
         }
+    }
+
+    private void ConfigureProjectWatcher()
+    {
+        DetachProjectWatcher();
+
+        if (currentProject is null || string.IsNullOrWhiteSpace(currentProject.RootFolderPath) || !Directory.Exists(currentProject.RootFolderPath))
+        {
+            return;
+        }
+
+        FileSystemWatcher fileSystemWatcher = fileSystemService.WatchFolder(currentProject.RootFolderPath);
+        fileSystemWatcher.Changed += OnProjectWatcherChanged;
+        fileSystemWatcher.Created += OnProjectWatcherChanged;
+        fileSystemWatcher.Deleted += OnProjectWatcherChanged;
+        fileSystemWatcher.Renamed += OnProjectWatcherRenamed;
+        fileSystemWatcher.EnableRaisingEvents = true;
+        projectWatcher = fileSystemWatcher;
+    }
+
+    private void DetachProjectWatcher()
+    {
+        projectWatcherRefreshCancellationSource?.Cancel();
+        projectWatcherRefreshCancellationSource?.Dispose();
+        projectWatcherRefreshCancellationSource = null;
+
+        if (projectWatcher is null)
+        {
+            return;
+        }
+
+        projectWatcher.Changed -= OnProjectWatcherChanged;
+        projectWatcher.Created -= OnProjectWatcherChanged;
+        projectWatcher.Deleted -= OnProjectWatcherChanged;
+        projectWatcher.Renamed -= OnProjectWatcherRenamed;
+        projectWatcher.Dispose();
+        projectWatcher = null;
+    }
+
+    private void OnProjectWatcherChanged(object? sender, FileSystemEventArgs eventArgs)
+    {
+        _ = sender;
+
+        if (!ShouldReactToProjectChange(eventArgs.FullPath))
+        {
+            return;
+        }
+
+        QueueProjectWatcherRefresh();
+    }
+
+    private void OnProjectWatcherRenamed(object? sender, RenamedEventArgs eventArgs)
+    {
+        _ = sender;
+
+        if (!ShouldReactToProjectChange(eventArgs.OldFullPath) && !ShouldReactToProjectChange(eventArgs.FullPath))
+        {
+            return;
+        }
+
+        QueueProjectWatcherRefresh();
+    }
+
+    private bool ShouldReactToProjectChange(string? fullPath)
+    {
+        if (currentProject is null || string.IsNullOrWhiteSpace(fullPath))
+        {
+            return false;
+        }
+
+        string relativePath = Path.GetRelativePath(currentProject.RootFolderPath, fullPath);
+        if (relativePath.StartsWith("..", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(relativePath, ".datasetstudio.json", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (ImageFileTypeRules.IsSupportedImagePath(fullPath))
+        {
+            return true;
+        }
+
+        if (string.Equals(Path.GetExtension(fullPath), ".txt", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        string[] pathSegments = relativePath
+            .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+
+        return pathSegments.Length > 0 && string.IsNullOrWhiteSpace(Path.GetExtension(fullPath));
+    }
+
+    private void QueueProjectWatcherRefresh()
+    {
+        if (currentProject is null || string.IsNullOrWhiteSpace(currentProject.RootFolderPath))
+        {
+            return;
+        }
+
+        projectWatcherRefreshCancellationSource?.Cancel();
+        projectWatcherRefreshCancellationSource?.Dispose();
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        projectWatcherRefreshCancellationSource = cancellationTokenSource;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(350, cancellationTokenSource.Token).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+
+            await RefreshFromProjectWatcherAsync().ConfigureAwait(false);
+        });
+    }
+
+    private async Task RefreshFromProjectWatcherAsync()
+    {
+        if (currentProject is null)
+        {
+            return;
+        }
+
+        string? preferredStageFolderName = ActiveStage?.FolderName ?? currentProject.State.ActiveStageFolderName;
+        string? preferredImagePath = CurrentImage?.FilePath ?? currentProject.State.LastInspectedImagePath;
+        int? preferredIndex = CurrentIndex >= 0 ? CurrentIndex : null;
+
+        await LoadStagesAsync(preferredStageFolderName, preferredImagePath, preferredIndex).ConfigureAwait(true);
+        StatusText = string.Format("Detected on-disk changes in {0}.", ProjectName);
     }
 
     private Task PersistCurrentProjectStateAsync()

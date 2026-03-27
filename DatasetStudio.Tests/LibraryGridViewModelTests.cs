@@ -352,6 +352,191 @@ public class LibraryGridViewModelTests
     }
 
     [Test]
+    public async Task OnScreenActivated_StartsProjectWatcher_AndOnScreenDeactivated_DisposesIt()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestThumbnailCacheService thumbnailCacheService = new TestThumbnailCacheService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService();
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            thumbnailCacheService,
+            new TestClipboardService(),
+            new TestNavigationService(),
+            aiTaggerService,
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine(Path.GetTempPath(), "DatasetStudioWatcherLifecycle", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(projectRootPath);
+
+        Project project = new Project
+        {
+            Id = "project-watch-1",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+        viewModel.OnScreenActivated();
+
+        await WaitForConditionAsync(() => fileSystemService.Watchers.Count == 1).ConfigureAwait(false);
+
+        TestFileSystemWatcher watcher = fileSystemService.Watchers[0];
+        Assert.That(watcher.EnableRaisingEvents, Is.True);
+
+        viewModel.OnScreenDeactivated();
+
+        Assert.That(watcher.IsDisposed, Is.True);
+    }
+
+    [Test]
+    public async Task ProjectWatcher_FolderStructureChange_RefreshesWorkflowStages()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestThumbnailCacheService thumbnailCacheService = new TestThumbnailCacheService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService();
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            thumbnailCacheService,
+            new TestClipboardService(),
+            new TestNavigationService(),
+            aiTaggerService,
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine(Path.GetTempPath(), "DatasetStudioWatcherStages", Guid.NewGuid().ToString("N"));
+        string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
+        Directory.CreateDirectory(inboxFolderPath);
+        fileSystemService.SetImageFiles(inboxFolderPath, Array.Empty<string>());
+
+        Project project = new Project
+        {
+            Id = "project-watch-2",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+        viewModel.OnScreenActivated();
+        await WaitForConditionAsync(() => viewModel.Stages.Count == 1).ConfigureAwait(false);
+
+        string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
+        Directory.CreateDirectory(reviewFolderPath);
+        fileSystemService.SetImageFiles(reviewFolderPath, Array.Empty<string>());
+        fileSystemService.Watchers[0].RaiseCreated(reviewFolderPath);
+
+        await WaitForConditionAsync(() => viewModel.Stages.Any(stage => string.Equals(stage.FolderName, "02_Review", StringComparison.OrdinalIgnoreCase))).ConfigureAwait(false);
+
+        Assert.That(viewModel.Stages.Select(stage => stage.FolderName), Does.Contain("02_Review"));
+    }
+
+    [Test]
+    public async Task ProjectWatcher_ImageChanges_RefreshImagesAndInvalidateThumbnails()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestThumbnailCacheService thumbnailCacheService = new TestThumbnailCacheService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService();
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            thumbnailCacheService,
+            new TestClipboardService(),
+            new TestNavigationService(),
+            aiTaggerService,
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine(Path.GetTempPath(), "DatasetStudioWatcherImages", Guid.NewGuid().ToString("N"));
+        string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
+        Directory.CreateDirectory(inboxFolderPath);
+
+        string catImagePath = Path.Combine(inboxFolderPath, "cat.png");
+        string dogImagePath = Path.Combine(inboxFolderPath, "dog.png");
+        fileSystemService.SetImageFiles(inboxFolderPath, new[] { catImagePath });
+        tagFileService.SetTags(catImagePath, new[] { "cat" });
+
+        Project project = new Project
+        {
+            Id = "project-watch-3",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+        viewModel.OnScreenActivated();
+        await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
+
+        fileSystemService.SetImageFiles(inboxFolderPath, new[] { catImagePath, dogImagePath });
+        fileSystemService.Watchers[0].RaiseCreated(dogImagePath);
+
+        await WaitForConditionAsync(() => viewModel.Images.Count == 2).ConfigureAwait(false);
+
+        fileSystemService.Watchers[0].RaiseChanged(catImagePath);
+        await WaitForConditionAsync(() => thumbnailCacheService.InvalidatedImagePaths.Contains(catImagePath)).ConfigureAwait(false);
+
+        fileSystemService.SetImageFiles(inboxFolderPath, new[] { dogImagePath });
+        fileSystemService.Watchers[0].RaiseDeleted(catImagePath);
+
+        await WaitForConditionAsync(() => viewModel.Images.Count == 1 && string.Equals(viewModel.Images[0].FilePath, dogImagePath, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+
+        Assert.That(viewModel.HasImages, Is.True);
+        Assert.That(thumbnailCacheService.InvalidatedImagePaths, Does.Contain(catImagePath));
+    }
+
+    [Test]
     public async Task OpenInspectorCommand_NavigatesWithProjectAndPreservesFocusedImagePath()
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();
@@ -700,7 +885,7 @@ public class LibraryGridViewModelTests
 
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
-        for (int attempt = 0; attempt < 100; attempt++)
+        for (int attempt = 0; attempt < 300; attempt++)
         {
             if (condition())
             {
@@ -721,10 +906,19 @@ public class LibraryGridViewModelTests
     private sealed class TestFileSystemService : IFileSystemService
     {
         private readonly Dictionary<string, IReadOnlyList<string>> imageFilesByFolderPath = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<TestFileSystemWatcher> watchers = new List<TestFileSystemWatcher>();
 
         public List<(string SourcePath, string DestinationFolder)> MovedFiles { get; } = new List<(string SourcePath, string DestinationFolder)>();
 
         public List<string> RecycledFiles { get; } = new List<string>();
+
+        public IReadOnlyList<TestFileSystemWatcher> Watchers
+        {
+            get
+            {
+                return watchers;
+            }
+        }
 
         public void SetImageFiles(string folderPath, IReadOnlyList<string> imageFiles)
         {
@@ -802,7 +996,9 @@ public class LibraryGridViewModelTests
         public FileSystemWatcher WatchFolder(string folderPath)
         {
             _ = folderPath;
-            return new FileSystemWatcher();
+            TestFileSystemWatcher fileSystemWatcher = new TestFileSystemWatcher();
+            watchers.Add(fileSystemWatcher);
+            return fileSystemWatcher;
         }
     }
 
@@ -938,6 +1134,8 @@ public class LibraryGridViewModelTests
 
     private sealed class TestThumbnailCacheService : IThumbnailCacheService
     {
+        public List<string> InvalidatedImagePaths { get; } = new List<string>();
+
         public Task<Stream> GetThumbnailAsync(string imageFilePath, int size)
         {
             _ = imageFilePath;
@@ -947,7 +1145,7 @@ public class LibraryGridViewModelTests
 
         public Task InvalidateAsync(string imageFilePath)
         {
-            _ = imageFilePath;
+            InvalidatedImagePaths.Add(imageFilePath);
             return Task.CompletedTask;
         }
 
@@ -955,6 +1153,46 @@ public class LibraryGridViewModelTests
         {
             _ = folderPath;
             return Task.CompletedTask;
+        }
+    }
+
+    private sealed class TestFileSystemWatcher : FileSystemWatcher
+    {
+        public TestFileSystemWatcher()
+            : base(System.IO.Path.GetTempPath())
+        {
+        }
+
+        public bool IsDisposed { get; private set; }
+
+        public void RaiseChanged(string fullPath)
+        {
+            OnChanged(new FileSystemEventArgs(WatcherChangeTypes.Changed, System.IO.Path.GetDirectoryName(fullPath) ?? string.Empty, System.IO.Path.GetFileName(fullPath)));
+        }
+
+        public void RaiseCreated(string fullPath)
+        {
+            OnCreated(new FileSystemEventArgs(WatcherChangeTypes.Created, System.IO.Path.GetDirectoryName(fullPath) ?? string.Empty, System.IO.Path.GetFileName(fullPath)));
+        }
+
+        public void RaiseDeleted(string fullPath)
+        {
+            OnDeleted(new FileSystemEventArgs(WatcherChangeTypes.Deleted, System.IO.Path.GetDirectoryName(fullPath) ?? string.Empty, System.IO.Path.GetFileName(fullPath)));
+        }
+
+        public void RaiseRenamed(string oldFullPath, string newFullPath)
+        {
+            OnRenamed(new RenamedEventArgs(
+                WatcherChangeTypes.Renamed,
+                System.IO.Path.GetDirectoryName(newFullPath) ?? string.Empty,
+                System.IO.Path.GetFileName(newFullPath),
+                System.IO.Path.GetFileName(oldFullPath)));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            IsDisposed = true;
         }
     }
 
