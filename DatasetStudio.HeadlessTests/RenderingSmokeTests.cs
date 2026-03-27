@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
+using Avalonia.Input;
+using Avalonia.Input.Raw;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Messaging;
 using DatasetStudio.Messages;
 using DatasetStudio.Models;
@@ -42,6 +45,124 @@ public class RenderingSmokeTests
         Assert.That(File.Exists(Path.Combine(outputFolder, "tag-dictionary.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "library-grid.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "inspector-mode.png")), Is.True);
+    }
+
+    [AvaloniaTest]
+    public async Task LibraryGridSlashShortcutFocusesFilterTextBox()
+    {
+        using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
+        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+            scenario.FileSystemService,
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.ThumbnailCacheService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
+            scenario.Messenger);
+        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        TextBox? filterTextBox = FindDescendantByName<TextBox>(window, "FilterTextBox");
+        Assert.That(filterTextBox, Is.Not.Null);
+
+        bool didFocusWindow = window.Focus();
+        _ = didFocusWindow;
+        window.KeyPress(Key.Oem2, RawInputModifiers.None, PhysicalKey.Slash, "/");
+        await Task.Delay(50).ConfigureAwait(true);
+
+        Assert.That(filterTextBox!.IsKeyboardFocusWithin, Is.True);
+
+        window.Close();
+    }
+
+    [AvaloniaTest]
+    public async Task LibraryGridGlobalCopyShortcutCopiesFocusedImageTags()
+    {
+        using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
+        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+            scenario.FileSystemService,
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.ThumbnailCacheService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
+            scenario.Messenger);
+        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        IReadOnlyList<string> expectedTags = libraryGridViewModel.Images[libraryGridViewModel.FocusedImageIndex].Tags;
+        bool didFocusWindow = window.Focus();
+        _ = didFocusWindow;
+        window.KeyPress(Key.C, RawInputModifiers.Control | RawInputModifiers.Shift, PhysicalKey.C, "c");
+        await Task.Delay(50).ConfigureAwait(true);
+
+        Assert.That(scenario.ClipboardService.LastCopiedTags, Is.EqualTo(expectedTags));
+
+        window.Close();
+    }
+
+    [AvaloniaTest]
+    public async Task InspectorEscapeLeavesTagInputBeforeNavigatingBack()
+    {
+        using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
+        string preferredImagePath = Path.Combine(scenario.PrimaryProject.RootFolderPath, "02_Review", "cat.png");
+        scenario.PrimaryProject.State.ActiveStageFolderName = "02_Review";
+        scenario.PrimaryProject.State.LastInspectedImagePath = preferredImagePath;
+
+        InspectorModeViewModel inspectorModeViewModel = new InspectorModeViewModel(
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.FileSystemService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            scenario.Messenger);
+        inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(inspectorModeViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        TextBox? tagInputTextBox = FindDescendantByName<TextBox>(window, "TagInputTextBox");
+        Assert.That(tagInputTextBox, Is.Not.Null);
+        Assert.That(tagInputTextBox.IsKeyboardFocusWithin, Is.True);
+
+        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        await Task.Delay(50).ConfigureAwait(true);
+
+        Assert.That(tagInputTextBox!.IsKeyboardFocusWithin, Is.False);
+        Assert.That(scenario.NavigationService.GoBackCount, Is.EqualTo(0));
+
+        bool didFocusWindow = window.Focus();
+        _ = didFocusWindow;
+        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        await Task.Delay(50).ConfigureAwait(true);
+
+        Assert.That(scenario.NavigationService.GoBackCount, Is.EqualTo(1));
+
+        window.Close();
+    }
+
+    private static TControl? FindDescendantByName<TControl>(Window window, string controlName)
+        where TControl : Control
+    {
+        foreach (TControl control in window.GetVisualDescendants().OfType<TControl>())
+        {
+            if (!string.Equals(control.Name, controlName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+            return control;
+        }
+
+        return null;
     }
 
     private static async Task CaptureProjectsHubAsync(CaptureScenario scenario, string outputFolder)
@@ -532,20 +653,26 @@ public class RenderingSmokeTests
 
     private sealed class CaptureClipboardService : IClipboardService
     {
+        public IReadOnlyList<string> LastCopiedTags { get; private set; } = Array.Empty<string>();
+
+        public IReadOnlyList<string> PasteTagsResult { get; set; } = Array.Empty<string>();
+
         public Task CopyTagsAsync(IReadOnlyList<string> tags)
         {
-            _ = tags;
+            LastCopiedTags = tags.ToList();
             return Task.CompletedTask;
         }
 
         public Task<IReadOnlyList<string>> PasteTagsAsync()
         {
-            return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
+            return Task.FromResult(PasteTagsResult);
         }
     }
 
     private sealed class CaptureNavigationService : INavigationService
     {
+        public int GoBackCount { get; private set; }
+
         public void NavigateTo<TViewModel>() where TViewModel : ScreenViewModelBase
         {
         }
@@ -557,6 +684,7 @@ public class RenderingSmokeTests
 
         public void GoBack()
         {
+            GoBackCount++;
         }
     }
 }

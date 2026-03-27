@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using DatasetStudio.ViewModels;
 
@@ -11,16 +12,23 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        AddHandler(InputElement.KeyDownEvent, OnWindowKeyDown, RoutingStrategies.Tunnel);
     }
 
     public MainWindow(MainWindowViewModel mainWindowViewModel)
     {
         InitializeComponent();
         DataContext = mainWindowViewModel;
+        AddHandler(InputElement.KeyDownEvent, OnWindowKeyDown, RoutingStrategies.Tunnel);
     }
 
     private void OnWindowKeyDown(object? sender, KeyEventArgs eventArgs)
     {
+        if (eventArgs.Handled)
+        {
+            return;
+        }
+
         if (DataContext is not MainWindowViewModel mainWindowViewModel)
         {
             return;
@@ -35,7 +43,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        _ = activeScreenView.TryHandleKey(eventArgs);
+        bool wasHandled = activeScreenView.TryHandleKey(eventArgs);
+        _ = wasHandled;
     }
 
     private IScreenView? GetActiveScreenView(MainWindowViewModel mainWindowViewModel)

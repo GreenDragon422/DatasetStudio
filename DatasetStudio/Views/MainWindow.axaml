@@ -14,8 +14,7 @@
         Width="1440"
         Height="900"
         MinWidth="960"
-        MinHeight="640"
-        KeyDown="OnWindowKeyDown">
+        MinHeight="640">
     <Grid RowDefinitions="64,*,Auto,Auto">
         <Border Grid.Row="0"
                 Classes="shell-header-bar">

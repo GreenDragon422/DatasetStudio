@@ -104,14 +104,13 @@ public partial class InspectorModeView : ScreenViewBase<InspectorModeViewModel>
                 KeyModifiers.None,
                 "Esc",
                 "Back",
-                () => ExecuteCommand(viewModel.GoBackCommand),
-                allowWhenTextInputFocused: true),
+                () => ExecuteCommand(viewModel.GoBackCommand)),
         };
     }
 
     protected override bool ShouldOfferLeaveFieldShortcut()
     {
-        return false;
+        return HasEditableTextInputFocus();
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs eventArgs)
