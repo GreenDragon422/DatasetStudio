@@ -6,7 +6,8 @@
        x:Name="Root"
        x:DataType="controls:BatchPopup">
   <Border Classes="surface-panel-card pad-12 popup-card">
-    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
+    <Grid RowDefinitions="Auto,Auto,*"
+          Classes="compact-rows">
       <TextBlock Text="{Binding #Root.Mode}"
                  Classes="heading-medium" />
 
@@ -23,7 +24,8 @@
         <ListBox.ItemTemplate>
         <DataTemplate x:DataType="vm:BatchTagSuggestionViewModel">
           <Border Classes="suggestion-row">
-              <Grid ColumnDefinitions="*,Auto">
+              <Grid ColumnDefinitions="*,Auto"
+                    ColumnSpacing="12">
                 <TextBlock Text="{Binding Tag}"
                            Classes="mono" />
                  <TextBlock Grid.Column="1"

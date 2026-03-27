@@ -11,7 +11,8 @@
       <ListBox.ItemTemplate>
         <DataTemplate x:CompileBindings="False">
           <Border Classes="list-row-shell">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
               <StackPanel Classes="screen-title-stack">
                 <TextBlock Text="{Binding DisplayName}"
                            Classes="heading-medium" />

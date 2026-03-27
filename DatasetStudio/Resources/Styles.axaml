@@ -294,16 +294,13 @@
     </Style>
 
     <Style Selector="Grid.form-row">
-        <Setter Property="ColumnDefinitions" Value="136,*" />
         <Setter Property="ColumnSpacing" Value="12" />
     </Style>
 
     <Style Selector="Grid.form-row.with-action">
-        <Setter Property="ColumnDefinitions" Value="136,*,Auto" />
     </Style>
 
     <Style Selector="Grid.section-header-row">
-        <Setter Property="ColumnDefinitions" Value="*,Auto" />
         <Setter Property="ColumnSpacing" Value="12" />
     </Style>
 

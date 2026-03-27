@@ -43,7 +43,7 @@
 
                         <Grid Grid.Row="1"
                               ColumnDefinitions="136,*,Auto"
-                              Classes="form-row">
+                              Classes="form-row with-action">
                             <TextBlock Text="Root folder"
                                        Classes="form-label"
                                        VerticalAlignment="Center" />
@@ -105,7 +105,7 @@
                 <Border Classes="surface-card pad-16">
                     <StackPanel Classes="section-stack wide">
                         <Grid ColumnDefinitions="*,Auto"
-                              Classes="form-row">
+                              Classes="section-header-row">
                             <TextBlock Text="Workflow stages"
                                        Classes="heading-medium" />
                             <Button Grid.Column="1"

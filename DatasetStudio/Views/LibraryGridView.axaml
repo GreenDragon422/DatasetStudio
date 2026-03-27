@@ -73,7 +73,7 @@
 
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
-              ColumnSpacing="16">
+              Classes="content-columns">
             <Grid RowDefinitions="Auto,Auto,*"
                   Classes="stage-sidebar-layout">
                 <TextBlock Text="Workflow stages"
@@ -89,7 +89,7 @@
 
             <Grid Grid.Column="1"
                   RowDefinitions="*,Auto"
-                  RowSpacing="12">
+                  Classes="standard-rows">
                 <Border Classes="surface-card pad-16">
                     <Grid>
                         <TextBlock Text="Folder is empty. Drag images here to stage."
@@ -112,13 +112,13 @@
                                         <Border Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
                                                 Classes="surface-card wrap-tile pad-8">
                                             <Grid RowDefinitions="Auto,*,Auto">
-                                                <Grid ColumnDefinitions="Auto,*">
+                                                <Grid ColumnDefinitions="Auto,*"
+                                                      ColumnSpacing="8">
                                                     <CheckBox Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ToggleSelectionCommand}"
                                                               CommandParameter="{Binding}"
                                                               IsChecked="{Binding IsSelected, Mode=OneWay}" />
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding FileName}"
-                                                               Margin="8,0,0,0"
                                                                TextTrimming="CharacterEllipsis"
                                                                VerticalAlignment="Center" />
                                                 </Grid>
@@ -168,10 +168,7 @@
                 </Border>
 
                 <StackPanel Grid.Row="1"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            Spacing="12">
+                            Classes="toolbar-row">
                     <TextBlock Text="Zoom"
                                Classes="mono"
                                VerticalAlignment="Center" />

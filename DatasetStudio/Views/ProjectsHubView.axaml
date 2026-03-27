@@ -84,9 +84,7 @@
                                                    TextTrimming="CharacterEllipsis" />
 
                                         <StackPanel Grid.Row="2"
-                                                    Orientation="Horizontal"
-                                                    HorizontalAlignment="Stretch"
-                                                    Spacing="12">
+                                                    Classes="inline-metrics">
                                             <TextBlock Text="{Binding ImageCountText}"
                                                        Classes="mono" />
                                             <TextBlock Text="{Binding TaggedPercentageText}"
