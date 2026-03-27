@@ -25,7 +25,7 @@
         <DataTemplate x:DataType="vm:BatchTagSuggestionViewModel">
           <Border Classes="suggestion-row">
               <Grid ColumnDefinitions="*,Auto"
-                    ColumnSpacing="12">
+                    Classes="trailing-meta-row">
                 <TextBlock Text="{Binding Tag}"
                            Classes="mono" />
                  <TextBlock Grid.Column="1"

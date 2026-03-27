@@ -81,7 +81,7 @@
                         </Grid>
 
                         <StackPanel Grid.Row="3"
-                                    Spacing="6">
+                                    Classes="section-stack tight">
                             <TextBlock Text="Prefix tags"
                                        Classes="form-label" />
                             <Border Classes="prefix-tags-frame"

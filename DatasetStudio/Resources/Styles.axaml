@@ -304,6 +304,10 @@
         <Setter Property="ColumnSpacing" Value="12" />
     </Style>
 
+    <Style Selector="Grid.trailing-meta-row">
+        <Setter Property="ColumnSpacing" Value="12" />
+    </Style>
+
     <Style Selector="TextBlock.mono">
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
         <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
@@ -396,27 +400,27 @@
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
     </Style>
 
-    <Style Selector="Border.surface-card.pad-compact">
+    <Style Selector="Border.pad-compact">
         <Setter Property="Padding" Value="8,4" />
     </Style>
 
-    <Style Selector="Border.surface-card.pad-8">
+    <Style Selector="Border.pad-8">
         <Setter Property="Padding" Value="8" />
     </Style>
 
-    <Style Selector="Border.surface-card.pad-12">
+    <Style Selector="Border.pad-12">
         <Setter Property="Padding" Value="12" />
     </Style>
 
-    <Style Selector="Border.surface-card.pad-16">
+    <Style Selector="Border.pad-16">
         <Setter Property="Padding" Value="16" />
     </Style>
 
-    <Style Selector="Border.surface-card.pad-24">
+    <Style Selector="Border.pad-24">
         <Setter Property="Padding" Value="24" />
     </Style>
 
-    <Style Selector="Border.surface-card.pad-32">
+    <Style Selector="Border.pad-32">
         <Setter Property="Padding" Value="32" />
     </Style>
 
@@ -439,14 +443,6 @@
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
     </Style>
 
-    <Style Selector="Border.surface-panel-card.pad-8">
-        <Setter Property="Padding" Value="8" />
-    </Style>
-
-    <Style Selector="Border.surface-panel-card.pad-12">
-        <Setter Property="Padding" Value="12" />
-    </Style>
-
     <Style Selector="Border.screen-header-bar">
         <Setter Property="Background" Value="{StaticResource BrushSurface}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
@@ -465,6 +461,10 @@
     <Style Selector="Border.modal-overlay">
         <Setter Property="Background" Value="{StaticResource BrushOverlayScrim}" />
         <Setter Property="Padding" Value="24" />
+    </Style>
+
+    <Style Selector="Border.modal-overlay.compact">
+        <Setter Property="Padding" Value="12" />
     </Style>
 
     <Style Selector="Border.modal-card">
@@ -565,7 +565,7 @@
         <Setter Property="BorderBrush" Value="{StaticResource BrushError}" />
     </Style>
 
-    <Style Selector="Button.project-card">
+    <Style Selector="Button.card-button">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -573,11 +573,11 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
-    <Style Selector="Button.project-card:pointerover Border.project-card-frame">
+    <Style Selector="Button.card-button:pointerover Border.interactive-card-frame">
         <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
     </Style>
 
-    <Style Selector="Button.project-card:pointerover, Button.project-card:pressed, Button.project-card:focus-visible">
+    <Style Selector="Button.card-button:pointerover, Button.card-button:pressed, Button.card-button:focus-visible">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -665,24 +665,24 @@
         <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
     </Style>
 
-    <Style Selector="ListBox.category-list">
+    <Style Selector="ListBox.sidebar-nav-list">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
-    <Style Selector="ListBox.category-list ListBoxItem">
+    <Style Selector="ListBox.sidebar-nav-list ListBoxItem">
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Opacity" Value="1" />
     </Style>
 
-    <Style Selector="ListBox.category-list ListBoxItem /template/ ContentPresenter">
+    <Style Selector="ListBox.sidebar-nav-list ListBoxItem /template/ ContentPresenter">
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
-    <Style Selector="ListBox.category-list ListBoxItem TextBlock">
+    <Style Selector="ListBox.sidebar-nav-list ListBoxItem TextBlock">
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
@@ -706,6 +706,10 @@
     <Style Selector="WrapPanel.flow-actions">
         <Setter Property="Orientation" Value="Horizontal" />
         <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="WrapPanel.flow-actions.inset">
+        <Setter Property="Margin" Value="4" />
     </Style>
 
     <Style Selector="WrapPanel.flow-actions > Button">

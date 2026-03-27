@@ -63,8 +63,7 @@
                                   StretchDirection="Both"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center">
-                            <Border Classes="warning-focus-frame"
-                                    Padding="8">
+                            <Border Classes="warning-focus-frame pad-8">
                                 <Image Source="{Binding CurrentImageSource}"
                                        Stretch="Uniform" />
                             </Border>
@@ -106,7 +105,7 @@
                     </Border>
 
                     <StackPanel Grid.Row="1"
-                                Spacing="6">
+                                Classes="section-stack tight">
                         <TextBlock Text="Add tag"
                                    Classes="form-label" />
                         <TextBox x:Name="TagInputTextBox"
@@ -157,8 +156,7 @@
                         </Border>
 
                         <Border IsVisible="{Binding IsBusy}"
-                                Classes="modal-overlay"
-                                Padding="12"
+                                Classes="modal-overlay compact"
                                 VerticalAlignment="Stretch">
                             <ProgressBar IsIndeterminate="True"
                                          VerticalAlignment="Top"

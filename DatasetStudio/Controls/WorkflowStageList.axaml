@@ -12,7 +12,7 @@
         <DataTemplate x:CompileBindings="False">
           <Border Classes="list-row-shell">
             <Grid ColumnDefinitions="*,Auto"
-                  ColumnSpacing="12">
+                  Classes="trailing-meta-row">
               <StackPanel Classes="screen-title-stack">
                 <TextBlock Text="{Binding DisplayName}"
                            Classes="heading-medium" />

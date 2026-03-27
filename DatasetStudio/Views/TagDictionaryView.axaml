@@ -29,13 +29,13 @@
 
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
-              ColumnSpacing="16">
+              Classes="content-columns">
             <Border Classes="surface-card pad-12">
                 <StackPanel Classes="section-stack">
                     <TextBlock Text="Categories"
                                Classes="heading-medium" />
                     <ListBox ItemsSource="{Binding Categories}"
-                             Classes="category-list"
+                             Classes="sidebar-nav-list"
                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
                 </StackPanel>
             </Border>
@@ -96,8 +96,7 @@
                                                 Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
-                                    <WrapPanel Margin="4"
-                                               Classes="flow-actions">
+                                    <WrapPanel Classes="flow-actions inset">
                                         <Button Content="Edit"
                                                 IsVisible="{Binding !IsEditing}"
                                                 Click="OnEditClick" />
