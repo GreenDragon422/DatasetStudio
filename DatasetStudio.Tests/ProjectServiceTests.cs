@@ -54,6 +54,11 @@ public class ProjectServiceTests
         {
             return Task.CompletedTask;
         }
+
+        public Task FlushPendingSavesAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 
     [Test]

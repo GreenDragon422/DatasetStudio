@@ -65,6 +65,24 @@ public class InspectorModeViewModelTests
         Assert.That(viewModel.AppliedTags, Is.EqualTo(new[] { "feline", "backlit" }));
     }
 
+    [Test]
+    public async Task NavigateNextCommand_PersistsLastInspectedImageToStatePersistenceService()
+    {
+        InspectorTestProjectContext testProjectContext = await CreateProjectContextAsync().ConfigureAwait(false);
+
+        InspectorModeViewModel viewModel = CreateViewModel(testProjectContext);
+        viewModel.OnNavigatedTo(testProjectContext.Project);
+        await WaitForConditionAsync(() => viewModel.CurrentImage is not null).ConfigureAwait(false);
+
+        await viewModel.NavigateNextCommand.ExecuteAsync(null).ConfigureAwait(false);
+        await WaitForConditionAsync(() =>
+            string.Equals(viewModel.CurrentImage?.FilePath, testProjectContext.DogImagePath, StringComparison.OrdinalIgnoreCase)).ConfigureAwait(false);
+
+        ProjectState persistedState = testProjectContext.StatePersistenceService.GetProjectState(testProjectContext.Project.Id);
+        Assert.That(persistedState.ActiveStageFolderName, Is.EqualTo("02_Review"));
+        Assert.That(persistedState.LastInspectedImagePath, Is.EqualTo(testProjectContext.DogImagePath));
+    }
+
     private static InspectorModeViewModel CreateViewModel(InspectorTestProjectContext testProjectContext)
     {
         return new InspectorModeViewModel(
@@ -73,7 +91,8 @@ public class InspectorModeViewModelTests
             testProjectContext.FileSystemService,
             testProjectContext.ClipboardService,
             new StubNavigationService(),
-            testProjectContext.Messenger);
+            testProjectContext.Messenger,
+            testProjectContext.StatePersistenceService);
     }
 
     private static async Task<InspectorTestProjectContext> CreateProjectContextAsync()
@@ -126,6 +145,8 @@ public class InspectorModeViewModelTests
         InMemoryProjectService projectService = new InMemoryProjectService(new[] { project });
         TagDictionaryService tagDictionaryService = new TagDictionaryService(projectService, tagFileService, messenger);
         RecordingClipboardService clipboardService = new RecordingClipboardService();
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        statePersistenceService.SetProjectState(project.Id, project.State);
 
         return new InspectorTestProjectContext(
             project,
@@ -133,6 +154,7 @@ public class InspectorModeViewModelTests
             tagFileService,
             tagDictionaryService,
             clipboardService,
+            statePersistenceService,
             messenger,
             catImagePath,
             dogImagePath);

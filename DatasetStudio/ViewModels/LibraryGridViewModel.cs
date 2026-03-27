@@ -24,10 +24,12 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     private readonly INavigationService navigationService;
     private readonly BatchTagOperationService batchTagOperationService;
     private readonly IMessenger messenger;
+    private readonly IStatePersistenceService statePersistenceService;
     private readonly List<LibraryGridImageViewModel> allImages;
 
     private Project? currentProject;
     private bool isIgnoringInternalImageMovedMessages;
+    private bool isRestoringPersistedProjectState;
 
     public LibraryGridViewModel(
         IFileSystemService fileSystemService,
@@ -37,7 +39,8 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         IClipboardService clipboardService,
         INavigationService navigationService,
         BatchTagOperationService batchTagOperationService,
-        IMessenger messenger)
+        IMessenger messenger,
+        IStatePersistenceService statePersistenceService)
         : base(messenger)
     {
         this.fileSystemService = fileSystemService ?? throw new ArgumentNullException(nameof(fileSystemService));
@@ -48,6 +51,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         this.navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         this.batchTagOperationService = batchTagOperationService ?? throw new ArgumentNullException(nameof(batchTagOperationService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+        this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
         allImages = new List<LibraryGridImageViewModel>();
         Stages = new ObservableCollection<LibraryGridStageViewModel>();
@@ -144,10 +148,8 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         currentProject = project;
         ProjectName = string.IsNullOrWhiteSpace(project.Name) ? Path.GetFileName(project.RootFolderPath) : project.Name;
-        ZoomValue = project.State.ZoomSliderValue > 0 ? project.State.ZoomSliderValue : 160;
-        LoadAiModelChoices(project);
         StatusText = string.Format("Loading library for {0}...", ProjectName);
-        _ = LoadStagesCommand.ExecuteAsync(null);
+        _ = RestoreProjectStateAndLoadAsync(project);
     }
 
     [RelayCommand]
@@ -287,6 +289,11 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         CloseBatchAdd();
         CloseBatchRemove();
         currentProject.State.ActiveStageFolderName = stage.FolderName;
+        if (!isRestoringPersistedProjectState)
+        {
+            _ = PersistCurrentProjectStateAsync();
+        }
+
         StatusText = string.Format("Loading images from {0}...", stage.DisplayName);
 
         IReadOnlyList<string> imageFilePaths = await fileSystemService.GetImageFilesAsync(stage.FolderPath).ConfigureAwait(true);
@@ -538,6 +545,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
 
         await LoadStagesCoreAsync().ConfigureAwait(true);
+        await PersistCurrentProjectStateAsync().ConfigureAwait(true);
         StatusText = string.Format(
             "Moved {0} image{1} to {2}.",
             selectedImagesSnapshot.Count,
@@ -573,6 +581,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             messenger.Send(new ImageDeletedMessage(image.FilePath, folderPath));
         }
 
+        await PersistCurrentProjectStateAsync().ConfigureAwait(true);
         StatusText = string.Format(
             "Sent {0} image{1} to the recycle bin.",
             selectedImagesSnapshot.Count,
@@ -642,6 +651,11 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         if (currentProject is not null)
         {
             currentProject.State.ZoomSliderValue = ZoomValue;
+
+            if (!isRestoringPersistedProjectState)
+            {
+                _ = PersistCurrentProjectStateAsync();
+            }
         }
     }
 
@@ -654,6 +668,11 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         currentProject.AiModelName = value?.Id ?? string.Empty;
         currentProject.State.SelectedAiModelName = value?.Id;
+
+        if (!isRestoringPersistedProjectState)
+        {
+            _ = PersistCurrentProjectStateAsync();
+        }
     }
 
     partial void OnBatchAddQueryTextChanged(string value)
@@ -695,6 +714,11 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         if (currentProject is not null)
         {
             currentProject.State.LastInspectedImagePath = image.FilePath;
+
+            if (!isRestoringPersistedProjectState)
+            {
+                _ = PersistCurrentProjectStateAsync();
+            }
         }
 
         if (updateStatusText)
@@ -711,6 +735,52 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
 
         FocusedImageIndex = -1;
+    }
+
+    private async Task RestoreProjectStateAndLoadAsync(Project project)
+    {
+        isRestoringPersistedProjectState = true;
+
+        try
+        {
+            ProjectState persistedState = await statePersistenceService.LoadProjectStateAsync(project.Id).ConfigureAwait(true);
+            project.State = persistedState;
+
+            if (!string.IsNullOrWhiteSpace(project.State.SelectedAiModelName))
+            {
+                project.AiModelName = project.State.SelectedAiModelName;
+            }
+
+            ZoomValue = project.State.ZoomSliderValue > 0 ? project.State.ZoomSliderValue : 160;
+            LoadAiModelChoices(project);
+            await LoadStagesCoreAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            isRestoringPersistedProjectState = false;
+        }
+    }
+
+    private Task PersistCurrentProjectStateAsync()
+    {
+        if (currentProject is null || string.IsNullOrWhiteSpace(currentProject.Id))
+        {
+            return Task.CompletedTask;
+        }
+
+        return PersistCurrentProjectStateCoreAsync(currentProject.Id, currentProject.State);
+    }
+
+    private async Task PersistCurrentProjectStateCoreAsync(string projectId, ProjectState state)
+    {
+        try
+        {
+            await statePersistenceService.SaveProjectStateAsync(projectId, state).ConfigureAwait(true);
+        }
+        catch (Exception exception)
+        {
+            StatusText = string.Format("Could not save project state: {0}", exception.Message);
+        }
     }
 
     private void ApplyImageFilter()

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using DatasetStudio.Messages;
 using DatasetStudio.Models;
 using DatasetStudio.Services;
+using DatasetStudio.Tests.TestDoubles;
 using DatasetStudio.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ public class LibraryGridViewModelTests
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -30,7 +32,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
@@ -63,6 +66,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         viewModel.OnNavigatedTo(project);
 
         await WaitForConditionAsync(() => viewModel.ActiveStage is not null && viewModel.Images.Count == 2).ConfigureAwait(false);
@@ -87,6 +92,7 @@ public class LibraryGridViewModelTests
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -95,7 +101,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -119,6 +126,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         SelectionMessageRecorder selectionMessageRecorder = new SelectionMessageRecorder();
         messenger.Register<SelectionMessageRecorder, ImageSelectionChangedMessage>(selectionMessageRecorder, static (recipient, message) =>
         {
@@ -138,6 +147,77 @@ public class LibraryGridViewModelTests
     }
 
     [Test]
+    public async Task OnNavigatedTo_LoadsPersistedProjectStateFromStatePersistenceService()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            new TestNavigationService(),
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
+        string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
+        string dogImagePath = Path.Combine(reviewFolderPath, "dog.png");
+        string catImagePath = Path.Combine(reviewFolderPath, "cat.png");
+
+        fileSystemService.SetImageFiles(inboxFolderPath, Array.Empty<string>());
+        fileSystemService.SetImageFiles(reviewFolderPath, new[] { catImagePath, dogImagePath });
+        tagFileService.SetTags(catImagePath, new[] { "cat" });
+        tagFileService.SetTags(dogImagePath, new[] { "dog" });
+
+        Project project = new Project
+        {
+            Id = "project-state-1",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            AiModelName = "fallback-model",
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+                new WorkflowStage { Order = 2, FolderName = "02_Review", DisplayName = "Review" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+                ZoomSliderValue = 120,
+                SelectedAiModelName = "fallback-model",
+                LastInspectedImagePath = null,
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, new ProjectState
+        {
+            ActiveStageFolderName = "02_Review",
+            ZoomSliderValue = 220,
+            SelectedAiModelName = "persisted-model",
+            LastInspectedImagePath = dogImagePath,
+        });
+
+        viewModel.OnNavigatedTo(project);
+
+        await WaitForConditionAsync(() =>
+            viewModel.ActiveStage?.FolderName == "02_Review"
+            && viewModel.Images.Count == 2
+            && viewModel.FocusedImageIndex >= 0).ConfigureAwait(false);
+
+        Assert.That(viewModel.ZoomValue, Is.EqualTo(220));
+        Assert.That(viewModel.SelectedAiModel?.Id, Is.EqualTo("persisted-model"));
+        Assert.That(viewModel.Images[viewModel.FocusedImageIndex].FilePath, Is.EqualTo(dogImagePath));
+    }
+
+    [Test]
     public async Task OpenInspectorCommand_NavigatesWithProjectAndPreservesFocusedImagePath()
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();
@@ -146,6 +226,7 @@ public class LibraryGridViewModelTests
         TestNavigationService navigationService = new TestNavigationService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -154,7 +235,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             navigationService,
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -177,6 +259,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
 
@@ -195,6 +279,7 @@ public class LibraryGridViewModelTests
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -203,7 +288,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -230,6 +316,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 3).ConfigureAwait(false);
 
@@ -250,6 +338,7 @@ public class LibraryGridViewModelTests
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -258,7 +347,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -283,6 +373,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 2).ConfigureAwait(false);
 
@@ -303,6 +395,7 @@ public class LibraryGridViewModelTests
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -311,7 +404,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -336,6 +430,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 2).ConfigureAwait(false);
 
@@ -357,6 +453,7 @@ public class LibraryGridViewModelTests
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -365,7 +462,8 @@ public class LibraryGridViewModelTests
             new TestClipboardService(),
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -391,6 +489,8 @@ public class LibraryGridViewModelTests
             },
         };
 
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
 
@@ -410,6 +510,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         TestClipboardService clipboardService = new TestClipboardService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
             fileSystemService,
             tagFileService,
@@ -418,7 +519,8 @@ public class LibraryGridViewModelTests
             clipboardService,
             new TestNavigationService(),
             batchTagOperationService,
-            messenger);
+            messenger,
+            statePersistenceService);
 
         string projectRootPath = Path.Combine("C:\\datasets", "animals");
         string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
@@ -443,6 +545,8 @@ public class LibraryGridViewModelTests
                 ActiveStageFolderName = "02_Review",
             },
         };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
 
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);

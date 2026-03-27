@@ -392,12 +392,13 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-27): Keyboard routing is now fully standardized around `ScreenViewBase<TViewModel>` + `ScreenViewModelBase`. `MainWindow` tunnels key input to the active rendered screen so `/` and `Ctrl+Shift+C`/`V` still reach the screen contract even when focus sits inside child controls, the shared base preserves editable text behavior and `Esc` leave-field handling, Library Grid popups win the first `Esc` rung, and Inspector Mode only navigates back after the text field has been unfocused. Headless tests verify slash focus routing, global copy routing, and the Inspector Escape priority chain.
   - _Requirements: 9.1, 9.2, 9.4, 9.5, 2.8, 2.24, 3.6, 3.15_
 
-- [ ] 39. Wire state persistence into ViewModel lifecycle
-  - [ ] 39.1 On app startup — load AppState via IStatePersistenceService, restore window geometry (size + position), navigate to last opened project if set
-  - [ ] 39.2 On project open — load ProjectState, restore active stage selection, zoom slider value, selected AI model
-  - [ ] 39.3 On state change — debounced save: hook into property change events on relevant ViewModels, trigger IStatePersistenceService save after 500ms debounce
-  - [ ] 39.4 On app shutdown — flush any pending state saves
-  - [ ] 39.5 Verify every configurable property is persisted — zoom, active stage, window size/position, last project, master root path, selected AI model, last inspected image
+- [x] 39. Wire state persistence into ViewModel lifecycle
+  - [x] 39.1 On app startup — load AppState via IStatePersistenceService, restore window geometry (size + position), navigate to last opened project if set
+  - [x] 39.2 On project open — load ProjectState, restore active stage selection, zoom slider value, selected AI model
+  - [x] 39.3 On state change — debounced save: hook into property change events on relevant ViewModels, trigger IStatePersistenceService save after 500ms debounce
+  - [x] 39.4 On app shutdown — flush any pending state saves
+  - [x] 39.5 Verify every configurable property is persisted — zoom, active stage, window size/position, last project, master root path, selected AI model, last inspected image
+  - Progress note (2026-03-27): App startup now restores `AppState`, reapplies saved window geometry, and jumps straight back into the last opened project when it still exists. Projects Hub persists the master root and last opened project id, Review Workspace and Inspector Mode reload the latest `ProjectState` on open and save stage/zoom/model/focused-image changes through the debounced persistence service, and shutdown now flushes any queued writes. Coverage was expanded with app-state, project-state, and flush tests, bringing the suite to 65 unit tests plus 4 headless tests.
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
 - [ ] 40. Wire AI tagger background processing

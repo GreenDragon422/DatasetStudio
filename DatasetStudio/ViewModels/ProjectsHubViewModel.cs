@@ -18,7 +18,7 @@ using System.Collections.Specialized;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
+public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, INavigationAware
 {
     private const string DefaultNewProjectName = "New Project";
 
@@ -32,6 +32,8 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
     private readonly INavigationService navigationService;
     private readonly IMessenger messenger;
     private readonly IProjectService projectService;
+    private readonly IStatePersistenceService statePersistenceService;
+    private bool hasAttemptedInitialLoad;
     private CancellationTokenSource? masterRootWatcherRefreshCancellationSource;
     private FileSystemWatcher? masterRootWatcher;
 
@@ -39,13 +41,15 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
         IProjectService projectService,
         IFileSystemService fileSystemService,
         INavigationService navigationService,
-        IMessenger messenger)
+        IMessenger messenger,
+        IStatePersistenceService statePersistenceService)
         : base(messenger)
     {
         this.projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
         this.fileSystemService = fileSystemService ?? throw new ArgumentNullException(nameof(fileSystemService));
         this.navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+        this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
         Projects = new ObservableCollection<ProjectsHubProjectCardViewModel>();
         Projects.CollectionChanged += OnProjectsCollectionChanged;
@@ -55,6 +59,19 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
         });
         StatusText = "Projects Hub ready.";
         IsEmptyStateVisible = true;
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
+        _ = parameter;
+
+        if (hasAttemptedInitialLoad)
+        {
+            return;
+        }
+
+        hasAttemptedInitialLoad = true;
+        _ = LoadProjectsFromServiceAsync();
     }
 
     [ObservableProperty]
@@ -158,6 +175,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
 
         navigationService.NavigateTo<LibraryGridViewModel>(projectCard.Project);
         messenger.Send(new ProjectOpenedMessage(projectCard.ProjectId));
+        _ = PersistLastOpenedProjectAsync(projectCard.Project);
         StatusText = string.Format("Project selected: {0}", projectCard.Name);
     }
 
@@ -168,6 +186,12 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
 
         try
         {
+            AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
+            if (!string.IsNullOrWhiteSpace(appState.LastMasterRootDirectory))
+            {
+                MasterRootPath = appState.LastMasterRootDirectory;
+            }
+
             IReadOnlyList<Project> projects = await projectService.LoadProjectsAsync().ConfigureAwait(false);
             List<ProjectsHubProjectCardViewModel> cards = new();
 
@@ -178,16 +202,6 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
             }
 
             await ReplaceProjectsAsync(cards).ConfigureAwait(false);
-
-            if (cards.Count > 0)
-            {
-                string parentFolderPath = Path.GetDirectoryName(cards[0].RootFolderPath) ?? string.Empty;
-                if (!string.IsNullOrWhiteSpace(parentFolderPath))
-                {
-                    MasterRootPath = parentFolderPath;
-                }
-            }
-
             StatusText = string.Format("Loaded {0} project{1}.", cards.Count, cards.Count == 1 ? string.Empty : "s");
         }
         catch (Exception exception)
@@ -350,6 +364,11 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
     partial void OnMasterRootPathChanged(string value)
     {
         ConfigureMasterRootWatcher(value);
+
+        if (string.IsNullOrWhiteSpace(value) || Directory.Exists(value))
+        {
+            _ = PersistMasterRootPathAsync(value);
+        }
     }
 
     public void Dispose()
@@ -376,6 +395,43 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
         fileSystemWatcher.Renamed += OnMasterRootWatcherRenamed;
         fileSystemWatcher.EnableRaisingEvents = true;
         masterRootWatcher = fileSystemWatcher;
+    }
+
+    private async Task PersistMasterRootPathAsync(string masterRootFolderPath)
+    {
+        try
+        {
+            AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
+            string? normalizedMasterRootFolderPath = string.IsNullOrWhiteSpace(masterRootFolderPath) ? null : masterRootFolderPath;
+            bool rootChanged = !string.Equals(appState.LastMasterRootDirectory, normalizedMasterRootFolderPath, StringComparison.OrdinalIgnoreCase);
+
+            appState.LastMasterRootDirectory = normalizedMasterRootFolderPath;
+            if (rootChanged)
+            {
+                appState.LastOpenedProjectId = null;
+            }
+
+            await statePersistenceService.SaveAppStateAsync(appState).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            StatusText = string.Format("Could not save master root state: {0}", exception.Message);
+        }
+    }
+
+    private async Task PersistLastOpenedProjectAsync(Project project)
+    {
+        try
+        {
+            AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
+            appState.LastOpenedProjectId = project.Id;
+            appState.LastMasterRootDirectory = Path.GetDirectoryName(project.RootFolderPath);
+            await statePersistenceService.SaveAppStateAsync(appState).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            StatusText = string.Format("Could not save project session state: {0}", exception.Message);
+        }
     }
 
     private void DetachMasterRootWatcher()

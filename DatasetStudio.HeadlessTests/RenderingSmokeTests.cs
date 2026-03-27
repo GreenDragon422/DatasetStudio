@@ -59,7 +59,8 @@ public class RenderingSmokeTests
             scenario.ClipboardService,
             scenario.NavigationService,
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
         libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
         MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
@@ -91,7 +92,8 @@ public class RenderingSmokeTests
             scenario.ClipboardService,
             scenario.NavigationService,
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
         libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
         MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
@@ -123,7 +125,8 @@ public class RenderingSmokeTests
             scenario.FileSystemService,
             scenario.ClipboardService,
             scenario.NavigationService,
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
         inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
         MainWindow window = scenario.CreateMainWindow(inspectorModeViewModel);
@@ -171,7 +174,8 @@ public class RenderingSmokeTests
             scenario.ProjectService,
             scenario.FileSystemService,
             scenario.NavigationService,
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
 
         MainWindow window = scenario.CreateMainWindow(projectsHubViewModel);
         await CaptureWindowAsync(window, outputFolder, "projects-hub.png", 350).ConfigureAwait(true);
@@ -183,7 +187,8 @@ public class RenderingSmokeTests
             scenario.ProjectService,
             scenario.FileSystemService,
             scenario.NavigationService,
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
 
         ProjectConfigurationViewModel projectConfigurationViewModel = new ProjectConfigurationViewModel(
             scenario.ProjectService,
@@ -226,7 +231,8 @@ public class RenderingSmokeTests
             scenario.ClipboardService,
             scenario.NavigationService,
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
         libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
         MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
@@ -245,7 +251,8 @@ public class RenderingSmokeTests
             scenario.FileSystemService,
             scenario.ClipboardService,
             scenario.NavigationService,
-            scenario.Messenger);
+            scenario.Messenger,
+            scenario.StatePersistenceService);
         inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
         MainWindow window = scenario.CreateMainWindow(inspectorModeViewModel);
@@ -281,7 +288,8 @@ public class RenderingSmokeTests
             CaptureAiTaggerService aiTaggerService,
             CaptureThumbnailCacheService thumbnailCacheService,
             CaptureClipboardService clipboardService,
-            CaptureNavigationService navigationService)
+            CaptureNavigationService navigationService,
+            CaptureStatePersistenceService statePersistenceService)
         {
             WorkspacePath = workspacePath;
             PrimaryProject = primaryProject;
@@ -295,6 +303,7 @@ public class RenderingSmokeTests
             ThumbnailCacheService = thumbnailCacheService;
             ClipboardService = clipboardService;
             NavigationService = navigationService;
+            StatePersistenceService = statePersistenceService;
         }
 
         public string WorkspacePath { get; }
@@ -320,6 +329,8 @@ public class RenderingSmokeTests
         public CaptureClipboardService ClipboardService { get; }
 
         public CaptureNavigationService NavigationService { get; }
+
+        public CaptureStatePersistenceService StatePersistenceService { get; }
 
         public static async Task<CaptureScenario> CreateAsync()
         {
@@ -401,6 +412,14 @@ public class RenderingSmokeTests
             CaptureThumbnailCacheService thumbnailCacheService = new CaptureThumbnailCacheService();
             CaptureClipboardService clipboardService = new CaptureClipboardService();
             CaptureNavigationService navigationService = new CaptureNavigationService();
+            CaptureStatePersistenceService statePersistenceService = new CaptureStatePersistenceService();
+            statePersistenceService.SetAppState(new AppState
+            {
+                LastMasterRootDirectory = masterRootPath,
+                LastOpenedProjectId = primaryProject.Id,
+            });
+            statePersistenceService.SetProjectState(primaryProject.Id, primaryProject.State);
+            statePersistenceService.SetProjectState(secondaryProject.Id, secondaryProject.State);
 
             return new CaptureScenario(
                 workspacePath,
@@ -414,7 +433,8 @@ public class RenderingSmokeTests
                 aiTaggerService,
                 thumbnailCacheService,
                 clipboardService,
-                navigationService);
+                navigationService,
+                statePersistenceService);
         }
 
         public MainWindow CreateMainWindow(ScreenViewModelBase currentView)
@@ -495,6 +515,84 @@ public class RenderingSmokeTests
                 string tagContents = string.Join(", ", entry.Value);
                 await File.WriteAllTextAsync(tagFilePath, tagContents).ConfigureAwait(false);
             }
+        }
+    }
+
+    private sealed class CaptureStatePersistenceService : IStatePersistenceService
+    {
+        private readonly Dictionary<string, ProjectState> projectStatesById = new Dictionary<string, ProjectState>(StringComparer.OrdinalIgnoreCase);
+        private AppState appState = new AppState();
+
+        public Task SaveAppStateAsync(AppState state)
+        {
+            appState = CloneAppState(state);
+            return Task.CompletedTask;
+        }
+
+        public Task<AppState> LoadAppStateAsync()
+        {
+            return Task.FromResult(CloneAppState(appState));
+        }
+
+        public Task SaveProjectStateAsync(string projectId, ProjectState state)
+        {
+            projectStatesById[projectId] = CloneProjectState(state);
+            return Task.CompletedTask;
+        }
+
+        public Task<ProjectState> LoadProjectStateAsync(string projectId)
+        {
+            if (projectStatesById.TryGetValue(projectId, out ProjectState? state))
+            {
+                return Task.FromResult(CloneProjectState(state));
+            }
+
+            return Task.FromResult(new ProjectState
+            {
+                ActiveStageFolderName = null,
+                ZoomSliderValue = 160,
+                SelectedAiModelName = null,
+                LastInspectedImagePath = null,
+            });
+        }
+
+        public Task FlushPendingSavesAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public void SetAppState(AppState state)
+        {
+            appState = CloneAppState(state);
+        }
+
+        public void SetProjectState(string projectId, ProjectState state)
+        {
+            projectStatesById[projectId] = CloneProjectState(state);
+        }
+
+        private static AppState CloneAppState(AppState state)
+        {
+            return new AppState
+            {
+                LastOpenedProjectId = state.LastOpenedProjectId,
+                WindowWidth = state.WindowWidth,
+                WindowHeight = state.WindowHeight,
+                WindowX = state.WindowX,
+                WindowY = state.WindowY,
+                LastMasterRootDirectory = state.LastMasterRootDirectory,
+            };
+        }
+
+        private static ProjectState CloneProjectState(ProjectState state)
+        {
+            return new ProjectState
+            {
+                ActiveStageFolderName = state.ActiveStageFolderName,
+                ZoomSliderValue = state.ZoomSliderValue,
+                SelectedAiModelName = state.SelectedAiModelName,
+                LastInspectedImagePath = state.LastInspectedImagePath,
+            };
         }
     }
 

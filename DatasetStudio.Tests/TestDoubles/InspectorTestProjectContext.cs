@@ -12,6 +12,7 @@ public sealed class InspectorTestProjectContext
         TagFileService tagFileService,
         TagDictionaryService tagDictionaryService,
         RecordingClipboardService clipboardService,
+        TestStatePersistenceService statePersistenceService,
         StrongReferenceMessenger messenger,
         string catImagePath,
         string dogImagePath)
@@ -21,6 +22,7 @@ public sealed class InspectorTestProjectContext
         TagFileService = tagFileService;
         TagDictionaryService = tagDictionaryService;
         ClipboardService = clipboardService;
+        StatePersistenceService = statePersistenceService;
         Messenger = messenger;
         CatImagePath = catImagePath;
         DogImagePath = dogImagePath;
@@ -35,6 +37,8 @@ public sealed class InspectorTestProjectContext
     public TagDictionaryService TagDictionaryService { get; }
 
     public RecordingClipboardService ClipboardService { get; }
+
+    public TestStatePersistenceService StatePersistenceService { get; }
 
     public StrongReferenceMessenger Messenger { get; }
 

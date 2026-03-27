@@ -152,4 +152,87 @@ public class StatePersistenceServiceTests
         Assert.That(projectState.SelectedAiModelName, Is.Null);
         Assert.That(projectState.LastInspectedImagePath, Is.Null);
     }
+
+    [Test]
+    public async Task FlushPendingSavesAsync_PersistsQueuedApplicationAndProjectStateImmediately()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        string masterRootPath = temporaryDirectory.DirectoryPath;
+        string projectRootPath = Path.Combine(masterRootPath, "ProjectOne");
+        string projectConfigurationPath = Path.Combine(projectRootPath, ".datasetstudio.json");
+        Directory.CreateDirectory(projectRootPath);
+
+        Project project = new()
+        {
+            Id = "project-flush",
+            Name = "ProjectOne",
+            RootFolderPath = projectRootPath,
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+                ZoomSliderValue = 160,
+                SelectedAiModelName = "base-model",
+                LastInspectedImagePath = null,
+            },
+        };
+
+        await File.WriteAllTextAsync(projectConfigurationPath, JsonSerializer.Serialize(project, JsonSerializerOptions));
+
+        FileSystemService fileSystemService = new();
+        StatePersistenceService statePersistenceService = new(fileSystemService, temporaryDirectory.DirectoryPath, TimeSpan.FromMinutes(5));
+        Task initialSaveTask = statePersistenceService.SaveAppStateAsync(new AppState
+        {
+            LastMasterRootDirectory = masterRootPath,
+        });
+        await statePersistenceService.FlushPendingSavesAsync();
+        await initialSaveTask;
+
+        AppState expectedAppState = new()
+        {
+            LastOpenedProjectId = project.Id,
+            LastMasterRootDirectory = masterRootPath,
+            WindowWidth = 1440,
+            WindowHeight = 900,
+            WindowX = 32,
+            WindowY = 48,
+        };
+
+        ProjectState expectedProjectState = new()
+        {
+            ActiveStageFolderName = "02_Review",
+            ZoomSliderValue = 220,
+            SelectedAiModelName = "wd-eva02-large",
+            LastInspectedImagePath = Path.Combine(projectRootPath, "02_Review", "cat.png"),
+        };
+
+        Task saveAppTask = statePersistenceService.SaveAppStateAsync(expectedAppState);
+        Task saveProjectTask = statePersistenceService.SaveProjectStateAsync(project.Id, expectedProjectState);
+
+        for (int attempt = 0; attempt < 100; attempt++)
+        {
+            ProjectState pendingProjectState = await statePersistenceService.LoadProjectStateAsync(project.Id);
+            if (pendingProjectState.SelectedAiModelName == expectedProjectState.SelectedAiModelName)
+            {
+                break;
+            }
+
+            await Task.Delay(10);
+        }
+
+        await statePersistenceService.FlushPendingSavesAsync();
+        await Task.WhenAll(saveAppTask, saveProjectTask);
+
+        AppState actualAppState = await statePersistenceService.LoadAppStateAsync();
+        ProjectState actualProjectState = await statePersistenceService.LoadProjectStateAsync(project.Id);
+
+        Assert.That(actualAppState.LastOpenedProjectId, Is.EqualTo(expectedAppState.LastOpenedProjectId));
+        Assert.That(actualAppState.WindowWidth, Is.EqualTo(expectedAppState.WindowWidth));
+        Assert.That(actualAppState.WindowHeight, Is.EqualTo(expectedAppState.WindowHeight));
+        Assert.That(actualAppState.WindowX, Is.EqualTo(expectedAppState.WindowX));
+        Assert.That(actualAppState.WindowY, Is.EqualTo(expectedAppState.WindowY));
+        Assert.That(actualProjectState.ActiveStageFolderName, Is.EqualTo(expectedProjectState.ActiveStageFolderName));
+        Assert.That(actualProjectState.ZoomSliderValue, Is.EqualTo(expectedProjectState.ZoomSliderValue));
+        Assert.That(actualProjectState.SelectedAiModelName, Is.EqualTo(expectedProjectState.SelectedAiModelName));
+        Assert.That(actualProjectState.LastInspectedImagePath, Is.EqualTo(expectedProjectState.LastInspectedImagePath));
+    }
 }

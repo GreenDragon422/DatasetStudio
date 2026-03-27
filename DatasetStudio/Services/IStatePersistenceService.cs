@@ -12,4 +12,6 @@ public interface IStatePersistenceService
     Task SaveProjectStateAsync(string projectId, ProjectState state);
 
     Task<ProjectState> LoadProjectStateAsync(string projectId);
+
+    Task FlushPendingSavesAsync();
 }

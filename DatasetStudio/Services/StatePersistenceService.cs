@@ -192,6 +192,94 @@ public sealed class StatePersistenceService : IStatePersistenceService
         }
     }
 
+    public Task FlushPendingSavesAsync()
+    {
+        AppState? applicationStateToPersist;
+        List<TaskCompletionSource<bool>> applicationCompletionSources;
+        Dictionary<string, ProjectState> projectStatesToPersist;
+        Dictionary<string, string> projectConfigurationPathsToPersist;
+        Dictionary<string, List<TaskCompletionSource<bool>>> projectCompletionSourcesById;
+
+        lock (syncLock)
+        {
+            if (applicationStateSaveTimer is not null)
+            {
+                applicationStateSaveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            }
+
+            foreach (Timer projectStateSaveTimer in projectStateSaveTimersById.Values)
+            {
+                projectStateSaveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            }
+
+            applicationStateToPersist = pendingApplicationState;
+            pendingApplicationState = null;
+            applicationCompletionSources = new List<TaskCompletionSource<bool>>(pendingApplicationStateSaveCompletions);
+            pendingApplicationStateSaveCompletions.Clear();
+
+            projectStatesToPersist = new Dictionary<string, ProjectState>(pendingProjectStatesById, StringComparer.OrdinalIgnoreCase);
+            pendingProjectStatesById.Clear();
+            projectConfigurationPathsToPersist = new Dictionary<string, string>(projectConfigurationPathsById, StringComparer.OrdinalIgnoreCase);
+            projectCompletionSourcesById = new Dictionary<string, List<TaskCompletionSource<bool>>>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (KeyValuePair<string, List<TaskCompletionSource<bool>>> entry in pendingProjectStateSaveCompletionsById)
+            {
+                projectCompletionSourcesById[entry.Key] = new List<TaskCompletionSource<bool>>(entry.Value);
+            }
+
+            pendingProjectStateSaveCompletionsById.Clear();
+        }
+
+        List<Exception> exceptions = new List<Exception>();
+
+        try
+        {
+            if (applicationStateToPersist is not null)
+            {
+                PersistApplicationState(applicationStateToPersist);
+            }
+
+            CompleteSuccessfully(applicationCompletionSources);
+        }
+        catch (Exception exception)
+        {
+            exceptions.Add(exception);
+            CompleteWithException(applicationCompletionSources, exception);
+        }
+
+        foreach (KeyValuePair<string, ProjectState> entry in projectStatesToPersist)
+        {
+            string projectId = entry.Key;
+            ProjectState projectStateToPersist = entry.Value;
+            List<TaskCompletionSource<bool>> projectCompletionSources = projectCompletionSourcesById.TryGetValue(projectId, out List<TaskCompletionSource<bool>>? storedCompletionSources)
+                ? storedCompletionSources
+                : new List<TaskCompletionSource<bool>>();
+
+            try
+            {
+                if (projectConfigurationPathsToPersist.TryGetValue(projectId, out string? projectConfigurationPath)
+                    && !string.IsNullOrWhiteSpace(projectConfigurationPath))
+                {
+                    PersistProjectState(projectId, projectConfigurationPath, projectStateToPersist);
+                }
+
+                CompleteSuccessfully(projectCompletionSources);
+            }
+            catch (Exception exception)
+            {
+                exceptions.Add(exception);
+                CompleteWithException(projectCompletionSources, exception);
+            }
+        }
+
+        if (exceptions.Count > 0)
+        {
+            return Task.FromException(new AggregateException(exceptions));
+        }
+
+        return Task.CompletedTask;
+    }
+
     private void OnApplicationStateSaveTimerElapsed(object? timerState)
     {
         AppState? applicationStateToPersist;

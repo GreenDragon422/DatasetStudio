@@ -22,10 +22,12 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
     private readonly IClipboardService clipboardService;
     private readonly INavigationService navigationService;
     private readonly IMessenger messenger;
+    private readonly IStatePersistenceService statePersistenceService;
 
     private Project? currentProject;
     private bool isSynchronizingStageSelection;
     private bool isIgnoringNextImageMovedMessage;
+    private bool isRestoringPersistedProjectState;
 
     public InspectorModeViewModel(
         ITagFileService tagFileService,
@@ -33,7 +35,8 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         IFileSystemService fileSystemService,
         IClipboardService clipboardService,
         INavigationService navigationService,
-        IMessenger messenger)
+        IMessenger messenger,
+        IStatePersistenceService statePersistenceService)
         : base(messenger)
     {
         this.tagFileService = tagFileService ?? throw new ArgumentNullException(nameof(tagFileService));
@@ -42,6 +45,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         this.navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+        this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
         Stages = new ObservableCollection<LibraryGridStageViewModel>();
         ImageList = new ObservableCollection<ImageEntry>();
@@ -122,7 +126,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             ? "No prefix tags configured."
             : string.Join(", ", project.PrefixTags);
         StatusText = string.Format("Loading Inspector Mode for {0}...", ProjectName);
-        _ = LoadStagesAsync(project.State.ActiveStageFolderName, project.State.LastInspectedImagePath, null);
+        _ = RestoreProjectStateAndLoadAsync(project);
     }
 
     partial void OnActiveStageChanged(LibraryGridStageViewModel? value)
@@ -264,6 +268,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         if (currentProject is not null)
         {
             currentProject.State.LastInspectedImagePath = null;
+            await PersistCurrentProjectStateAsync().ConfigureAwait(true);
         }
 
         messenger.Send(new ImageDeletedMessage(deletedImage.FilePath, ActiveStage.FolderPath));
@@ -377,6 +382,11 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         }
 
         currentProject.State.ActiveStageFolderName = stage.FolderName;
+        if (!isRestoringPersistedProjectState)
+        {
+            _ = PersistCurrentProjectStateAsync();
+        }
+
         IReadOnlyList<string> imageFilePaths = await fileSystemService.GetImageFilesAsync(stage.FolderPath).ConfigureAwait(true);
         List<ImageEntry> imageEntries = new List<ImageEntry>();
 
@@ -485,6 +495,11 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         if (currentProject is not null)
         {
             currentProject.State.LastInspectedImagePath = image.FilePath;
+
+            if (!isRestoringPersistedProjectState)
+            {
+                _ = PersistCurrentProjectStateAsync();
+            }
         }
 
         IReadOnlyList<string> fileTags = await tagFileService.ReadTagsAsync(image.TagFilePath).ConfigureAwait(true);
@@ -497,6 +512,44 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         CurrentImageSource = loadedBitmap;
 
         StatusText = string.Format("Inspecting {0} ({1}/{2}).", image.FileName, targetIndex + 1, ImageList.Count);
+    }
+
+    private async Task RestoreProjectStateAndLoadAsync(Project project)
+    {
+        isRestoringPersistedProjectState = true;
+
+        try
+        {
+            ProjectState persistedState = await statePersistenceService.LoadProjectStateAsync(project.Id).ConfigureAwait(true);
+            project.State = persistedState;
+            await LoadStagesAsync(project.State.ActiveStageFolderName, project.State.LastInspectedImagePath, null).ConfigureAwait(true);
+        }
+        finally
+        {
+            isRestoringPersistedProjectState = false;
+        }
+    }
+
+    private Task PersistCurrentProjectStateAsync()
+    {
+        if (currentProject is null || string.IsNullOrWhiteSpace(currentProject.Id))
+        {
+            return Task.CompletedTask;
+        }
+
+        return PersistCurrentProjectStateCoreAsync(currentProject.Id, currentProject.State);
+    }
+
+    private async Task PersistCurrentProjectStateCoreAsync(string projectId, ProjectState state)
+    {
+        try
+        {
+            await statePersistenceService.SaveProjectStateAsync(projectId, state).ConfigureAwait(true);
+        }
+        catch (Exception exception)
+        {
+            StatusText = string.Format("Could not save project state: {0}", exception.Message);
+        }
     }
 
     private async Task<Bitmap?> LoadBitmapAsync(string imageFilePath)
@@ -672,6 +725,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         isIgnoringNextImageMovedMessage = false;
 
         currentProject!.State.LastInspectedImagePath = null;
+        await PersistCurrentProjectStateAsync().ConfigureAwait(true);
         StatusText = string.Format("Moved {0} to {1}.", movedImage.FileName, targetStage.DisplayName);
         await LoadStagesAsync(ActiveStage.FolderName, null, preferredIndex).ConfigureAwait(true);
     }
