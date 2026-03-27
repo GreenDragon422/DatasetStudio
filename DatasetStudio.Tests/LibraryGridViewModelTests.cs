@@ -31,6 +31,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -100,6 +101,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -153,6 +155,7 @@ public class LibraryGridViewModelTests
         TestFileSystemService fileSystemService = new TestFileSystemService();
         TestTagFileService tagFileService = new TestTagFileService();
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService();
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         LibraryGridViewModel viewModel = new LibraryGridViewModel(
@@ -162,6 +165,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            aiTaggerService,
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -218,6 +222,136 @@ public class LibraryGridViewModelTests
     }
 
     [Test]
+    public async Task OnNavigatedTo_LoadsAvailableAiModelsAndQueuesMissingTagFiles()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService
+        {
+            AvailableModels = new[]
+            {
+                new AiModelInfo { Id = "wd14-vit", DisplayName = "WD14 ViT", ModelPath = "wd14.onnx" },
+                new AiModelInfo { Id = "deepdanbooru", DisplayName = "DeepDanbooru", ModelPath = "ddb.onnx" },
+            },
+        };
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            new TestNavigationService(),
+            aiTaggerService,
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
+        string inboxImagePath = Path.Combine(inboxFolderPath, "bird.png");
+
+        fileSystemService.SetImageFiles(inboxFolderPath, new[] { inboxImagePath });
+
+        Project project = new Project
+        {
+            Id = "project-ai-1",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            AiModelName = "wd14-vit",
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+                SelectedAiModelName = "wd14-vit",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+
+        await WaitForConditionAsync(() =>
+            viewModel.Images.Count == 1
+            && viewModel.SelectedAiModel is not null
+            && viewModel.Images[0].IsAiProcessing).ConfigureAwait(false);
+
+        Assert.That(viewModel.AiModels.Select(model => model.Id), Is.EqualTo(new[] { "wd14-vit", "deepdanbooru" }));
+        Assert.That(viewModel.SelectedAiModel?.Id, Is.EqualTo("wd14-vit"));
+        Assert.That(aiTaggerService.RequestedModelsByImagePath[inboxImagePath], Is.EqualTo("wd14-vit"));
+    }
+
+    [Test]
+    public async Task SelectedAiModelChange_QueuesVisibleMissingTagFilesWithNewModel()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService
+        {
+            AvailableModels = new[]
+            {
+                new AiModelInfo { Id = "wd14-vit", DisplayName = "WD14 ViT", ModelPath = "wd14.onnx" },
+                new AiModelInfo { Id = "deepdanbooru", DisplayName = "DeepDanbooru", ModelPath = "ddb.onnx" },
+            },
+        };
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            new TestNavigationService(),
+            aiTaggerService,
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
+        string inboxImagePath = Path.Combine(inboxFolderPath, "bird.png");
+
+        fileSystemService.SetImageFiles(inboxFolderPath, new[] { inboxImagePath });
+
+        Project project = new Project
+        {
+            Id = "project-ai-2",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+        await WaitForConditionAsync(() => viewModel.Images.Count == 1 && viewModel.AiModels.Count == 2).ConfigureAwait(false);
+
+        viewModel.SelectedAiModel = viewModel.AiModels[1];
+
+        await WaitForConditionAsync(() => aiTaggerService.RequestedModelsByImagePath.ContainsKey(inboxImagePath)).ConfigureAwait(false);
+
+        Assert.That(aiTaggerService.RequestedModelsByImagePath[inboxImagePath], Is.EqualTo("deepdanbooru"));
+        Assert.That(project.State.SelectedAiModelName, Is.EqualTo("deepdanbooru"));
+        Assert.That(viewModel.Images[0].IsAiProcessing, Is.True);
+    }
+
+    [Test]
     public async Task OpenInspectorCommand_NavigatesWithProjectAndPreservesFocusedImagePath()
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();
@@ -234,6 +368,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             navigationService,
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -287,6 +422,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -346,6 +482,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -403,6 +540,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -461,6 +599,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             new TestClipboardService(),
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);
@@ -518,6 +657,7 @@ public class LibraryGridViewModelTests
             new TestThumbnailCacheService(),
             clipboardService,
             new TestNavigationService(),
+            new TestAiTaggerService(),
             batchTagOperationService,
             messenger,
             statePersistenceService);

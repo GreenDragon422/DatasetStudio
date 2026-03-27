@@ -22,6 +22,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     private readonly IThumbnailCacheService thumbnailCacheService;
     private readonly IClipboardService clipboardService;
     private readonly INavigationService navigationService;
+    private readonly IAiTaggerService aiTaggerService;
     private readonly BatchTagOperationService batchTagOperationService;
     private readonly IMessenger messenger;
     private readonly IStatePersistenceService statePersistenceService;
@@ -38,6 +39,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         IThumbnailCacheService thumbnailCacheService,
         IClipboardService clipboardService,
         INavigationService navigationService,
+        IAiTaggerService aiTaggerService,
         BatchTagOperationService batchTagOperationService,
         IMessenger messenger,
         IStatePersistenceService statePersistenceService)
@@ -49,6 +51,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         this.thumbnailCacheService = thumbnailCacheService ?? throw new ArgumentNullException(nameof(thumbnailCacheService));
         this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         this.navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        this.aiTaggerService = aiTaggerService ?? throw new ArgumentNullException(nameof(aiTaggerService));
         this.batchTagOperationService = batchTagOperationService ?? throw new ArgumentNullException(nameof(batchTagOperationService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
@@ -78,6 +81,10 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         messenger.Register<LibraryGridViewModel, AiTaggingCompletedMessage>(this, static (recipient, message) =>
         {
             recipient.UpdateImageTags(message.ImagePath, message.GeneratedTags, TagStatus.AutoTagged);
+        });
+        messenger.Register<LibraryGridViewModel, AiTaggingFailedMessage>(this, static (recipient, message) =>
+        {
+            recipient.HandleAiTaggingFailed(message);
         });
     }
 
@@ -301,7 +308,8 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         foreach (string imageFilePath in imageFilePaths)
         {
-            IReadOnlyList<string> fileTags = await tagFileService.ReadTagsAsync(tagFileService.GetTagFilePath(imageFilePath)).ConfigureAwait(true);
+            string tagFilePath = tagFileService.GetTagFilePath(imageFilePath);
+            IReadOnlyList<string> fileTags = await tagFileService.ReadTagsAsync(tagFilePath).ConfigureAwait(true);
             IReadOnlyList<string> combinedTags = CombinePrefixAndFileTags(currentProject, fileTags);
             Bitmap? thumbnail = await LoadThumbnailAsync(imageFilePath).ConfigureAwait(true);
             TagStatus status = fileTags.Count == 0 ? TagStatus.Untagged : TagStatus.Ready;
@@ -309,18 +317,29 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             LibraryGridImageViewModel imageViewModel = new(
                 imageFilePath,
                 Path.GetFileName(imageFilePath),
-                tagFileService.GetTagFilePath(imageFilePath),
+                tagFilePath,
                 combinedTags,
                 status,
                 thumbnail);
+            imageViewModel.IsAiProcessing = aiTaggerService.IsProcessing(imageFilePath);
 
             imageViewModels.Add(imageViewModel);
         }
 
         ReplaceImages(imageViewModels);
+        int queuedImageCount = QueueAiTaggingForImages(imageViewModels);
         StatusText = imageViewModels.Count == 0
             ? string.Format("{0} is empty.", stage.DisplayName)
             : string.Format("Loaded {0} image{1} from {2}.", imageViewModels.Count, imageViewModels.Count == 1 ? string.Empty : "s", stage.DisplayName);
+
+        if (queuedImageCount > 0)
+        {
+            StatusText = string.Format(
+                "{0} Queued AI tagging for {1} image{2}.",
+                StatusText,
+                queuedImageCount,
+                queuedImageCount == 1 ? string.Empty : "s");
+        }
     }
 
     [RelayCommand]
@@ -673,6 +692,19 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         {
             _ = PersistCurrentProjectStateAsync();
         }
+
+        if (!string.IsNullOrWhiteSpace(value?.Id))
+        {
+            int queuedImageCount = QueueAiTaggingForImages(allImages);
+            if (queuedImageCount > 0)
+            {
+                StatusText = string.Format(
+                    "Queued AI tagging for {0} image{1} with {2}.",
+                    queuedImageCount,
+                    queuedImageCount == 1 ? string.Empty : "s",
+                    value.DisplayName);
+            }
+        }
     }
 
     partial void OnBatchAddQueryTextChanged(string value)
@@ -752,7 +784,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             }
 
             ZoomValue = project.State.ZoomSliderValue > 0 ? project.State.ZoomSliderValue : 160;
-            LoadAiModelChoices(project);
+            await LoadAiModelChoicesAsync(project).ConfigureAwait(true);
             await LoadStagesCoreAsync().ConfigureAwait(true);
         }
         finally
@@ -861,26 +893,97 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         ApplyImageFilter();
     }
 
-    private void LoadAiModelChoices(Project project)
+    private async Task LoadAiModelChoicesAsync(Project project)
     {
+        IReadOnlyList<AiModelInfo> availableModels;
+
+        try
+        {
+            availableModels = await aiTaggerService.GetAvailableModelsAsync().ConfigureAwait(true);
+        }
+        catch (Exception exception)
+        {
+            availableModels = Array.Empty<AiModelInfo>();
+            StatusText = string.Format("Could not load AI models: {0}", exception.Message);
+        }
+
         AiModels.Clear();
 
-        if (!string.IsNullOrWhiteSpace(project.AiModelName))
+        foreach (AiModelInfo availableModel in availableModels)
         {
-            AiModelInfo aiModel = new AiModelInfo
-            {
-                Id = project.AiModelName,
-                DisplayName = project.AiModelName,
-                ModelPath = string.Empty,
-            };
+            AiModels.Add(availableModel);
+        }
 
-            AiModels.Add(aiModel);
-            SelectedAiModel = aiModel;
+        string? selectedModelName = AiTaggingModelResolver.ResolveConfiguredModelName(project);
+        if (!string.IsNullOrWhiteSpace(selectedModelName))
+        {
+            AiModelInfo? selectedModel = AiModels.FirstOrDefault(model =>
+                string.Equals(model.Id, selectedModelName, StringComparison.OrdinalIgnoreCase));
+
+            if (selectedModel is null)
+            {
+                selectedModel = new AiModelInfo
+                {
+                    Id = selectedModelName,
+                    DisplayName = selectedModelName,
+                    ModelPath = string.Empty,
+                };
+
+                AiModels.Insert(0, selectedModel);
+            }
+
+            SelectedAiModel = selectedModel;
         }
         else
         {
             SelectedAiModel = null;
         }
+    }
+
+    private int QueueAiTaggingForImages(IEnumerable<LibraryGridImageViewModel> images)
+    {
+        int queuedImageCount = 0;
+
+        foreach (LibraryGridImageViewModel image in images)
+        {
+            if (QueueAiTaggingIfNeeded(image))
+            {
+                queuedImageCount++;
+            }
+        }
+
+        return queuedImageCount;
+    }
+
+    private bool QueueAiTaggingIfNeeded(LibraryGridImageViewModel image)
+    {
+        if (currentProject is null)
+        {
+            return false;
+        }
+
+        if (tagFileService.TagFileExists(image.FilePath))
+        {
+            image.IsAiProcessing = aiTaggerService.IsProcessing(image.FilePath);
+            return false;
+        }
+
+        string? aiModelName = AiTaggingModelResolver.ResolveConfiguredModelName(currentProject);
+        if (string.IsNullOrWhiteSpace(aiModelName))
+        {
+            image.IsAiProcessing = false;
+            return false;
+        }
+
+        if (aiTaggerService.IsProcessing(image.FilePath))
+        {
+            image.IsAiProcessing = true;
+            return false;
+        }
+
+        bool wasQueued = aiTaggerService.TryQueueTagGeneration(currentProject, image.FilePath);
+        image.IsAiProcessing = wasQueued || aiTaggerService.IsProcessing(image.FilePath);
+        return wasQueued;
     }
 
     private IReadOnlyList<WorkflowStage> GetWorkflowStages(Project project)
@@ -1147,6 +1250,21 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
 
         _ = LoadStagesCommand.ExecuteAsync(null);
+    }
+
+    private void HandleAiTaggingFailed(AiTaggingFailedMessage message)
+    {
+        LibraryGridImageViewModel? image = allImages.FirstOrDefault(candidate =>
+            string.Equals(candidate.FilePath, message.ImagePath, StringComparison.OrdinalIgnoreCase));
+
+        if (image is null)
+        {
+            return;
+        }
+
+        image.IsAiProcessing = false;
+        image.Status = TagStatus.Untagged;
+        StatusText = string.Format("AI tagging failed for {0}: {1}", image.FileName, message.ErrorMessage);
     }
 
     private async Task RefreshBatchAddSuggestionsCoreAsync(string query)

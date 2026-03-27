@@ -409,6 +409,15 @@
         <Setter Property="Foreground" Value="{StaticResource BrushAccent}" />
     </Style>
 
+    <Style Selector="TextBlock.processing-caption">
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+
     <Style Selector="Border.active-focus-frame">
         <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
@@ -489,6 +498,16 @@
         <Setter Property="Padding" Value="12" />
     </Style>
 
+    <Style Selector="Border.processing-overlay">
+        <Setter Property="Background" Value="{StaticResource BrushOverlayScrim}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Padding" Value="12" />
+    </Style>
+
+    <Style Selector="Border.processing-overlay.compact">
+        <Setter Property="Padding" Value="8" />
+    </Style>
+
     <Style Selector="Border.modal-card">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -544,6 +563,11 @@
     <Style Selector="Border.thumbnail-placeholder">
         <Setter Property="Background" Value="{StaticResource BrushSurfaceElevated}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="ProgressBar.processing-indicator">
+        <Setter Property="Height" Value="4" />
+        <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
 
     <Style Selector="Border.warning-focus-frame">

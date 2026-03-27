@@ -12,6 +12,7 @@ public sealed class InspectorTestProjectContext
         TagFileService tagFileService,
         TagDictionaryService tagDictionaryService,
         RecordingClipboardService clipboardService,
+        TestAiTaggerService aiTaggerService,
         TestStatePersistenceService statePersistenceService,
         StrongReferenceMessenger messenger,
         string catImagePath,
@@ -22,6 +23,7 @@ public sealed class InspectorTestProjectContext
         TagFileService = tagFileService;
         TagDictionaryService = tagDictionaryService;
         ClipboardService = clipboardService;
+        AiTaggerService = aiTaggerService;
         StatePersistenceService = statePersistenceService;
         Messenger = messenger;
         CatImagePath = catImagePath;
@@ -37,6 +39,8 @@ public sealed class InspectorTestProjectContext
     public TagDictionaryService TagDictionaryService { get; }
 
     public RecordingClipboardService ClipboardService { get; }
+
+    public TestAiTaggerService AiTaggerService { get; }
 
     public TestStatePersistenceService StatePersistenceService { get; }
 

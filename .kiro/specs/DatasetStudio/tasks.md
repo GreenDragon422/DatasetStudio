@@ -401,11 +401,12 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-27): App startup now restores `AppState`, reapplies saved window geometry, and jumps straight back into the last opened project when it still exists. Projects Hub persists the master root and last opened project id, Review Workspace and Inspector Mode reload the latest `ProjectState` on open and save stage/zoom/model/focused-image changes through the debounced persistence service, and shutdown now flushes any queued writes. Coverage was expanded with app-state, project-state, and flush tests, bringing the suite to 65 unit tests plus 4 headless tests.
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-- [ ] 40. Wire AI tagger background processing
-  - [ ] 40.1 On folder load — scan for images without .txt files, queue them for AI tagging via IAiTaggerService
-  - [ ] 40.2 Wire processing indicator — set ImageEntry.IsAiProcessing=true while processing, bind to spinner overlay in LibraryGrid thumbnails and InspectorMode tag area
-  - [ ] 40.3 On AiTaggingCompletedMessage — create tag file via ITagFileService, set status to Yellow (AutoTagged), refresh UI
-  - [ ] 40.4 Wire AI model selection — sync dropdown in LibraryGrid top bar and ProjectConfig modal to IAiTaggerService active model
+- [x] 40. Wire AI tagger background processing
+  - [x] 40.1 On folder load — scan for images without .txt files, queue them for AI tagging via IAiTaggerService
+  - [x] 40.2 Wire processing indicator — set ImageEntry.IsAiProcessing=true while processing, bind to spinner overlay in LibraryGrid thumbnails and InspectorMode tag area
+  - [x] 40.3 On AiTaggingCompletedMessage — create tag file via ITagFileService, set status to Yellow (AutoTagged), refresh UI
+  - [x] 40.4 Wire AI model selection — sync dropdown in LibraryGrid top bar and ProjectConfig modal to IAiTaggerService active model
+  - Progress note (2026-03-27): Review Workspace and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Library Grid also now loads the shared AI model registry into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 2.21, 3.13_
 
 - [ ] 41. Wire FileSystemWatcher for live updates

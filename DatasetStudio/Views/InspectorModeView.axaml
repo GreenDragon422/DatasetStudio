@@ -156,11 +156,15 @@
                         </Border>
 
                         <Border IsVisible="{Binding IsBusy}"
-                                Classes="modal-overlay compact"
+                                Classes="processing-overlay compact"
                                 VerticalAlignment="Stretch">
-                            <ProgressBar IsIndeterminate="True"
-                                         VerticalAlignment="Top"
-                                         Height="4" />
+                            <StackPanel Spacing="8"
+                                        VerticalAlignment="Center">
+                                <ProgressBar Classes="processing-indicator"
+                                             IsIndeterminate="True" />
+                                <TextBlock Text="Generating AI tags..."
+                                           Classes="processing-caption" />
+                            </StackPanel>
                         </Border>
                     </Grid>
 

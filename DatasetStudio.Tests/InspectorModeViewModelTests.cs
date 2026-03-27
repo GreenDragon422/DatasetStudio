@@ -31,6 +31,23 @@ public class InspectorModeViewModelTests
     }
 
     [Test]
+    public async Task OnNavigatedTo_QueuesAiTaggingForImageWithoutTagFile()
+    {
+        InspectorTestProjectContext testProjectContext = await CreateProjectContextAsync(includeInitialTags: false).ConfigureAwait(false);
+        testProjectContext.Project.AiModelName = "wd14-vit";
+        testProjectContext.Project.State.SelectedAiModelName = "wd14-vit";
+        testProjectContext.StatePersistenceService.SetProjectState(testProjectContext.Project.Id, testProjectContext.Project.State);
+
+        InspectorModeViewModel viewModel = CreateViewModel(testProjectContext);
+        viewModel.OnNavigatedTo(testProjectContext.Project);
+
+        await WaitForConditionAsync(() => viewModel.CurrentImage is not null && viewModel.CurrentImage.IsAiProcessing).ConfigureAwait(false);
+
+        Assert.That(viewModel.IsBusy, Is.True);
+        Assert.That(testProjectContext.AiTaggerService.RequestedModelsByImagePath[testProjectContext.CatImagePath], Is.EqualTo("wd14-vit"));
+    }
+
+    [Test]
     public async Task CommitTagCommand_ResolvesAliasPersistsTagAndAdvancesToNextPendingImage()
     {
         InspectorTestProjectContext testProjectContext = await CreateProjectContextAsync().ConfigureAwait(false);
@@ -91,11 +108,12 @@ public class InspectorModeViewModelTests
             testProjectContext.FileSystemService,
             testProjectContext.ClipboardService,
             new StubNavigationService(),
+            testProjectContext.AiTaggerService,
             testProjectContext.Messenger,
             testProjectContext.StatePersistenceService);
     }
 
-    private static async Task<InspectorTestProjectContext> CreateProjectContextAsync()
+    private static async Task<InspectorTestProjectContext> CreateProjectContextAsync(bool includeInitialTags = false)
     {
         string workspacePath = Path.Combine(Path.GetTempPath(), "DatasetStudioInspectorTests", Guid.NewGuid().ToString("N"));
         string rootFolderPath = Path.Combine(workspacePath, "animal-study");
@@ -145,8 +163,15 @@ public class InspectorModeViewModelTests
         InMemoryProjectService projectService = new InMemoryProjectService(new[] { project });
         TagDictionaryService tagDictionaryService = new TagDictionaryService(projectService, tagFileService, messenger);
         RecordingClipboardService clipboardService = new RecordingClipboardService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService();
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         statePersistenceService.SetProjectState(project.Id, project.State);
+
+        if (includeInitialTags)
+        {
+            await tagFileService.WriteTagsAsync(tagFileService.GetTagFilePath(catImagePath), new[] { "cat" }).ConfigureAwait(false);
+            await tagFileService.WriteTagsAsync(tagFileService.GetTagFilePath(dogImagePath), new[] { "dog" }).ConfigureAwait(false);
+        }
 
         return new InspectorTestProjectContext(
             project,
@@ -154,6 +179,7 @@ public class InspectorModeViewModelTests
             tagFileService,
             tagDictionaryService,
             clipboardService,
+            aiTaggerService,
             statePersistenceService,
             messenger,
             catImagePath,

@@ -58,6 +58,7 @@ public class RenderingSmokeTests
             scenario.ThumbnailCacheService,
             scenario.ClipboardService,
             scenario.NavigationService,
+            scenario.AiTaggerService,
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
@@ -91,6 +92,7 @@ public class RenderingSmokeTests
             scenario.ThumbnailCacheService,
             scenario.ClipboardService,
             scenario.NavigationService,
+            scenario.AiTaggerService,
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
@@ -125,6 +127,7 @@ public class RenderingSmokeTests
             scenario.FileSystemService,
             scenario.ClipboardService,
             scenario.NavigationService,
+            scenario.AiTaggerService,
             scenario.Messenger,
             scenario.StatePersistenceService);
         inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
@@ -230,6 +233,7 @@ public class RenderingSmokeTests
             scenario.ThumbnailCacheService,
             scenario.ClipboardService,
             scenario.NavigationService,
+            scenario.AiTaggerService,
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
@@ -251,6 +255,7 @@ public class RenderingSmokeTests
             scenario.FileSystemService,
             scenario.ClipboardService,
             scenario.NavigationService,
+            scenario.AiTaggerService,
             scenario.Messenger,
             scenario.StatePersistenceService);
         inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
@@ -691,6 +696,18 @@ public class RenderingSmokeTests
         {
             TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, new[] { "sample", modelName }));
             return Task.FromResult<IReadOnlyList<string>>(new[] { "sample", modelName });
+        }
+
+        public bool TryQueueTagGeneration(Project project, string imageFilePath)
+        {
+            string? modelName = AiTaggingModelResolver.ResolveConfiguredModelName(project);
+            if (string.IsNullOrWhiteSpace(modelName))
+            {
+                return false;
+            }
+
+            TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, new[] { "sample", modelName }));
+            return true;
         }
 
         public Task<IReadOnlyList<AiModelInfo>> GetAvailableModelsAsync()

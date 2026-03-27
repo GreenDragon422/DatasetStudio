@@ -27,6 +27,7 @@ public class DependencyInjectionTests
         Assert.That(serviceProvider.GetService<ITagDictionaryService>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<IClipboardService>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<IAiTaggerService>(), Is.Not.Null);
+        Assert.That(serviceProvider.GetService<AiTaggingCoordinator>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<BatchTagOperationService>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<INavigationService>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<MainWindowViewModel>(), Is.Not.Null);

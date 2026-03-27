@@ -38,6 +38,7 @@ public partial class App : Application
             ServiceCollection services = new();
             ConfigureServices(services);
             Services = services.BuildServiceProvider();
+            Services.GetRequiredService<AiTaggingCoordinator>();
 
             NavigationService navigationService = Services.GetRequiredService<NavigationService>();
             IProjectService projectService = Services.GetRequiredService<IProjectService>();
@@ -66,6 +67,7 @@ public partial class App : Application
         services.AddSingleton<ITagDictionaryService, TagDictionaryService>();
         services.AddSingleton<IClipboardService, ClipboardService>();
         services.AddSingleton<IAiTaggerService, AiTaggerService>();
+        services.AddSingleton<AiTaggingCoordinator>();
         services.AddSingleton<BatchTagOperationService>();
         services.AddSingleton<NavigationService>();
         services.AddSingleton<INavigationService>(serviceProvider => serviceProvider.GetRequiredService<NavigationService>());

@@ -21,6 +21,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
     private readonly IFileSystemService fileSystemService;
     private readonly IClipboardService clipboardService;
     private readonly INavigationService navigationService;
+    private readonly IAiTaggerService aiTaggerService;
     private readonly IMessenger messenger;
     private readonly IStatePersistenceService statePersistenceService;
 
@@ -35,6 +36,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         IFileSystemService fileSystemService,
         IClipboardService clipboardService,
         INavigationService navigationService,
+        IAiTaggerService aiTaggerService,
         IMessenger messenger,
         IStatePersistenceService statePersistenceService)
         : base(messenger)
@@ -44,6 +46,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         this.fileSystemService = fileSystemService ?? throw new ArgumentNullException(nameof(fileSystemService));
         this.clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         this.navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        this.aiTaggerService = aiTaggerService ?? throw new ArgumentNullException(nameof(aiTaggerService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
@@ -56,6 +59,10 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         messenger.Register<InspectorModeViewModel, AiTaggingCompletedMessage>(this, static (recipient, message) =>
         {
             _ = recipient.HandleAiTaggingCompletedAsync(message);
+        });
+        messenger.Register<InspectorModeViewModel, AiTaggingFailedMessage>(this, static (recipient, message) =>
+        {
+            recipient.HandleAiTaggingFailed(message);
         });
         messenger.Register<InspectorModeViewModel, ImageMovedMessage>(this, static (recipient, message) =>
         {
@@ -403,13 +410,14 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
                 TagFilePath = tagFilePath,
                 Status = imageStatus,
                 Tags = fileTags.ToList(),
-                IsAiProcessing = false,
+                IsAiProcessing = aiTaggerService.IsProcessing(imageFilePath),
             };
 
             imageEntries.Add(imageEntry);
         }
 
         ReplaceImageList(imageEntries);
+        int queuedImageCount = QueueAiTaggingForImages(imageEntries);
 
         if (ImageList.Count == 0)
         {
@@ -428,6 +436,15 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
 
         int nextIndex = ResolvePreferredIndex(preferredImagePath, preferredIndex);
         await NavigateToImageIndexAsync(nextIndex).ConfigureAwait(true);
+
+        if (queuedImageCount > 0)
+        {
+            StatusText = string.Format(
+                "{0} Queued AI tagging for {1} image{2}.",
+                StatusText,
+                queuedImageCount,
+                queuedImageCount == 1 ? string.Empty : "s");
+        }
     }
 
     private int ResolvePreferredIndex(string? preferredImagePath, int? preferredIndex)
@@ -732,19 +749,50 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
 
     private async Task HandleAiTaggingCompletedAsync(AiTaggingCompletedMessage message)
     {
-        if (CurrentImage is null || !string.Equals(CurrentImage.FilePath, message.ImagePath, StringComparison.OrdinalIgnoreCase))
+        ImageEntry? image = ImageList.FirstOrDefault(candidate =>
+            string.Equals(candidate.FilePath, message.ImagePath, StringComparison.OrdinalIgnoreCase));
+
+        if (image is null)
         {
             return;
         }
 
-        CurrentImage.IsAiProcessing = false;
-        IsBusy = false;
+        image.IsAiProcessing = false;
         List<string> normalizedTags = NormalizeAppliedTags(message.GeneratedTags);
+        image.Tags = normalizedTags;
+        image.Status = normalizedTags.Count == 0 ? TagStatus.Untagged : TagStatus.AutoTagged;
+
+        if (CurrentImage is null || !string.Equals(CurrentImage.FilePath, image.FilePath, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        IsBusy = false;
         AppliedTags = new ObservableCollection<string>(normalizedTags);
-        CurrentImage.Tags = normalizedTags;
-        CurrentImage.Status = normalizedTags.Count == 0 ? TagStatus.Untagged : TagStatus.AutoTagged;
-        CurrentStatus = CurrentImage.Status;
-        StatusText = string.Format("AI tags refreshed for {0}.", CurrentImage.FileName);
+        CurrentStatus = image.Status;
+        StatusText = string.Format("AI tags refreshed for {0}.", image.FileName);
+    }
+
+    private void HandleAiTaggingFailed(AiTaggingFailedMessage message)
+    {
+        ImageEntry? image = ImageList.FirstOrDefault(candidate =>
+            string.Equals(candidate.FilePath, message.ImagePath, StringComparison.OrdinalIgnoreCase));
+
+        if (image is null)
+        {
+            return;
+        }
+
+        image.IsAiProcessing = false;
+        image.Status = TagStatus.Untagged;
+
+        if (CurrentImage is not null && string.Equals(CurrentImage.FilePath, image.FilePath, StringComparison.OrdinalIgnoreCase))
+        {
+            IsBusy = false;
+            CurrentStatus = image.Status;
+        }
+
+        StatusText = string.Format("AI tagging failed for {0}: {1}", image.FileName, message.ErrorMessage);
     }
 
     private async Task HandleImageMovedAsync(ImageMovedMessage message)
@@ -775,6 +823,52 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
     {
         ImageList = new ObservableCollection<ImageEntry>(images);
         CurrentIndex = ImageList.Count == 0 ? -1 : CurrentIndex;
+    }
+
+    private int QueueAiTaggingForImages(IEnumerable<ImageEntry> images)
+    {
+        int queuedImageCount = 0;
+
+        foreach (ImageEntry image in images)
+        {
+            if (QueueAiTaggingIfNeeded(image))
+            {
+                queuedImageCount++;
+            }
+        }
+
+        return queuedImageCount;
+    }
+
+    private bool QueueAiTaggingIfNeeded(ImageEntry image)
+    {
+        if (currentProject is null)
+        {
+            return false;
+        }
+
+        if (tagFileService.TagFileExists(image.FilePath))
+        {
+            image.IsAiProcessing = aiTaggerService.IsProcessing(image.FilePath);
+            return false;
+        }
+
+        string? aiModelName = AiTaggingModelResolver.ResolveConfiguredModelName(currentProject);
+        if (string.IsNullOrWhiteSpace(aiModelName))
+        {
+            image.IsAiProcessing = false;
+            return false;
+        }
+
+        if (aiTaggerService.IsProcessing(image.FilePath))
+        {
+            image.IsAiProcessing = true;
+            return false;
+        }
+
+        bool wasQueued = aiTaggerService.TryQueueTagGeneration(currentProject, image.FilePath);
+        image.IsAiProcessing = wasQueued || aiTaggerService.IsProcessing(image.FilePath);
+        return wasQueued;
     }
 
     private void DisposeCurrentBitmap()
