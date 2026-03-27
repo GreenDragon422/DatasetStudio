@@ -13,8 +13,7 @@
              d:DesignWidth="1440"
              d:DesignHeight="860">
     <Grid RowDefinitions="64,*"
-          Margin="24"
-          RowSpacing="16">
+          Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="*,Auto,Auto"
@@ -68,8 +67,7 @@
             <Grid Grid.Column="1"
                   RowDefinitions="*,Auto"
                   RowSpacing="12">
-                <Border Classes="surface-card"
-                        Padding="16">
+                <Border Classes="surface-card pad-16">
                     <Grid>
                         <TextBlock Text="Folder is empty. Drag images here to stage."
                                    Classes="heading-medium"
@@ -88,9 +86,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:LibraryGridImageViewModel">
                                         <Border Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
-                                                Classes="surface-card"
-                                                Margin="0,0,16,16"
-                                                Padding="8">
+                                                Classes="surface-card wrap-tile pad-8">
                                             <Grid RowDefinitions="Auto,*,Auto">
                                                 <Grid ColumnDefinitions="Auto,*">
                                                     <CheckBox Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ToggleSelectionCommand}"
@@ -107,7 +103,8 @@
                                                         Classes="chromeless"
                                                         Margin="0,8,0,8"
                                                         Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).FocusImageCommand}"
-                                                        CommandParameter="{Binding}">
+                                                        CommandParameter="{Binding}"
+                                                        DoubleTapped="OnThumbnailDoubleTapped">
                                                     <Grid Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
                                                           Height="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}">
                                                         <Border Classes="thumbnail-placeholder" />

@@ -308,7 +308,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [ ] 34.11 Implement `DeleteImageCommand` — Delete key recycles selected images + tag files via IFileSystemService.RecycleFileAsync, publish ImageDeletedMessage, auto-advance focus
   - [ ] 34.12 Implement `FocusFilterCommand` — `/` key focuses QuickFilterBar
   - [ ] 34.13 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
-  - [ ] 34.14 Implement `OpenInspectorCommand` — double-click navigates to InspectorMode with selected image
+  - [x] 34.14 Implement `OpenInspectorCommand` — double-click navigates to InspectorMode with selected image
   - [x] 34.15 Implement quick filter logic — filter Images collection by tag content matching FilterText
   - [ ] 34.16 Implement drag-and-drop — drag thumbnail to sidebar folder moves image, flash target folder in Accent green, set drag opacity 50%
   - [x] 34.17 Subscribe to messenger events — ImageMovedMessage (refresh folder counts), ImageDeletedMessage (remove from grid), TagsChangedMessage (update status dots), AiTaggingCompletedMessage (update status to Yellow)
@@ -324,27 +324,28 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [ ] 34.27 Implement Escape key handling — dismiss popup → unfocus TextBox → no-op (in priority order)
   - _Requirements: 2.1–2.24, 9.1, 9.4, 9.5_
 
-- [ ] 35. Implement Inspector Mode screen
-  - [ ] 35.1 Create `ViewModels/InspectorModeViewModel.cs` — inject ITagFileService, ITagDictionaryService, IFileSystemService, IClipboardService, INavigationService, IMessenger
-  - [ ] 35.2 Implement observable properties: CurrentImage (ImageEntry), CurrentImageSource (Bitmap), PrefixTags (IReadOnlyList<string>), AppliedTags (ObservableCollection<string>), TagInputText (string), AutoSuggestTags (ObservableCollection<string>), ImageList (list of images in current folder), CurrentIndex (int)
-  - [ ] 35.3 Implement `LoadImageCommand` — load image into CurrentImageSource, load tags from tag file, populate AppliedTags (excluding prefix), set status
-  - [ ] 35.4 Implement `CommitTagCommand` — Enter key: validate non-empty, resolve alias via ITagDictionaryService, add to AppliedTags, write via ITagFileService, publish TagsChangedMessage, auto-advance to next untagged (Red/Yellow)
-  - [ ] 35.5 Implement `RemoveTagCommand` — tag pill `x` click: remove from AppliedTags, write via ITagFileService, publish TagsChangedMessage
-  - [ ] 35.6 Implement `NavigateImageCommand` — Left/Right arrow keys: update CurrentIndex, load prev/next image
-  - [ ] 35.7 Implement `MoveImageCommand` — `[`/`]` move current image to prev/next stage, publish ImageMovedMessage, auto-advance
-  - [ ] 35.8 Implement `DeleteImageCommand` — Delete key: recycle current image + tag file, publish ImageDeletedMessage, auto-advance
-  - [ ] 35.9 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
-  - [ ] 35.10 Implement `GoBackCommand` — Escape navigates back to LibraryGrid
-  - [ ] 35.11 Implement auto-suggest — on TagInputText change, query ITagDictionaryService.SearchTagsAsync, populate AutoSuggestTags
-  - [ ] 35.12 Implement auto-focus — any letter key focuses tag input (handled in View code-behind, delegates to ViewModel)
-  - [ ] 35.13 Subscribe to messenger events — AiTaggingCompletedMessage (refresh tags if current image), ImageMovedMessage (refresh if current image moved externally)
-  - [ ] 35.14 Create `Views/InspectorModeView.axaml` — three-column layout: 240px left sidebar (WorkflowStageList), fluid center (Viewbox with image + 2px Warning border), 320px right sidebar
-  - [ ] 35.15 Implement top bar — back button, image filename TextBlock, StatusDot badge
-  - [ ] 35.16 Implement center pane — Viewbox preserving aspect ratio, Prev/Next overlay buttons (left/right edges)
-  - [ ] 35.17 Implement right sidebar — PrefixTags block (read-only, IBM Plex Mono, Surface Elevated bg), 32px TagInput TextBox with auto-suggest Popup, AppliedTagsList WrapPanel of TagPill controls, "Commit & Next" button
-  - [ ] 35.18 Implement AI processing spinner overlay on tag list area
-  - [ ] 35.19 Wire HintBar and StatusBar at bottom
-  - [ ] 35.20 Implement letter key auto-focus in code-behind — PreviewKeyDown handler checks if letter key and no TextBox focused, then focuses TagInput
+- [x] 35. Implement Inspector Mode screen
+  - [x] 35.1 Create `ViewModels/InspectorModeViewModel.cs` — inject ITagFileService, ITagDictionaryService, IFileSystemService, IClipboardService, INavigationService, IMessenger
+  - [x] 35.2 Implement observable properties: CurrentImage (ImageEntry), CurrentImageSource (Bitmap), PrefixTags (IReadOnlyList<string>), AppliedTags (ObservableCollection<string>), TagInputText (string), AutoSuggestTags (ObservableCollection<string>), ImageList (list of images in current folder), CurrentIndex (int)
+  - [x] 35.3 Implement `LoadImageCommand` — load image into CurrentImageSource, load tags from tag file, populate AppliedTags (excluding prefix), set status
+  - [x] 35.4 Implement `CommitTagCommand` — Enter key: validate non-empty, resolve alias via ITagDictionaryService, add to AppliedTags, write via ITagFileService, publish TagsChangedMessage, auto-advance to next untagged (Red/Yellow)
+  - [x] 35.5 Implement `RemoveTagCommand` — tag pill `x` click: remove from AppliedTags, write via ITagFileService, publish TagsChangedMessage
+  - [x] 35.6 Implement `NavigateImageCommand` — Left/Right arrow keys: update CurrentIndex, load prev/next image
+  - [x] 35.7 Implement `MoveImageCommand` — `[`/`]` move current image to prev/next stage, publish ImageMovedMessage, auto-advance
+  - [x] 35.8 Implement `DeleteImageCommand` — Delete key: recycle current image + tag file, publish ImageDeletedMessage, auto-advance
+  - [x] 35.9 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
+  - [x] 35.10 Implement `GoBackCommand` — Escape navigates back to LibraryGrid
+  - [x] 35.11 Implement auto-suggest — on TagInputText change, query ITagDictionaryService.SearchTagsAsync, populate AutoSuggestTags
+  - [x] 35.12 Implement auto-focus — any letter key focuses tag input (handled in View code-behind, delegates to ViewModel)
+  - [x] 35.13 Subscribe to messenger events — AiTaggingCompletedMessage (refresh tags if current image), ImageMovedMessage (refresh if current image moved externally)
+  - [x] 35.14 Create `Views/InspectorModeView.axaml` — three-column layout: 240px left sidebar (WorkflowStageList), fluid center (Viewbox with image + 2px Warning border), 320px right sidebar
+  - [x] 35.15 Implement top bar — back button, image filename TextBlock, StatusDot badge
+  - [x] 35.16 Implement center pane — Viewbox preserving aspect ratio, Prev/Next overlay buttons (left/right edges)
+  - [x] 35.17 Implement right sidebar — PrefixTags block (read-only, IBM Plex Mono, Surface Elevated bg), 32px TagInput TextBox with auto-suggest Popup, AppliedTagsList WrapPanel of TagPill controls, "Commit & Next" button
+  - [x] 35.18 Implement AI processing spinner overlay on tag list area
+  - [x] 35.19 Wire HintBar and StatusBar at bottom
+  - [x] 35.20 Implement letter key auto-focus in code-behind — PreviewKeyDown handler checks if letter key and no TextBox focused, then focuses TagInput
+  - Note (2026-03-27): Prev/next navigation is fully keyboard-driven and functional, but it currently switches images immediately instead of animating the transition. If we want literal sliding motion from Requirement 3.9, that is now a polish pass rather than a missing workflow.
   - _Requirements: 3.1–3.15, 9.1, 9.5_
 
 - [x] 36. Implement Tag Dictionary screen
@@ -373,6 +374,8 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-27): Remaining view-local styling in `ProjectsHubView.axaml` and `ProjectConfigurationView.axaml` was moved into the shared theme so screen XAML stays structural. Shared classes like `project-card-frame`, `form-section`, `prefix-tags-frame`, and `stage-row` are now themed centrally in `Resources/Styles.axaml`.
   - Progress note (2026-03-27): Shared theme selectors were strengthened for category-list and form-label text, the shell icon asset was replaced with the accepted abstract block mark, and the Library Grid screen copy now explains the stage-review/batch-tagging workflow more clearly under the user-facing name "Review Workspace".
   - Progress note (2026-03-27): The shared visual contract was tightened again so future screens can reuse generic chrome instead of restyling controls inline. `Resources/Styles.axaml` now owns reusable shells and helper classes like `screen-header-bar`, `plain-list`, `chromeless`, `chromeless-input`, `shell-bar-text`, `thumbnail-placeholder`, `list-row-shell`, `suggestion-row`, and `meta-text`, while current views were stripped back to layout, bindings, and screen-specific structure.
+  - Progress note (2026-03-27): Inspector Mode is now implemented and reachable from Review Workspace via double-click or Enter on the focused image. The screen loads the current stage/image from `ProjectState.LastInspectedImagePath`, supports keyboard-first tag commit/remove/copy/paste/move/delete flows, and is covered by unit tests plus headless rendering smoke.
+  - Progress note (2026-03-27): Shared chrome was consolidated further so new screens can compose theme variants instead of reintroducing inline spacing and control-state styling. `Resources/Styles.axaml` now owns `screen-root`, card padding variants, wrap-tile/list-item spacing, action-row shells, dialog action rows, edge-nav buttons, ComboBox item hover/selection states, and themed Slider track selectors; current screen XAML was updated to consume those shared classes.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)

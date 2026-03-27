@@ -18,8 +18,7 @@
         KeyDown="OnWindowKeyDown">
     <Grid RowDefinitions="64,*,Auto,Auto">
         <Border Grid.Row="0"
-                Classes="shell-header-bar"
-                Padding="16,12">
+                Classes="shell-header-bar">
             <Grid ColumnDefinitions="Auto,Auto,*,Auto"
                   ColumnSpacing="12">
                 <Image Width="44"
@@ -47,8 +46,7 @@
                         VerticalAlignment="Center"
                         MaxWidth="960"
                         MaxHeight="780"
-                        Classes="surface-card"
-                        Padding="24">
+                        Classes="surface-card pad-24">
                     <ContentControl x:Name="ProjectConfigurationHost"
                                     Content="{Binding ProjectConfigurationContent}" />
                 </Border>

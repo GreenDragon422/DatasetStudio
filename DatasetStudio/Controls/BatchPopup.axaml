@@ -3,8 +3,7 @@
        xmlns:controls="using:DatasetStudio.Controls"
        x:Class="DatasetStudio.Controls.BatchPopup"
        x:DataType="controls:BatchPopup">
-  <Border Classes="surface-panel-card"
-          Padding="12"
+  <Border Classes="surface-panel-card pad-12"
           Width="280">
     <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
       <TextBlock Text="{Binding Mode}"

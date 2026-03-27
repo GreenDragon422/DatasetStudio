@@ -1,14 +1,15 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:DatasetStudio.Controls"
+             xmlns:vm="using:DatasetStudio.ViewModels"
              x:Class="DatasetStudio.Views.InspectorModeView"
              x:Name="InspectorRoot"
-             x:CompileBindings="False"
+             x:DataType="vm:InspectorModeViewModel"
+             x:CompileBindings="True"
              TextInput="OnScreenTextInput"
              Loaded="OnLoaded">
     <Grid RowDefinitions="Auto,*"
-          Margin="24"
-          RowSpacing="16">
+          Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="Auto,*,Auto"
@@ -57,19 +58,15 @@
             </Grid>
 
             <Border Grid.Column="1"
-                    Classes="surface-card"
-                    Padding="16">
+                    Classes="surface-card pad-16">
                 <Grid RowDefinitions="*,Auto">
                     <Grid HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch">
-                        <Viewbox Stretch="Uniform"
-                                 StretchDirection="Both"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center">
-                            <Border BorderBrush="{DynamicResource BrushWarning}"
-                                    BorderThickness="2"
-                                    CornerRadius="2"
-                                    Background="{DynamicResource BrushSurfaceInput}"
+                         <Viewbox Stretch="Uniform"
+                                  StretchDirection="Both"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center">
+                            <Border Classes="warning-focus-frame"
                                     Padding="8">
                                 <Image Source="{Binding CurrentImageSource}"
                                        Stretch="Uniform" />
@@ -77,33 +74,31 @@
                         </Viewbox>
 
                         <Button Content="Prev"
+                                Classes="edge-nav"
                                 Command="{Binding NavigatePreviousCommand}"
-                                FontSize="20"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Margin="8" />
 
                         <Button Content="Next"
+                                Classes="edge-nav"
                                 Command="{Binding NavigateNextCommand}"
-                                FontSize="20"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
                                 Margin="8" />
                     </Grid>
 
                     <TextBlock Grid.Row="1"
-                               Text="{Binding CurrentImageSource}"
+                               Text="{Binding FileName}"
                                IsVisible="False" />
                 </Grid>
             </Border>
 
             <Border Grid.Column="2"
-                    Classes="surface-card"
-                    Padding="16">
+                    Classes="surface-card pad-16">
                 <Grid RowDefinitions="Auto,Auto,*,Auto"
                       RowSpacing="12">
-                    <Border Classes="surface-panel-card"
-                            Padding="12">
+                    <Border Classes="surface-panel-card pad-12">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Prefix tags"
                                        Classes="heading-medium" />
@@ -118,32 +113,30 @@
                         <TextBlock Text="Add tag"
                                    Classes="form-label" />
                         <TextBox x:Name="TagInputTextBox"
-                                 Height="32"
+                                 Classes="short-input"
                                  Text="{Binding TagInputText, Mode=TwoWay}"
-                                 Watermark="Type a tag and press Enter..."
-                                 VerticalContentAlignment="Center" />
-                        <Border Classes="surface-panel-card"
-                                IsVisible="{Binding IsSuggestOpen}"
-                                Padding="8">
-                            <ListBox ItemsSource="{Binding AutoSuggestTags}"
-                                     Classes="plain-list"
-                                     BorderThickness="0"
-                                     Background="Transparent">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Classes="suggestion-row">
-                                            <TextBlock Text="{Binding}"
-                                                       Classes="mono" />
-                                        </Border>
+                                 Watermark="Type a tag and press Enter..." />
+                        <Border Classes="surface-panel-card pad-8"
+                                IsVisible="{Binding IsSuggestOpen}">
+                            <ItemsControl ItemsSource="{Binding AutoSuggestTags}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Button Classes="chromeless"
+                                                Command="{Binding #InspectorRoot.((vm:InspectorModeViewModel)DataContext).UseSuggestionCommand}"
+                                                CommandParameter="{Binding}">
+                                            <Border Classes="suggestion-row">
+                                                <TextBlock Text="{Binding}"
+                                                           Classes="mono" />
+                                            </Border>
+                                        </Button>
                                     </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Border>
                     </StackPanel>
 
                     <Grid Grid.Row="2">
-                        <Border Classes="surface-panel-card"
-                                Padding="12">
+                        <Border Classes="surface-panel-card pad-12">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Spacing="8">
                                     <TextBlock Text="Applied tags"
@@ -167,7 +160,7 @@
                         </Border>
 
                         <Border IsVisible="{Binding IsBusy}"
-                                Background="{DynamicResource BrushOverlayScrim}"
+                                Classes="modal-overlay"
                                 Padding="12"
                                 VerticalAlignment="Stretch">
                             <ProgressBar IsIndeterminate="True"

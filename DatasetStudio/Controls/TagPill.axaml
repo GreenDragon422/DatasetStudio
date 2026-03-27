@@ -3,8 +3,7 @@
              xmlns:controls="using:DatasetStudio.Controls"
              x:Class="DatasetStudio.Controls.TagPill"
              x:DataType="controls:TagPill">
-  <Border Classes="surface-card"
-          Padding="8,4">
+  <Border Classes="surface-card pad-compact">
     <Grid ColumnDefinitions="Auto,Auto" VerticalAlignment="Center">
       <TextBlock Text="{Binding Tag}"
                  Classes="mono"

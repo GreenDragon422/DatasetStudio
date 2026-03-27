@@ -35,11 +35,13 @@ public class RenderingSmokeTests
         await CaptureProjectConfigurationAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureTagDictionaryAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureLibraryGridAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureInspectorModeAsync(scenario, outputFolder).ConfigureAwait(true);
 
         Assert.That(File.Exists(Path.Combine(outputFolder, "projects-hub.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "project-configuration.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "tag-dictionary.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "library-grid.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "inspector-mode.png")), Is.True);
     }
 
     private static async Task CaptureProjectsHubAsync(CaptureScenario scenario, string outputFolder)
@@ -107,6 +109,25 @@ public class RenderingSmokeTests
 
         MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
         await CaptureWindowAsync(window, outputFolder, "library-grid.png", 500).ConfigureAwait(true);
+    }
+
+    private static async Task CaptureInspectorModeAsync(CaptureScenario scenario, string outputFolder)
+    {
+        string preferredImagePath = Path.Combine(scenario.PrimaryProject.RootFolderPath, "02_Review", "cat.png");
+        scenario.PrimaryProject.State.ActiveStageFolderName = "02_Review";
+        scenario.PrimaryProject.State.LastInspectedImagePath = preferredImagePath;
+
+        InspectorModeViewModel inspectorModeViewModel = new InspectorModeViewModel(
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.FileSystemService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            scenario.Messenger);
+        inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(inspectorModeViewModel);
+        await CaptureWindowAsync(window, outputFolder, "inspector-mode.png", 500).ConfigureAwait(true);
     }
 
     private static async Task CaptureWindowAsync(Window window, string outputFolder, string fileName, int delayMs)

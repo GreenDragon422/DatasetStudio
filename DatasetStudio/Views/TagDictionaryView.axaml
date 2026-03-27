@@ -10,8 +10,7 @@
              d:DesignWidth="1440"
              d:DesignHeight="860">
     <Grid RowDefinitions="64,*"
-          Margin="24"
-          RowSpacing="16">
+          Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="*,Auto"
@@ -31,8 +30,7 @@
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
               ColumnSpacing="16">
-            <Border Classes="surface-card"
-                    Padding="12">
+            <Border Classes="surface-card pad-12">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Categories"
                                Classes="heading-medium" />
@@ -43,8 +41,7 @@
             </Border>
 
             <Border Grid.Column="1"
-                    Classes="surface-card"
-                    Padding="8">
+                    Classes="surface-card pad-8">
                 <DataGrid ItemsSource="{Binding FilteredEntries}"
                           SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
                           AutoGenerateColumns="False"
@@ -57,8 +54,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
                                     <Border Classes="flat-row"
-                                            DoubleTapped="OnEntryDoubleTapped"
-                                            Padding="8,4">
+                                            DoubleTapped="OnEntryDoubleTapped">
                                         <Grid>
                                             <TextBlock Text="{Binding CanonicalName}"
                                                        Classes="mono"
@@ -76,16 +72,18 @@
                                                 Width="3*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
-                                    <Grid Margin="8,4">
-                                        <TextBlock Text="{Binding DisplayAliases}"
-                                                   Classes="mono"
-                                                   TextWrapping="Wrap"
-                                                   VerticalAlignment="Center"
-                                                   IsVisible="{Binding !IsEditing}" />
-                                        <TextBox Text="{Binding EditableAliasesText, Mode=TwoWay}"
-                                                 Watermark="comma, separated, aliases"
-                                                 IsVisible="{Binding IsEditing}" />
-                                    </Grid>
+                                    <Border Classes="flat-row">
+                                        <Grid>
+                                            <TextBlock Text="{Binding DisplayAliases}"
+                                                       Classes="mono"
+                                                       TextWrapping="Wrap"
+                                                       VerticalAlignment="Center"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <TextBox Text="{Binding EditableAliasesText, Mode=TwoWay}"
+                                                     Watermark="comma, separated, aliases"
+                                                     IsVisible="{Binding IsEditing}" />
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -99,9 +97,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
                                     <WrapPanel Margin="4"
-                                               Orientation="Horizontal"
-                                               ItemHeight="32"
-                                               ItemWidth="88">
+                                               Classes="action-row compact">
                                         <Button Content="Edit"
                                                 IsVisible="{Binding !IsEditing}"
                                                 Click="OnEditClick" />

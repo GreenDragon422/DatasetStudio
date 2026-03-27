@@ -63,6 +63,7 @@ public partial class App : Application
         services.AddTransient<ProjectsHubViewModel>();
         services.AddTransient<ProjectConfigurationViewModel>();
         services.AddTransient<LibraryGridViewModel>();
+        services.AddTransient<InspectorModeViewModel>();
         services.AddTransient<TagDictionaryViewModel>();
     }
 }

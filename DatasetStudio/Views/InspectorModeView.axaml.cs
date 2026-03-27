@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -10,16 +10,24 @@ using DatasetStudio.ViewModels;
 
 namespace DatasetStudio.Views;
 
-public partial class InspectorModeView : ScreenViewBase<ScreenViewModelBase>
+public partial class InspectorModeView : ScreenViewBase<InspectorModeViewModel>
 {
+    private InspectorModeViewModel? observedViewModel;
+
     public InspectorModeView()
     {
         InitializeComponent();
-        Loaded += OnLoaded;
+        DataContextChanged += OnInspectorDataContextChanged;
     }
 
     protected override IReadOnlyList<ScreenShortcut> BuildScreenShortcuts()
     {
+        InspectorModeViewModel? viewModel = ViewModel;
+        if (viewModel is null)
+        {
+            return Array.Empty<ScreenShortcut>();
+        }
+
         return new ScreenShortcut[]
         {
             CreateSlashShortcut("Focus Tag Input", FocusTagInputTextBox, allowWhenTextInputFocused: true),
@@ -27,55 +35,89 @@ public partial class InspectorModeView : ScreenViewBase<ScreenViewModelBase>
                 Key.Enter,
                 KeyModifiers.None,
                 "Enter",
-                "Commit Tag",
-                CommitTag,
+                "Commit & Next",
+                () => ExecuteCommand(viewModel.CommitTagCommand),
                 allowWhenTextInputFocused: true,
-                isAvailable: HasCommitTagCommand),
+                isAvailable: () => viewModel.CurrentImage is not null),
             CreateShortcut(
                 Key.Left,
                 KeyModifiers.None,
                 "Left",
                 "Previous Image",
-                NavigatePreviousImage,
-                isAvailable: HasNavigatePreviousCommand),
+                () => ExecuteCommand(viewModel.NavigatePreviousCommand),
+                isAvailable: () => viewModel.CurrentIndex > 0),
             CreateShortcut(
                 Key.Right,
                 KeyModifiers.None,
                 "Right",
                 "Next Image",
-                NavigateNextImage,
-                isAvailable: HasNavigateNextCommand),
+                () => ExecuteCommand(viewModel.NavigateNextCommand),
+                isAvailable: () => viewModel.CurrentIndex >= 0 && viewModel.CurrentIndex < viewModel.ImageList.Count - 1),
+            CreateShortcut(
+                Key.Oem4,
+                KeyModifiers.None,
+                "[",
+                "Prev Stage",
+                () => ExecuteCommand(viewModel.MoveToPreviousStageCommand),
+                isAvailable: () => viewModel.ActiveStage is not null && viewModel.Stages.IndexOf(viewModel.ActiveStage) > 0),
+            CreateShortcut(
+                Key.Oem6,
+                KeyModifiers.None,
+                "]",
+                "Next Stage",
+                () => ExecuteCommand(viewModel.MoveToNextStageCommand),
+                isAvailable: () =>
+                {
+                    if (viewModel.ActiveStage is null)
+                    {
+                        return false;
+                    }
+
+                    int activeStageIndex = viewModel.Stages.IndexOf(viewModel.ActiveStage);
+                    return activeStageIndex >= 0 && activeStageIndex < viewModel.Stages.Count - 1;
+                }),
+            CreateShortcut(
+                Key.Delete,
+                KeyModifiers.None,
+                "Del",
+                "Recycle",
+                () => ExecuteCommand(viewModel.DeleteImageCommand),
+                isAvailable: () => viewModel.CurrentImage is not null),
             CreateShortcut(
                 Key.C,
                 KeyModifiers.Control | KeyModifiers.Shift,
                 "Ctrl+Shift+C",
                 "Copy Tags",
-                CopyTags,
+                () => ExecuteCommand(viewModel.CopyTagsCommand),
                 allowWhenTextInputFocused: true,
-                isAvailable: HasCopyTagsCommand),
+                isAvailable: () => viewModel.CurrentImage is not null),
             CreateShortcut(
                 Key.V,
                 KeyModifiers.Control | KeyModifiers.Shift,
                 "Ctrl+Shift+V",
                 "Paste Tags",
-                PasteTags,
+                () => ExecuteCommand(viewModel.PasteTagsCommand),
                 allowWhenTextInputFocused: true,
-                isAvailable: HasPasteTagsCommand),
+                isAvailable: () => viewModel.CurrentImage is not null),
             CreateShortcut(
                 Key.Escape,
                 KeyModifiers.None,
                 "Esc",
-                "Go Back",
-                GoBack,
-                isAvailable: () => !HasEditableTextInputFocus()),
+                "Back",
+                () => ExecuteCommand(viewModel.GoBackCommand),
+                allowWhenTextInputFocused: true),
         };
+    }
+
+    protected override bool ShouldOfferLeaveFieldShortcut()
+    {
+        return false;
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs eventArgs)
     {
         _ = sender;
         _ = eventArgs;
-
         Dispatcher.UIThread.Post(FocusTagInputTextBox, DispatcherPriority.Input);
     }
 
@@ -105,96 +147,45 @@ public partial class InspectorModeView : ScreenViewBase<ScreenViewModelBase>
         eventArgs.Handled = true;
     }
 
-    private void CommitTag()
+    private void OnInspectorDataContextChanged(object? sender, EventArgs eventArgs)
     {
-        ExecuteNamedCommand("CommitTagCommand");
+        _ = sender;
+        _ = eventArgs;
+        AttachObservedViewModel(ViewModel);
     }
 
-    private void NavigatePreviousImage()
+    private void OnObservedViewModelPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
-        ExecuteNamedCommand("NavigatePreviousCommand");
-    }
+        _ = sender;
 
-    private void NavigateNextImage()
-    {
-        ExecuteNamedCommand("NavigateNextCommand");
-    }
-
-    private void CopyTags()
-    {
-        ExecuteNamedCommand("CopyTagsCommand");
-    }
-
-    private void PasteTags()
-    {
-        ExecuteNamedCommand("PasteTagsCommand");
-    }
-
-    private void GoBack()
-    {
-        ExecuteNamedCommand("GoBackCommand");
-    }
-
-    private bool HasCommitTagCommand()
-    {
-        return HasNamedCommand("CommitTagCommand");
-    }
-
-    private bool HasNavigatePreviousCommand()
-    {
-        return HasNamedCommand("NavigatePreviousCommand");
-    }
-
-    private bool HasNavigateNextCommand()
-    {
-        return HasNamedCommand("NavigateNextCommand");
-    }
-
-    private bool HasCopyTagsCommand()
-    {
-        return HasNamedCommand("CopyTagsCommand");
-    }
-
-    private bool HasPasteTagsCommand()
-    {
-        return HasNamedCommand("PasteTagsCommand");
-    }
-
-    private bool HasNamedCommand(string propertyName)
-    {
-        return GetNamedCommand(propertyName) is not null;
-    }
-
-    private ICommand? GetNamedCommand(string propertyName)
-    {
-        ScreenViewModelBase? viewModel = ViewModel;
-        if (viewModel is null)
+        if (eventArgs.PropertyName == nameof(InspectorModeViewModel.CurrentImage))
         {
-            return null;
+            Dispatcher.UIThread.Post(FocusTagInputTextBox, DispatcherPriority.Input);
         }
-
-        PropertyInfo? propertyInfo = viewModel.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public);
-        if (propertyInfo is null)
-        {
-            return null;
-        }
-
-        if (propertyInfo.GetValue(viewModel) is not ICommand command)
-        {
-            return null;
-        }
-
-        return command;
     }
 
-    private void ExecuteNamedCommand(string propertyName)
+    private void AttachObservedViewModel(InspectorModeViewModel? viewModel)
     {
-        ICommand? command = GetNamedCommand(propertyName);
-        if (command is null)
+        if (ReferenceEquals(observedViewModel, viewModel))
         {
             return;
         }
 
+        if (observedViewModel is not null)
+        {
+            observedViewModel.PropertyChanged -= OnObservedViewModelPropertyChanged;
+        }
+
+        observedViewModel = viewModel;
+
+        if (observedViewModel is not null)
+        {
+            observedViewModel.PropertyChanged += OnObservedViewModelPropertyChanged;
+        }
+    }
+
+    private static void ExecuteCommand(ICommand command)
+    {
         if (command.CanExecute(null))
         {
             command.Execute(null);

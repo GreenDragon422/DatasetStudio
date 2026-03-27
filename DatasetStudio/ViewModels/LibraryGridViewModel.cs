@@ -218,7 +218,36 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
 
         FocusedImageIndex = imageIndex;
+        if (currentProject is not null)
+        {
+            currentProject.State.LastInspectedImagePath = image.FilePath;
+        }
+
         StatusText = string.Format("Focused {0}.", image.FileName);
+    }
+
+    [RelayCommand]
+    private void OpenInspector(LibraryGridImageViewModel? image)
+    {
+        if (currentProject is null)
+        {
+            return;
+        }
+
+        LibraryGridImageViewModel? targetImage = image;
+        if (targetImage is null && FocusedImageIndex >= 0 && FocusedImageIndex < Images.Count)
+        {
+            targetImage = Images[FocusedImageIndex];
+        }
+
+        if (targetImage is null)
+        {
+            return;
+        }
+
+        FocusImage(targetImage);
+        navigationService.NavigateTo<InspectorModeViewModel>(currentProject);
+        StatusText = string.Format("Opening Inspector Mode for {0}.", targetImage.FileName);
     }
 
     [RelayCommand]
@@ -301,7 +330,13 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         ApplyImageFilter();
 
-        if (Images.Count > 0)
+        if (Images.Count > 0 && currentProject is not null)
+        {
+            LibraryGridImageViewModel? preferredImage = Images.FirstOrDefault(image =>
+                string.Equals(image.FilePath, currentProject.State.LastInspectedImagePath, StringComparison.OrdinalIgnoreCase));
+            FocusImage(preferredImage ?? Images[0]);
+        }
+        else if (Images.Count > 0)
         {
             FocusImage(Images[0]);
         }

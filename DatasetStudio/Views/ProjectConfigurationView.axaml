@@ -27,8 +27,7 @@
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
-                <Border Classes="surface-card"
-                        Padding="16">
+                <Border Classes="surface-card pad-16">
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
                           RowSpacing="12">
                         <Grid ColumnDefinitions="136,*"
@@ -103,8 +102,7 @@
                     </Grid>
                 </Border>
 
-                <Border Classes="surface-card"
-                        Padding="16">
+                <Border Classes="surface-card pad-16">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto"
                               ColumnSpacing="12">
@@ -119,12 +117,10 @@
                                  Classes="stage-editor-list">
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ProjectConfigurationStageViewModel">
-                                    <Border Classes="surface-card"
-                                            Margin="0,0,0,8"
-                                     Padding="12"
-                                     DragDrop.AllowDrop="True"
-                                     AttachedToVisualTree="OnStageRowAttachedToVisualTree"
-                                     DetachedFromVisualTree="OnStageRowDetachedFromVisualTree">
+                                    <Border Classes="surface-card pad-12 list-item-card"
+                                            DragDrop.AllowDrop="True"
+                                            AttachedToVisualTree="OnStageRowAttachedToVisualTree"
+                                            DetachedFromVisualTree="OnStageRowDetachedFromVisualTree">
                                         <Grid RowDefinitions="Auto,Auto"
                                               ColumnDefinitions="Auto,Auto,*,*"
                                               RowSpacing="8"
@@ -155,9 +151,7 @@
                                             <WrapPanel Grid.Row="1"
                                                        Grid.ColumnSpan="4"
                                                        HorizontalAlignment="Right"
-                                                       Orientation="Horizontal"
-                                                       ItemHeight="36"
-                                                       ItemWidth="88">
+                                                       Classes="action-row standard">
                                                 <Button Content="Up"
                                                         Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).MoveStageUpCommand}"
                                                         CommandParameter="{Binding}" />
@@ -179,9 +173,7 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Spacing="8">
+                    Classes="dialog-actions">
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}" />
             <Button Classes="primary"

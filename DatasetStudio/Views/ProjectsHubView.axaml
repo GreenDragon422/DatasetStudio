@@ -10,8 +10,7 @@
              x:DataType="vm:ProjectsHubViewModel"
              x:CompileBindings="True">
     <Grid RowDefinitions="64,*"
-          Margin="24"
-          RowSpacing="16">
+          Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="Auto,*,Auto,Auto"
@@ -41,8 +40,7 @@
 
         <Grid Grid.Row="1">
             <Border IsVisible="{Binding IsEmptyStateVisible}"
-                    Classes="surface-card muted-border"
-                    Padding="32">
+                    Classes="surface-card muted-border pad-32">
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="8">
@@ -73,11 +71,9 @@
                         <DataTemplate x:DataType="vm:ProjectsHubProjectCardViewModel">
                             <Button Classes="project-card"
                                     Command="{Binding OpenCommand}">
-                                <Border Classes="surface-card project-card-frame"
+                                <Border Classes="surface-card project-card-frame pad-16 wrap-tile"
                                         Width="300"
-                                        Height="164"
-                                        Padding="16"
-                                        Margin="0,0,16,16">
+                                        Height="164">
                                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
                                           RowSpacing="6">
                                         <TextBlock Text="{Binding Name}"

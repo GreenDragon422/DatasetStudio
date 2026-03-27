@@ -131,6 +131,53 @@ public class LibraryGridViewModelTests
         Assert.That(selectionMessageRecorder.LastMessage?.IsSelected, Is.True);
     }
 
+    [Test]
+    public async Task OpenInspectorCommand_NavigatesWithProjectAndPreservesFocusedImagePath()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestNavigationService navigationService = new TestNavigationService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            new TestTagDictionaryService(),
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            navigationService,
+            messenger);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
+        string reviewImagePath = Path.Combine(reviewFolderPath, "cat.png");
+        fileSystemService.SetImageFiles(reviewFolderPath, new[] { reviewImagePath });
+        tagFileService.SetTags(reviewImagePath, new[] { "cat" });
+
+        Project project = new Project
+        {
+            Id = "project-3",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 2, FolderName = "02_Review", DisplayName = "Review" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "02_Review",
+            },
+        };
+
+        viewModel.OnNavigatedTo(project);
+        await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
+
+        viewModel.OpenInspectorCommand.Execute(viewModel.Images[0]);
+
+        Assert.That(project.State.LastInspectedImagePath, Is.EqualTo(reviewImagePath));
+        Assert.That(navigationService.LastNavigationTargetType, Is.EqualTo(typeof(InspectorModeViewModel)));
+        Assert.That(navigationService.LastNavigationParameter, Is.SameAs(project));
+    }
+
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
         for (int attempt = 0; attempt < 100; attempt++)
@@ -344,13 +391,19 @@ public class LibraryGridViewModelTests
 
     private sealed class TestNavigationService : INavigationService
     {
+        public Type? LastNavigationTargetType { get; private set; }
+
+        public object? LastNavigationParameter { get; private set; }
+
         public void NavigateTo<TViewModel>() where TViewModel : ScreenViewModelBase
         {
+            LastNavigationTargetType = typeof(TViewModel);
         }
 
         public void NavigateTo<TViewModel>(object parameter) where TViewModel : ScreenViewModelBase
         {
-            _ = parameter;
+            LastNavigationTargetType = typeof(TViewModel);
+            LastNavigationParameter = parameter;
         }
 
         public void GoBack()
