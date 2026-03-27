@@ -368,6 +368,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 - [ ] 37. Screens checkpoint
   - Verify all five screens render and navigate correctly. Verify data binding works end-to-end. Ask user if questions arise.
+  - Progress note (2026-03-27): Shared shell visuals were retuned for readability: buttons now use a neutral default-action treatment instead of the older orange fill, Fluent accent/selection colors were shifted away from blue, low-contrast item text was strengthened, the app icon was refreshed, and updated headless captures were regenerated for review. The checkpoint remains open until the remaining screen work is complete.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)

@@ -22,26 +22,31 @@
     </Style>
 
     <Style Selector="Button">
-        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="Background" Value="{StaticResource BrushButtonFace}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="FontFamily" Value="{StaticResource FontFamilySans}" />
         <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
-        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Padding" Value="12,8" />
     </Style>
 
-    <Style Selector="Button:pointerover">
-        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+    <Style Selector="Button:pointerover:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushButtonHover}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushPrimary}" />
     </Style>
 
-    <Style Selector="Button:pressed">
-        <Setter Property="Background" Value="{StaticResource BrushPrimary}" />
+    <Style Selector="Button:pressed:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushButtonPressed}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
-        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="Button:focus-visible:not(:disabled)">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
     </Style>
 
     <Style Selector="Button:disabled">
@@ -52,22 +57,23 @@
     </Style>
 
     <Style Selector="Button.primary">
-        <Setter Property="Background" Value="{StaticResource BrushPrimary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
-        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+        <Setter Property="Background" Value="{StaticResource BrushButtonDefault}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
-    <Style Selector="Button.primary:pointerover">
-        <Setter Property="Background" Value="{StaticResource BrushPrimaryDeep}" />
+    <Style Selector="Button.primary:pointerover:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
-        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
-    <Style Selector="Button.primary:pressed">
-        <Setter Property="Background" Value="{StaticResource BrushPrimaryDeep}" />
+    <Style Selector="Button.primary:pressed:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushButtonPressed}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
-        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
-        <Setter Property="Opacity" Value="0.92" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
     <Style Selector="TextBox">
@@ -88,6 +94,11 @@
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
+    <Style Selector="TextBox:focus, ComboBox:focus">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
+    </Style>
+
     <Style Selector="ListBox">
         <Setter Property="Background" Value="{StaticResource BrushSurface}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
@@ -103,8 +114,20 @@
         <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
     </Style>
 
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
+    </Style>
+
     <Style Selector="ListBoxItem:selected">
-        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
+    </Style>
+
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter TextBlock">
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
@@ -131,8 +154,26 @@
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
     </Style>
 
+    <Style Selector="DataGridRow:pointerover">
+        <Setter Property="Background" Value="{StaticResource BrushSelectionSoft}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
     <Style Selector="DataGridRow:selected">
-        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="DataGridRow:selected DataGridCell">
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="DataGridCell:current, DataGridCell:focus">
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
@@ -155,7 +196,7 @@
     </Style>
 
     <Style Selector="Border.active-focus-frame">
-        <Setter Property="BorderBrush" Value="{StaticResource BrushWarning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
     </Style>

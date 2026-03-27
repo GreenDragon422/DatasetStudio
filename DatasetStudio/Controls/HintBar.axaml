@@ -13,8 +13,8 @@
           VerticalAlignment="Center">
     <Grid ColumnDefinitions="Auto,*"
           ColumnSpacing="10">
-      <Border Background="{DynamicResource BrushPrimarySoft}"
-              BorderBrush="{DynamicResource BrushPrimary}"
+      <Border Background="{DynamicResource BrushButtonDefault}"
+              BorderBrush="{DynamicResource BrushSelectionBorder}"
               BorderThickness="1"
               CornerRadius="2"
               Padding="6,1"
@@ -22,7 +22,7 @@
         <TextBlock Text="KEYS"
                    Classes="mono"
                    FontSize="10"
-                   Foreground="{DynamicResource BrushPrimaryDeep}"
+                   Foreground="{DynamicResource BrushTextStrong}"
                    VerticalAlignment="Center" />
       </Border>
       <TextBlock Grid.Column="1"

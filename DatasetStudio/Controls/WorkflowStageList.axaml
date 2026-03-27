@@ -24,7 +24,7 @@
                            Classes="heading-medium" />
                 <TextBlock Text="{Binding FolderName}"
                            Classes="mono"
-                           Opacity="0.65"
+                           Foreground="{DynamicResource BrushMuted}"
                            FontSize="11" />
               </StackPanel>
               <TextBlock Grid.Column="1"

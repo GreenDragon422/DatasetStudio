@@ -124,7 +124,7 @@
                                                                    VerticalAlignment="Center"
                                                                    Margin="12"
                                                                    IsVisible="{Binding !HasThumbnail}" />
-                                                        <Border BorderBrush="{DynamicResource BrushPrimary}"
+                                                        <Border BorderBrush="{DynamicResource BrushSelectionBorder}"
                                                                 BorderThickness="2"
                                                                 CornerRadius="2"
                                                                 IsVisible="{Binding IsFocused}" />
@@ -139,10 +139,11 @@
                                                            Text="{Binding TagsPreview}"
                                                            Classes="mono"
                                                            FontSize="11"
+                                                           Foreground="{DynamicResource BrushText}"
                                                            MaxWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
                                                            TextWrapping="Wrap"
                                                            TextTrimming="CharacterEllipsis"
-                                                           Opacity="0.8" />
+                                                           />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

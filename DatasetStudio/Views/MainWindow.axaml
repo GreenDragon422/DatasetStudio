@@ -24,8 +24,8 @@
                 Padding="16,12">
             <Grid ColumnDefinitions="Auto,Auto,*,Auto"
                   ColumnSpacing="12">
-                <Image Width="24"
-                       Height="24"
+                <Image Width="44"
+                       Height="44"
                        Source="/Assets/datasetstudio-icon.png"
                        VerticalAlignment="Center" />
                 <TextBlock Grid.Column="1"

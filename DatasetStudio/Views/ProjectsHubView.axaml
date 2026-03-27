@@ -18,7 +18,7 @@
         </Style>
 
         <Style Selector="Button.project-card:pointerover Border.project-card-frame">
-            <Setter Property="BorderBrush" Value="{DynamicResource BrushPrimary}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushSelectionBorder}" />
         </Style>
     </UserControl.Styles>
 

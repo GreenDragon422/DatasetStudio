@@ -2,19 +2,26 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Color x:Key="ColorBackground">#FBF1C7</Color>
     <Color x:Key="ColorSurface">#EBDBB2</Color>
-    <Color x:Key="ColorSurfaceElevated">#D5C4A1</Color>
-    <Color x:Key="ColorSurfacePanel">#F2E5BC</Color>
-    <Color x:Key="ColorSurfaceInput">#E6D6AF</Color>
-    <Color x:Key="ColorPrimary">#D65D0E</Color>
-    <Color x:Key="ColorPrimarySoft">#F3D4BC</Color>
-    <Color x:Key="ColorPrimaryDeep">#9B4A13</Color>
+    <Color x:Key="ColorSurfaceElevated">#CDBB96</Color>
+    <Color x:Key="ColorSurfacePanel">#F4E6BE</Color>
+    <Color x:Key="ColorSurfaceInput">#EFE0B8</Color>
+    <Color x:Key="ColorPrimary">#8A7530</Color>
+    <Color x:Key="ColorPrimarySoft">#E8DEB2</Color>
+    <Color x:Key="ColorPrimaryDeep">#5A4B1D</Color>
     <Color x:Key="ColorText">#3C3836</Color>
-    <Color x:Key="ColorTextStrong">#282828</Color>
-    <Color x:Key="ColorMuted">#7C6F64</Color>
-    <Color x:Key="ColorAccent">#98971A</Color>
-    <Color x:Key="ColorAccentSoft">#D9E3A2</Color>
-    <Color x:Key="ColorWarning">#D79921</Color>
-    <Color x:Key="ColorError">#CC241D</Color>
+    <Color x:Key="ColorTextStrong">#1F1F1F</Color>
+    <Color x:Key="ColorMuted">#5F574F</Color>
+    <Color x:Key="ColorAccent">#6B8A2D</Color>
+    <Color x:Key="ColorAccentSoft">#DCE6B8</Color>
+    <Color x:Key="ColorWarning">#B57614</Color>
+    <Color x:Key="ColorError">#B9372F</Color>
+    <Color x:Key="ColorButtonFace">#F6EBC9</Color>
+    <Color x:Key="ColorButtonHover">#EBDEB6</Color>
+    <Color x:Key="ColorButtonPressed">#DCC996</Color>
+    <Color x:Key="ColorButtonDefault">#E9DCB0</Color>
+    <Color x:Key="ColorSelection">#E4D7A8</Color>
+    <Color x:Key="ColorSelectionSoft">#F0E6BF</Color>
+    <Color x:Key="ColorSelectionBorder">#746326</Color>
 
     <SolidColorBrush x:Key="BrushBackground" Color="{StaticResource ColorBackground}" />
     <SolidColorBrush x:Key="BrushSurface" Color="{StaticResource ColorSurface}" />
@@ -31,4 +38,11 @@
     <SolidColorBrush x:Key="BrushAccentSoft" Color="{StaticResource ColorAccentSoft}" />
     <SolidColorBrush x:Key="BrushWarning" Color="{StaticResource ColorWarning}" />
     <SolidColorBrush x:Key="BrushError" Color="{StaticResource ColorError}" />
+    <SolidColorBrush x:Key="BrushButtonFace" Color="{StaticResource ColorButtonFace}" />
+    <SolidColorBrush x:Key="BrushButtonHover" Color="{StaticResource ColorButtonHover}" />
+    <SolidColorBrush x:Key="BrushButtonPressed" Color="{StaticResource ColorButtonPressed}" />
+    <SolidColorBrush x:Key="BrushButtonDefault" Color="{StaticResource ColorButtonDefault}" />
+    <SolidColorBrush x:Key="BrushSelection" Color="{StaticResource ColorSelection}" />
+    <SolidColorBrush x:Key="BrushSelectionSoft" Color="{StaticResource ColorSelectionSoft}" />
+    <SolidColorBrush x:Key="BrushSelectionBorder" Color="{StaticResource ColorSelectionBorder}" />
 </ResourceDictionary>
