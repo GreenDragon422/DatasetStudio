@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class TagDictionaryViewModel : ViewModelBase, INavigationAware
+public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAware
 {
     private const int FrequentTagThreshold = 5;
     private const string AllTagsCategory = "All Tags";
@@ -40,7 +40,6 @@ public partial class TagDictionaryViewModel : ViewModelBase, INavigationAware
         AllEntries = new ObservableCollection<TagDictionaryRowViewModel>();
         FilteredEntries = new ObservableCollection<TagDictionaryRowViewModel>();
         SelectedCategory = AllTagsCategory;
-        HintText = "Double-click: Edit | Merge: choose source then target | Delete + Files: remove from tags";
         StatusText = "Open a project to manage its tag dictionary.";
 
         messenger.Register<TagDictionaryChangedMessage>(this, static (recipient, message) =>

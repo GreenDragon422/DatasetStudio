@@ -20,7 +20,8 @@
                 Padding="16,12">
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="12">
-                <TextBox Watermark="Search tags or aliases..."
+                <TextBox x:Name="SearchTextBox"
+                         Watermark="Search tags or aliases..."
                          Text="{Binding SearchText, Mode=TwoWay}"
                          VerticalAlignment="Center" />
                 <Button Grid.Column="1"

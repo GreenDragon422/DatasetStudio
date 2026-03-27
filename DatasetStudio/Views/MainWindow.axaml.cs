@@ -1,5 +1,7 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using DatasetStudio.ViewModels;
 
 namespace DatasetStudio.Views;
@@ -25,8 +27,28 @@ public partial class MainWindow : Window
         }
 
         _ = sender;
-        _ = eventArgs;
         _ = mainWindowViewModel;
-        // Keyboard routing is intentionally stubbed here and will be wired in the integration phase.
+
+        IScreenView? activeScreenView = GetActiveScreenView(mainWindowViewModel);
+        if (activeScreenView is null)
+        {
+            return;
+        }
+
+        _ = activeScreenView.TryHandleKey(eventArgs);
+    }
+
+    private IScreenView? GetActiveScreenView(MainWindowViewModel mainWindowViewModel)
+    {
+        ContentControl activeHost = mainWindowViewModel.IsConfigOpen ? ProjectConfigurationHost : CurrentViewHost;
+        foreach (Visual visual in activeHost.GetVisualDescendants())
+        {
+            if (visual is IScreenView screenView)
+            {
+                return screenView;
+            }
+        }
+
+        return null;
     }
 }

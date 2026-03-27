@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class LibraryGridViewModel : ViewModelBase, INavigationAware
+public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAware
 {
     private readonly IFileSystemService fileSystemService;
     private readonly ITagFileService tagFileService;
@@ -51,7 +51,6 @@ public partial class LibraryGridViewModel : ViewModelBase, INavigationAware
         SelectedImages = new ObservableCollection<LibraryGridImageViewModel>();
         AiModels = new ObservableCollection<AiModelInfo>();
         ZoomValue = 160;
-        HintText = "Click: Focus image  Toggle checkbox: Select image  /: Filter";
         StatusText = "Open a project to load the library grid.";
 
         messenger.Register<LibraryGridViewModel, TagsChangedMessage>(this, static (recipient, message) =>

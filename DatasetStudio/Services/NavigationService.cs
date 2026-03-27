@@ -7,7 +7,7 @@ namespace DatasetStudio.Services;
 
 public class NavigationService : INavigationService
 {
-    private readonly Stack<ViewModelBase> backStack = new();
+    private readonly Stack<ScreenViewModelBase> backStack = new();
     private readonly IServiceProvider serviceProvider;
     private MainWindowViewModel? mainWindowViewModel;
 
@@ -22,14 +22,14 @@ public class NavigationService : INavigationService
     }
 
     public void NavigateTo<TViewModel>()
-        where TViewModel : ViewModelBase
+        where TViewModel : ScreenViewModelBase
     {
         TViewModel nextViewModel = serviceProvider.GetRequiredService<TViewModel>();
         NavigateToCore(nextViewModel);
     }
 
     public void NavigateTo<TViewModel>(object parameter)
-        where TViewModel : ViewModelBase
+        where TViewModel : ScreenViewModelBase
     {
         TViewModel nextViewModel = serviceProvider.GetRequiredService<TViewModel>();
 
@@ -56,7 +56,7 @@ public class NavigationService : INavigationService
         mainWindowViewModel.CurrentView = backStack.Pop();
     }
 
-    private void NavigateToCore(ViewModelBase nextViewModel)
+    private void NavigateToCore(ScreenViewModelBase nextViewModel)
     {
         if (mainWindowViewModel is null)
         {

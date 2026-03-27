@@ -37,15 +37,11 @@
                            VerticalAlignment="Center"
                            Classes="heading-medium" />
 
-                <TextBox Grid.Column="1"
+                <TextBox x:Name="MasterRootPathTextBox"
+                         Grid.Column="1"
                          Watermark="Choose a master root folder, or paste a path and press Enter..."
                          Text="{Binding MasterRootPath, Mode=TwoWay}"
-                         VerticalAlignment="Center">
-                    <TextBox.KeyBindings>
-                        <KeyBinding Gesture="Enter"
-                                    Command="{Binding ScanMasterRootCommand}" />
-                    </TextBox.KeyBindings>
-                </TextBox>
+                         VerticalAlignment="Center" />
 
                 <Button Grid.Column="2"
                         Content="Browse"

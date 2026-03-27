@@ -18,7 +18,7 @@ using System.Collections.Specialized;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class ProjectsHubViewModel : ViewModelBase, IDisposable
+public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable
 {
     private const string DefaultNewProjectName = "New Project";
 
@@ -53,7 +53,6 @@ public partial class ProjectsHubViewModel : ViewModelBase, IDisposable
         {
             _ = recipient.RefreshAfterProjectConfigSavedAsync(message.ProjectId);
         });
-        HintText = "Browse a master root or press Enter in the path field. Project changes rescan automatically.";
         StatusText = "Projects Hub ready.";
         IsEmptyStateVisible = true;
     }

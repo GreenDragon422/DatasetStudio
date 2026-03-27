@@ -375,11 +375,11 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 - [ ] 38. Wire keyboard routing on MainWindow
   - [ ] 38.1 Implement global KeyDown handler on MainWindow — intercept Ctrl+Shift+C, Ctrl+Shift+V, `/` and delegate to active ViewModel
-  - [ ] 38.2 Implement key propagation — non-global keys forwarded to active child View's KeyDown handler
-  - [ ] 38.3 Implement TextBox focus detection — when TextBox has focus, letter keys consumed by TextBox; Escape returns focus to parent container
+  - [x] 38.2 Implement key propagation — non-global keys forwarded to the active rendered child screen via the shared `ScreenViewBase<TViewModel>` contract, with modal content taking priority over the underlying main screen
+  - [x] 38.3 Implement TextBox focus detection — the shared screen base now detects editable text focus, keeps ordinary typing with the `TextBox`, and injects the common `Esc` unfocus/leave-field behavior
   - [ ] 38.4 Implement Escape priority chain — dismiss open popup → unfocus TextBox → navigate back (InspectorMode only)
-  - [ ] 38.5 Implement HintBar reactive updates — bind HintBar content to current screen + IsTextInputFocused state, update shortcut hints contextually
-  - Progress note (2026-03-27): The HintBar/StatusBar runtime binding issue is fixed, the footer bars are visible/readable again, and the shell now uses control-relative XAML bindings instead of `DataContext = this`; remaining work is the full text-input-focus/context routing described in 38.1–38.5.
+  - [x] 38.5 Implement HintBar reactive updates — the shared screen base now formats registered shortcuts into `HintText` and refreshes them as focus/state changes, while `MainWindowViewModel` mirrors the active main or modal screen
+  - Progress note (2026-03-27): The keyboard architecture is now standardized around `ScreenViewBase<TViewModel>` + `ScreenViewModelBase`. `MainWindow` routes non-global keys only to the active rendered screen, screens register the shortcuts they are willing to accept through a small virtual surface, and the base screen updates the HintBar contextually from the registered shortcut set. Remaining work in Task 38 is the truly global shortcut layer (`Ctrl+Shift+C`/`V`, etc.) and the full Escape priority chain for popups / Inspector back-navigation.
   - _Requirements: 9.1, 9.2, 9.4, 9.5, 2.8, 2.24, 3.6, 3.15_
 
 - [ ] 39. Wire state persistence into ViewModel lifecycle

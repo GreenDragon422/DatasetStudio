@@ -11,7 +11,7 @@ namespace DatasetStudio.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private ViewModelBase? observedViewModel;
+    private ScreenViewModelBase? observedShellViewModel;
     private readonly IServiceProvider serviceProvider;
 
     public MainWindowViewModel(IServiceProvider serviceProvider, INavigationService navigationService, IMessenger messenger)
@@ -30,32 +30,33 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [ObservableProperty]
-    private ViewModelBase? currentView;
+    private ScreenViewModelBase? currentView;
 
     [ObservableProperty]
     private bool isConfigOpen;
 
     [ObservableProperty]
-    private object? projectConfigurationContent;
+    private ScreenViewModelBase? projectConfigurationContent;
 
-    partial void OnCurrentViewChanged(ViewModelBase? value)
+    partial void OnCurrentViewChanged(ScreenViewModelBase? value)
     {
-        if (observedViewModel is not null)
-        {
-            observedViewModel.PropertyChanged -= OnCurrentViewPropertyChanged;
-        }
-
-        observedViewModel = value;
-
-        if (observedViewModel is not null)
-        {
-            observedViewModel.PropertyChanged += OnCurrentViewPropertyChanged;
-        }
-
-        SyncShellFromCurrentView();
+        _ = value;
+        UpdateObservedShellViewModel();
     }
 
-    public void OpenProjectConfiguration(object content)
+    partial void OnIsConfigOpenChanged(bool value)
+    {
+        _ = value;
+        UpdateObservedShellViewModel();
+    }
+
+    partial void OnProjectConfigurationContentChanged(ScreenViewModelBase? value)
+    {
+        _ = value;
+        UpdateObservedShellViewModel();
+    }
+
+    public void OpenProjectConfiguration(ScreenViewModelBase content)
     {
         ProjectConfigurationContent = content;
         IsConfigOpen = true;
@@ -66,7 +67,6 @@ public partial class MainWindowViewModel : ViewModelBase
         ProjectConfigurationViewModel projectConfigurationViewModel = serviceProvider.GetRequiredService<ProjectConfigurationViewModel>();
         projectConfigurationViewModel.LoadProject(project);
         OpenProjectConfiguration(projectConfigurationViewModel);
-        StatusText = string.Format("Configuring project {0}.", project.Name);
     }
 
     public void CloseProjectConfiguration()
@@ -83,13 +83,24 @@ public partial class MainWindowViewModel : ViewModelBase
             || eventArgs.PropertyName == nameof(ViewModelBase.StatusText)
             || eventArgs.PropertyName == nameof(ViewModelBase.TopBarContent))
         {
-            SyncShellFromCurrentView();
+            SyncShellFromActiveView();
         }
     }
 
-    private void SyncShellFromCurrentView()
+    private ScreenViewModelBase? GetActiveShellViewModel()
     {
-        if (CurrentView is null)
+        if (IsConfigOpen && ProjectConfigurationContent is not null)
+        {
+            return ProjectConfigurationContent;
+        }
+
+        return CurrentView;
+    }
+
+    private void SyncShellFromActiveView()
+    {
+        ScreenViewModelBase? activeShellViewModel = GetActiveShellViewModel();
+        if (activeShellViewModel is null)
         {
             TopBarContent = null;
             HintText = "No active screen.";
@@ -97,8 +108,32 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        TopBarContent = CurrentView.TopBarContent;
-        HintText = CurrentView.HintText;
-        StatusText = CurrentView.StatusText;
+        TopBarContent = activeShellViewModel.TopBarContent;
+        HintText = activeShellViewModel.HintText;
+        StatusText = activeShellViewModel.StatusText;
+    }
+
+    private void UpdateObservedShellViewModel()
+    {
+        ScreenViewModelBase? activeShellViewModel = GetActiveShellViewModel();
+        if (ReferenceEquals(observedShellViewModel, activeShellViewModel))
+        {
+            SyncShellFromActiveView();
+            return;
+        }
+
+        if (observedShellViewModel is not null)
+        {
+            observedShellViewModel.PropertyChanged -= OnCurrentViewPropertyChanged;
+        }
+
+        observedShellViewModel = activeShellViewModel;
+
+        if (observedShellViewModel is not null)
+        {
+            observedShellViewModel.PropertyChanged += OnCurrentViewPropertyChanged;
+        }
+
+        SyncShellFromActiveView();
     }
 }

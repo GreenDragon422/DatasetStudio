@@ -39,7 +39,8 @@
         </Border>
 
         <Grid Grid.Row="1">
-            <ContentControl Content="{Binding CurrentView}" />
+            <ContentControl x:Name="CurrentViewHost"
+                            Content="{Binding CurrentView}" />
 
             <Border IsVisible="{Binding IsConfigOpen}"
                     Background="#DDFBF1C7"
@@ -54,7 +55,8 @@
                         BorderThickness="1"
                         CornerRadius="2"
                         Padding="24">
-                    <ContentControl Content="{Binding ProjectConfigurationContent}" />
+                    <ContentControl x:Name="ProjectConfigurationHost"
+                                    Content="{Binding ProjectConfigurationContent}" />
                 </Border>
             </Border>
         </Grid>

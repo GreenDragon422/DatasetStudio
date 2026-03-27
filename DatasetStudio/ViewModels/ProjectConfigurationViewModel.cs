@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class ProjectConfigurationViewModel : ViewModelBase
+public partial class ProjectConfigurationViewModel : ScreenViewModelBase
 {
     private static readonly Regex PrefixTagPattern = new(@"^[\p{L}\p{N} _.-]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -39,7 +39,6 @@ public partial class ProjectConfigurationViewModel : ViewModelBase
 
         AvailableAiModels = new ObservableCollection<AiModelInfo>();
         Stages = new ObservableCollection<ProjectConfigurationStageViewModel>();
-        HintText = "Tab: Next Field  Enter: Save  Esc: Cancel";
         StatusText = "Project configuration ready.";
     }
 

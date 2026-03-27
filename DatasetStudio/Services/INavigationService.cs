@@ -5,10 +5,10 @@ namespace DatasetStudio.Services;
 public interface INavigationService
 {
     void NavigateTo<TViewModel>()
-        where TViewModel : ViewModelBase;
+        where TViewModel : ScreenViewModelBase;
 
     void NavigateTo<TViewModel>(object parameter)
-        where TViewModel : ViewModelBase;
+        where TViewModel : ScreenViewModelBase;
 
     void GoBack();
 }

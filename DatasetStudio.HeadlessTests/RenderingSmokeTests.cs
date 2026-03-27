@@ -274,7 +274,7 @@ public class RenderingSmokeTests
                 navigationService);
         }
 
-        public MainWindow CreateMainWindow(ViewModelBase currentView)
+        public MainWindow CreateMainWindow(ScreenViewModelBase currentView)
         {
             MainWindowViewModel mainWindowViewModel = CreateMainWindowViewModel();
             mainWindowViewModel.CurrentView = currentView;
@@ -524,11 +524,11 @@ public class RenderingSmokeTests
 
     private sealed class CaptureNavigationService : INavigationService
     {
-        public void NavigateTo<TViewModel>() where TViewModel : ViewModelBase
+        public void NavigateTo<TViewModel>() where TViewModel : ScreenViewModelBase
         {
         }
 
-        public void NavigateTo<TViewModel>(object parameter) where TViewModel : ViewModelBase
+        public void NavigateTo<TViewModel>(object parameter) where TViewModel : ScreenViewModelBase
         {
             _ = parameter;
         }

@@ -45,7 +45,8 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <TextBox Grid.Column="2"
+                <TextBox x:Name="FilterTextBox"
+                         Grid.Column="2"
                          Width="280"
                          Watermark="Quick filter tags or filenames..."
                          Text="{Binding FilterText, Mode=TwoWay}"

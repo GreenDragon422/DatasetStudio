@@ -284,26 +284,36 @@ public interface IStatePersistenceService
 
 ### Keyboard Input Routing Architecture
 
-Keyboard input is handled at two levels:
+Keyboard input is centralized in the shell and standardized through a reusable screen base:
 
-1. **Global KeyBindings** — Registered on `MainWindow` via Avalonia `KeyBinding` elements. These handle cross-screen shortcuts like `Ctrl+Shift+C`/`V` (tag copy/paste) and `/` (focus filter). The `MainWindowVM` delegates to the active child ViewModel.
+1. **Shell-level routing** — `MainWindow` owns the single `KeyDown` entry point and resolves the active rendered screen. Modal content has priority over the underlying main screen.
 
-2. **Screen-level InputBindings** — Each View registers its own `KeyDown` handler that delegates to the ViewModel. The ViewModel exposes `ICommand` properties for each shortcut action.
+2. **Screen registration** — Every routable screen derives from `ScreenViewBase<TViewModel>` and overrides a small virtual surface such as `BuildScreenShortcuts()` to declare the shortcuts it is willing to accept for the current screen.
+
+3. **Context filtering** — `ScreenViewBase<TViewModel>` evaluates the current focus context before dispatch. When a `TextBox` has focus, ordinary text entry stays with the control, shared escape behavior is injected automatically, and only explicitly allowed shortcuts remain active.
+
+4. **Shell-facing state** — Screen ViewModels inherit `ScreenViewModelBase`, which narrows the shell-facing contract to `TopBarContent`, `HintText`, and `StatusText`. The base screen computes the active shortcut list and pushes the formatted `HintText` into the current `ScreenViewModelBase`, while `MainWindowViewModel` mirrors whichever screen is currently active.
 
 ```mermaid
 graph TD
-    A[MainWindow.KeyDown] --> B{Is global shortcut?}
-    B -->|Yes| C[MainWindowVM handles]
-    B -->|No| D[Propagate to active View]
-    D --> E[View.KeyDown handler]
-    E --> F{Is text input focused?}
-    F -->|Yes, tag input| G[Let TextBox handle normally]
-    F -->|No| H[ViewModel.HandleKeyCommand]
-    H --> I[Execute bound ICommand]
+    A[MainWindow.KeyDown] --> B[Resolve active screen]
+    B --> C{Modal open?}
+    C -->|Yes| D[Route to modal ScreenViewBase]
+    C -->|No| E[Route to current ScreenViewBase]
+    D --> F[Evaluate registered shortcuts]
+    E --> F
+    F --> G{Text input focused?}
+    G -->|Yes| H[Keep text input active, inject shared Esc Leave Field]
+    G -->|No| I[Use normal screen shortcut set]
+    H --> J{Shortcut registered and allowed?}
+    I --> J
+    J -->|Yes| K[Execute screen handler and refresh HintText]
+    J -->|No| L[Ignore and let normal control behavior continue]
 ```
 
 Key routing rules:
 - When a `TextBox` has focus (tag input, filter bar), letter keys are consumed by the TextBox. `Escape` returns focus to the parent container (grid or image viewer).
+- The active screen does not receive arbitrary keypresses. It receives only the shortcuts that it registered through `ScreenViewBase<TViewModel>`, which keeps the work surface narrow and consistent across screens.
 - `Escape` dismisses any open popup (batch add/remove). If no popup is open in Inspector Mode, `Escape` navigates back to Library Grid.
 - In Library Grid, when no TextBox is focused: arrow keys navigate the grid, `x` toggles selection, `+`/`-` open batch popups, `[`/`]` move images, `Delete` recycles images.
 - In Inspector Mode, any letter key auto-focuses the tag input (requirement 3.6). Arrow keys navigate images. `[`/`]` move the current image between stages. `Delete` recycles the current image.
@@ -427,7 +437,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 ### HintBar Implementation Rule
 
-Each ViewModel MUST expose a `HintText` string property (via `[ObservableProperty]`) that returns the exact HintBar string for the current screen state. When context changes (popup opens, TextBox gains/loses focus, screen switches), the ViewModel MUST update `HintText` to reflect the new available shortcuts. The HintBar control binds to this property and renders it in IBM Plex Mono 12px on a 24px-height bar.
+Each screen ViewModel MUST inherit `ScreenViewModelBase`, which provides the shell-facing `HintText` property. Concrete screens SHOULD NOT hard-code keyboard hint strings in constructors. Instead, each screen registers its allowed shortcuts through `ScreenViewBase<TViewModel>`, and the base screen computes the context-sensitive HintBar text (including text-input-focused states such as `Esc Leave Field`) and writes it into the active `ScreenViewModelBase.HintText`. The HintBar control continues to bind to that property and renders it in IBM Plex Mono 12px on a 24px-height bar.
 
 ## Data Models
 

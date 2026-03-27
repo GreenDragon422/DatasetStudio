@@ -1,12 +1,14 @@
-using Avalonia.Controls;
-using DatasetStudio.ViewModels;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Platform.Storage;
+using DatasetStudio.ViewModels;
 
 namespace DatasetStudio.Views;
 
-public partial class ProjectsHubView : UserControl
+public partial class ProjectsHubView : ScreenViewBase<ProjectsHubViewModel>
 {
     private bool hasInitialized;
 
@@ -16,7 +18,62 @@ public partial class ProjectsHubView : UserControl
         Loaded += OnLoaded;
     }
 
+    protected override IReadOnlyList<ScreenShortcut> BuildScreenShortcuts()
+    {
+        ProjectsHubViewModel? viewModel = ViewModel;
+        if (viewModel is null)
+        {
+            return Array.Empty<ScreenShortcut>();
+        }
+
+        return new ScreenShortcut[]
+        {
+            CreateShortcut(Key.O, KeyModifiers.Control, "Ctrl+O", "Browse", OpenBrowseShortcut, allowWhenTextInputFocused: true),
+            CreateShortcut(
+                Key.N,
+                KeyModifiers.Control,
+                "Ctrl+N",
+                "New Project",
+                () => viewModel.NewProjectCommand.Execute(null),
+                allowWhenTextInputFocused: true),
+            CreateShortcut(
+                Key.Enter,
+                KeyModifiers.None,
+                "Enter",
+                "Scan",
+                () => _ = viewModel.ScanMasterRootCommand.ExecuteAsync(null),
+                allowWhenTextInputFocused: true,
+                isAvailable: () => IsControlOrDescendantFocused(MasterRootPathTextBox)),
+        };
+    }
+
     private async void OnBrowseMasterRootClick(object? sender, Avalonia.Interactivity.RoutedEventArgs eventArgs)
+    {
+        _ = sender;
+        _ = eventArgs;
+        await BrowseMasterRootAsync().ConfigureAwait(true);
+    }
+
+    private async void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs eventArgs)
+    {
+        _ = sender;
+        _ = eventArgs;
+
+        if (hasInitialized)
+        {
+            return;
+        }
+
+        if (DataContext is not ProjectsHubViewModel projectsHubViewModel)
+        {
+            return;
+        }
+
+        hasInitialized = true;
+        await projectsHubViewModel.LoadProjectsCommand.ExecuteAsync(null).ConfigureAwait(true);
+    }
+
+    private async Task BrowseMasterRootAsync()
     {
         if (DataContext is not ProjectsHubViewModel projectsHubViewModel)
         {
@@ -29,8 +86,8 @@ public partial class ProjectsHubView : UserControl
             return;
         }
 
-        IReadOnlyList<Avalonia.Platform.Storage.IStorageFolder> folders = await topLevel.StorageProvider.OpenFolderPickerAsync(
-            new Avalonia.Platform.Storage.FolderPickerOpenOptions
+        IReadOnlyList<IStorageFolder> folders = await topLevel.StorageProvider.OpenFolderPickerAsync(
+            new FolderPickerOpenOptions
             {
                 Title = "Select master root folder",
                 AllowMultiple = false,
@@ -46,19 +103,8 @@ public partial class ProjectsHubView : UserControl
         await projectsHubViewModel.ScanMasterRootCommand.ExecuteAsync(null).ConfigureAwait(true);
     }
 
-    private async void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs eventArgs)
+    private void OpenBrowseShortcut()
     {
-        if (hasInitialized)
-        {
-            return;
-        }
-
-        if (DataContext is not ProjectsHubViewModel projectsHubViewModel)
-        {
-            return;
-        }
-
-        hasInitialized = true;
-        await projectsHubViewModel.LoadProjectsCommand.ExecuteAsync(null).ConfigureAwait(true);
+        _ = BrowseMasterRootAsync();
     }
 }

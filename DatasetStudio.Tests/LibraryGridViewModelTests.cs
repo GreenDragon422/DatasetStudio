@@ -344,11 +344,11 @@ public class LibraryGridViewModelTests
 
     private sealed class TestNavigationService : INavigationService
     {
-        public void NavigateTo<TViewModel>() where TViewModel : ViewModelBase
+        public void NavigateTo<TViewModel>() where TViewModel : ScreenViewModelBase
         {
         }
 
-        public void NavigateTo<TViewModel>(object parameter) where TViewModel : ViewModelBase
+        public void NavigateTo<TViewModel>(object parameter) where TViewModel : ScreenViewModelBase
         {
             _ = parameter;
         }
