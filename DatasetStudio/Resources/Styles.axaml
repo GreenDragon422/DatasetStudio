@@ -200,4 +200,51 @@
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
     </Style>
+
+    <Style Selector="Border.form-section">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Border.prefix-tags-frame">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Border.prefix-tags-frame.error">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushError}" />
+    </Style>
+
+    <Style Selector="Border.stage-row">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Button.project-card">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="Border.project-card-frame">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Button.project-card:pointerover Border.project-card-frame">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+    </Style>
+
+    <Style Selector="ListBox.stage-editor-list ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
 </Styles>

@@ -370,6 +370,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Verify all five screens render and navigate correctly. Verify data binding works end-to-end. Ask user if questions arise.
   - Progress note (2026-03-27): Shared shell visuals were retuned for readability: buttons now use a neutral default-action treatment instead of the older orange fill, Fluent accent/selection colors were shifted away from blue, low-contrast item text was strengthened, the app icon was refreshed, and updated headless captures were regenerated for review. The checkpoint remains open until the remaining screen work is complete.
   - Progress note (2026-03-27): The shared palette was realigned to the authoritative Gruvbox-light base colors with the user-selected calmer desktop primary `#B57614`, while keeping the olive accent `#98971A`. Derived surface, button, and selection shades were retuned from those anchors and headless screen captures were regenerated for review.
+  - Progress note (2026-03-27): Remaining view-local styling in `ProjectsHubView.axaml` and `ProjectConfigurationView.axaml` was moved into the shared theme so screen XAML stays structural. Shared classes like `project-card-frame`, `form-section`, `prefix-tags-frame`, and `stage-row` are now themed centrally in `Resources/Styles.axaml`.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)

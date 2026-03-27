@@ -11,33 +11,6 @@
               x:Name="Root"
                x:DataType="vm:ProjectConfigurationViewModel"
                x:CompileBindings="True">
-    <UserControl.Styles>
-        <Style Selector="Border.form-section">
-            <Setter Property="Background" Value="{DynamicResource BrushSurface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BrushSurfaceElevated}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="2" />
-        </Style>
-
-        <Style Selector="Border.prefix-tags-frame">
-            <Setter Property="BorderBrush" Value="{DynamicResource BrushMuted}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="2" />
-            <Setter Property="Background" Value="{DynamicResource BrushSurface}" />
-        </Style>
-
-        <Style Selector="Border.prefix-tags-frame.error">
-            <Setter Property="BorderBrush" Value="{DynamicResource BrushError}" />
-        </Style>
-
-        <Style Selector="Border.stage-row">
-            <Setter Property="Background" Value="{DynamicResource BrushSurface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BrushSurfaceElevated}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="2" />
-        </Style>
-    </UserControl.Styles>
-
     <Grid RowDefinitions="Auto,*,Auto"
           RowSpacing="16"
           MaxWidth="880"
@@ -143,14 +116,10 @@
                         </Grid>
 
                         <ListBox ItemsSource="{Binding Stages}"
+                                 Classes="stage-editor-list"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Padding="0">
-                            <ListBox.Styles>
-                                <Style Selector="ListBoxItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListBox.Styles>
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ProjectConfigurationStageViewModel">
                                     <Border Classes="stage-row"

@@ -9,19 +9,6 @@
              x:Class="DatasetStudio.Views.ProjectsHubView"
              x:DataType="vm:ProjectsHubViewModel"
              x:CompileBindings="True">
-    <UserControl.Styles>
-        <Style Selector="Button.project-card">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-        </Style>
-
-        <Style Selector="Button.project-card:pointerover Border.project-card-frame">
-            <Setter Property="BorderBrush" Value="{DynamicResource BrushSelectionBorder}" />
-        </Style>
-    </UserControl.Styles>
-
     <Grid RowDefinitions="64,*"
           Margin="24"
           RowSpacing="16">
@@ -96,10 +83,6 @@
                                 <Border Classes="project-card-frame"
                                         Width="300"
                                         Height="164"
-                                        Background="{DynamicResource BrushSurface}"
-                                        BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                                        BorderThickness="1"
-                                        CornerRadius="2"
                                         Padding="16"
                                         Margin="0,0,16,16">
                                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
