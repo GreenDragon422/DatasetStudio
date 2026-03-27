@@ -10,6 +10,8 @@ public interface IAiTaggerService
 {
     Task<IReadOnlyList<string>> GenerateTagsAsync(string imageFilePath, string modelName);
 
+    bool TryQueueTagGeneration(Project project, string imageFilePath);
+
     Task<IReadOnlyList<AiModelInfo>> GetAvailableModelsAsync();
 
     bool IsProcessing(string imageFilePath);
