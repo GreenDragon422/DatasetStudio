@@ -27,7 +27,7 @@
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
-                <Border Classes="form-section"
+                <Border Classes="surface-card"
                         Padding="16">
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
                           RowSpacing="12">
@@ -74,9 +74,7 @@
                                         <StackPanel Spacing="2">
                                             <TextBlock Text="{Binding DisplayName}" />
                                             <TextBlock Text="{Binding ModelPath}"
-                                                       Classes="mono"
-                                                       Foreground="{DynamicResource BrushMuted}"
-                                                       FontSize="11" />
+                                                       Classes="mono subtle-text small" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
@@ -91,22 +89,21 @@
                                     Classes.error="{Binding HasPrefixTagsError}"
                                     Padding="0">
                                 <TextBox Text="{Binding PrefixTagsText, Mode=TwoWay}"
+                                         Classes="chromeless-input"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
                                          MinHeight="72"
-                                         BorderThickness="0"
-                                         Background="Transparent"
                                          Watermark="lora_style, masterpiece, best quality" />
                             </Border>
                             <TextBlock Text="{Binding PrefixTagsError}"
+                                       Classes="error-text"
                                        IsVisible="{Binding HasPrefixTagsError}"
-                                       Foreground="{DynamicResource BrushError}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <Border Classes="form-section"
+                <Border Classes="surface-card"
                         Padding="16">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto"
@@ -119,13 +116,10 @@
                         </Grid>
 
                         <ListBox ItemsSource="{Binding Stages}"
-                                 Classes="stage-editor-list"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 Padding="0">
+                                 Classes="stage-editor-list">
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ProjectConfigurationStageViewModel">
-                                    <Border Classes="stage-row"
+                                    <Border Classes="surface-card"
                                             Margin="0,0,0,8"
                                      Padding="12"
                                      DragDrop.AllowDrop="True"
@@ -139,7 +133,7 @@
                                                         Width="24"
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"
-                                                        Foreground="{DynamicResource BrushMuted}"
+                                                        Classes="subtle-text"
                                                         PointerPressed="OnStageDragHandlePointerPressed"
                                                         Cursor="SizeAll"
                                                         />

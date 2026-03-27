@@ -3,29 +3,19 @@
              xmlns:controls="using:DatasetStudio.Controls"
              x:Class="DatasetStudio.Controls.WorkflowStageList"
              x:DataType="controls:WorkflowStageList">
-  <Border Background="{DynamicResource BrushSurface}"
-          BorderBrush="{DynamicResource BrushSurfaceElevated}"
-          BorderThickness="1"
-          CornerRadius="2">
+  <Border Classes="surface-card">
     <ListBox ItemsSource="{Binding ItemsSource}"
              SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-             Background="Transparent"
-             BorderThickness="0"
-             Padding="0">
+             Classes="plain-list">
       <ListBox.ItemTemplate>
         <DataTemplate x:CompileBindings="False">
-          <Border Margin="4,2"
-                  Padding="8,6"
-                  CornerRadius="2"
-                  Background="Transparent">
+          <Border Classes="list-row-shell">
             <Grid ColumnDefinitions="*,Auto">
               <StackPanel Spacing="2">
                 <TextBlock Text="{Binding DisplayName}"
                            Classes="heading-medium" />
                 <TextBlock Text="{Binding FolderName}"
-                           Classes="mono"
-                           Foreground="{DynamicResource BrushMuted}"
-                           FontSize="11" />
+                           Classes="mono subtle-text small" />
               </StackPanel>
               <TextBlock Grid.Column="1"
                          Text="{Binding ImageCount}"

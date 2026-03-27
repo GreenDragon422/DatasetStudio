@@ -3,10 +3,7 @@
              xmlns:controls="using:DatasetStudio.Controls"
              x:Class="DatasetStudio.Controls.TagPill"
              x:DataType="controls:TagPill">
-  <Border Background="{DynamicResource BrushSurface}"
-          BorderBrush="{DynamicResource BrushSurfaceElevated}"
-          BorderThickness="1"
-          CornerRadius="2"
+  <Border Classes="surface-card"
           Padding="8,4">
     <Grid ColumnDefinitions="Auto,Auto" VerticalAlignment="Center">
       <TextBlock Text="{Binding Tag}"
@@ -15,15 +12,13 @@
       <Button Grid.Column="1"
               Command="{Binding RemoveCommand}"
               CommandParameter="{Binding Tag}"
-              Background="Transparent"
-              BorderThickness="0"
+              Classes="chromeless"
               Margin="8,0,0,0"
-              Padding="0"
               VerticalAlignment="Center">
         <TextBlock Text="x"
-                   Classes="mono"
+                   Classes="mono subtle-text"
                    FontWeight="SemiBold"
-                   Foreground="{DynamicResource BrushMuted}" />
+                   />
       </Button>
     </Grid>
   </Border>

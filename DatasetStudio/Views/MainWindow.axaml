@@ -18,9 +18,7 @@
         KeyDown="OnWindowKeyDown">
     <Grid RowDefinitions="64,*,Auto,Auto">
         <Border Grid.Row="0"
-                Background="{DynamicResource BrushSurface}"
-                BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                BorderThickness="0,0,0,1"
+                Classes="shell-header-bar"
                 Padding="16,12">
             <Grid ColumnDefinitions="Auto,Auto,*,Auto"
                   ColumnSpacing="12">
@@ -43,17 +41,13 @@
                             Content="{Binding CurrentView}" />
 
             <Border IsVisible="{Binding IsConfigOpen}"
-                    Background="#DDFBF1C7"
-                    Padding="24"
+                    Classes="modal-overlay"
                     ZIndex="10">
                 <Border HorizontalAlignment="Stretch"
                         VerticalAlignment="Center"
                         MaxWidth="960"
                         MaxHeight="780"
-                        Background="{DynamicResource BrushSurface}"
-                        BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                        BorderThickness="1"
-                        CornerRadius="2"
+                        Classes="surface-card"
                         Padding="24">
                     <ContentControl x:Name="ProjectConfigurationHost"
                                     Content="{Binding ProjectConfigurationContent}" />

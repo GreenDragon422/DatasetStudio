@@ -4,32 +4,16 @@
              x:Class="DatasetStudio.Controls.HintBar"
              x:Name="Root"
              x:DataType="controls:HintBar">
-  <Border Background="{DynamicResource BrushSurfaceInput}"
-          BorderBrush="{DynamicResource BrushSurfaceElevated}"
-          BorderThickness="1"
-          CornerRadius="2"
-          Height="24"
-          Padding="8,0"
-          VerticalAlignment="Center">
+  <Border Classes="chrome-shell input">
     <Grid ColumnDefinitions="Auto,*"
           ColumnSpacing="10">
-      <Border Background="{DynamicResource BrushButtonDefault}"
-              BorderBrush="{DynamicResource BrushSelectionBorder}"
-              BorderThickness="1"
-              CornerRadius="2"
-              Padding="6,1"
-              VerticalAlignment="Center">
+      <Border Classes="label-badge keys">
         <TextBlock Text="KEYS"
-                   Classes="mono"
-                   FontSize="10"
-                   Foreground="{DynamicResource BrushTextStrong}"
-                   VerticalAlignment="Center" />
+                   Classes="mono label-badge-text" />
       </Border>
       <TextBlock Grid.Column="1"
                  Text="{Binding #Root.Text}"
-                 Classes="mono"
-                 VerticalAlignment="Center"
-                 Foreground="{DynamicResource BrushTextStrong}"
+                 Classes="shell-bar-text"
                  TextTrimming="CharacterEllipsis" />
     </Grid>
   </Border>

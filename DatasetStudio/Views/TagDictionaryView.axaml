@@ -13,11 +13,7 @@
           Margin="24"
           RowSpacing="16">
         <Border Grid.Row="0"
-                Background="{DynamicResource BrushSurface}"
-                BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                BorderThickness="1"
-                CornerRadius="2"
-                Padding="16,12">
+                Classes="screen-header-bar">
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="12">
                 <TextBox x:Name="SearchTextBox"
@@ -35,10 +31,7 @@
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
               ColumnSpacing="16">
-            <Border Background="{DynamicResource BrushSurface}"
-                    BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                    BorderThickness="1"
-                    CornerRadius="2"
+            <Border Classes="surface-card"
                     Padding="12">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Categories"
@@ -50,20 +43,11 @@
             </Border>
 
             <Border Grid.Column="1"
-                    Background="{DynamicResource BrushSurface}"
-                    BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                    BorderThickness="1"
-                    CornerRadius="2"
+                    Classes="surface-card"
                     Padding="8">
                 <DataGrid ItemsSource="{Binding FilteredEntries}"
                           SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
                           AutoGenerateColumns="False"
-                          Background="{DynamicResource BrushSurface}"
-                          BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                          Foreground="{DynamicResource BrushTextStrong}"
-                          GridLinesVisibility="All"
-                          HorizontalGridLinesBrush="{DynamicResource BrushSurfaceElevated}"
-                          VerticalGridLinesBrush="{DynamicResource BrushSurfaceElevated}"
                           CanUserSortColumns="True"
                           HeadersVisibility="Column">
                     <DataGrid.Columns>
@@ -72,7 +56,7 @@
                                                 Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
-                                    <Border Background="Transparent"
+                                    <Border Classes="flat-row"
                                             DoubleTapped="OnEntryDoubleTapped"
                                             Padding="8,4">
                                         <Grid>

@@ -16,11 +16,7 @@
           Margin="24"
           RowSpacing="16">
         <Border Grid.Row="0"
-                Background="{DynamicResource BrushSurface}"
-                BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                BorderThickness="1"
-                CornerRadius="2"
-                Padding="16,12">
+                Classes="screen-header-bar">
             <Grid ColumnDefinitions="*,Auto,Auto"
                   ColumnSpacing="12">
                 <StackPanel Spacing="2"
@@ -72,10 +68,7 @@
             <Grid Grid.Column="1"
                   RowDefinitions="*,Auto"
                   RowSpacing="12">
-                <Border Background="{DynamicResource BrushSurface}"
-                        BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                        BorderThickness="1"
-                        CornerRadius="2"
+                <Border Classes="surface-card"
                         Padding="16">
                     <Grid>
                         <TextBlock Text="Folder is empty. Drag images here to stage."
@@ -95,11 +88,8 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:LibraryGridImageViewModel">
                                         <Border Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                Classes="surface-card"
                                                 Margin="0,0,16,16"
-                                                Background="{DynamicResource BrushSurface}"
-                                                BorderBrush="{DynamicResource BrushSurfaceElevated}"
-                                                BorderThickness="1"
-                                                CornerRadius="2"
                                                 Padding="8">
                                             <Grid RowDefinitions="Auto,*,Auto">
                                                 <Grid ColumnDefinitions="Auto,*">
@@ -114,16 +104,13 @@
                                                 </Grid>
 
                                                 <Button Grid.Row="1"
+                                                        Classes="chromeless"
                                                         Margin="0,8,0,8"
-                                                        Padding="0"
-                                                        Background="Transparent"
-                                                        BorderThickness="0"
                                                         Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).FocusImageCommand}"
                                                         CommandParameter="{Binding}">
                                                     <Grid Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
                                                           Height="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}">
-                                                        <Border Background="{DynamicResource BrushSurfaceElevated}"
-                                                                CornerRadius="2" />
+                                                        <Border Classes="thumbnail-placeholder" />
                                                         <Image Source="{Binding Thumbnail}"
                                                                Stretch="UniformToFill"
                                                                IsVisible="{Binding HasThumbnail}" />
@@ -134,9 +121,7 @@
                                                                    VerticalAlignment="Center"
                                                                    Margin="12"
                                                                    IsVisible="{Binding !HasThumbnail}" />
-                                                        <Border BorderBrush="{DynamicResource BrushSelectionBorder}"
-                                                                BorderThickness="2"
-                                                                CornerRadius="2"
+                                                        <Border Classes="active-focus-frame"
                                                                 IsVisible="{Binding IsFocused}" />
                                                         <controls:StatusDot HorizontalAlignment="Right"
                                                                             VerticalAlignment="Bottom"
@@ -147,9 +132,7 @@
 
                                                 <TextBlock Grid.Row="2"
                                                            Text="{Binding TagsPreview}"
-                                                           Classes="mono"
-                                                           FontSize="11"
-                                                           Foreground="{DynamicResource BrushText}"
+                                                           Classes="mono meta-text"
                                                            MaxWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
                                                            TextWrapping="Wrap"
                                                            TextTrimming="CharacterEllipsis"

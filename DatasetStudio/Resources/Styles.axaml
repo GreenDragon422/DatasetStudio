@@ -86,6 +86,13 @@
         <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
     </Style>
 
+    <Style Selector="TextBox.chromeless-input">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+
     <Style Selector="ComboBox">
         <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
@@ -136,6 +143,7 @@
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="GridLinesVisibility" Value="All" />
         <Setter Property="RowBackground" Value="{StaticResource BrushSurface}" />
         <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BrushSurfaceElevated}" />
         <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BrushSurfaceElevated}" />
@@ -177,6 +185,11 @@
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
+    <Style Selector="ProgressBar">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushAccent}" />
+    </Style>
+
     <Style Selector="TextBlock.mono">
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
         <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
@@ -195,6 +208,19 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
+    <Style Selector="TextBlock.subtle-text">
+        <Setter Property="Foreground" Value="{StaticResource BrushMuted}" />
+    </Style>
+
+    <Style Selector="TextBlock.subtle-text.small">
+        <Setter Property="FontSize" Value="11" />
+    </Style>
+
+    <Style Selector="TextBlock.meta-text">
+        <Setter Property="Foreground" Value="{StaticResource BrushText}" />
+        <Setter Property="FontSize" Value="11" />
+    </Style>
+
     <Style Selector="TextBlock.form-label">
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="FontSize" Value="14" />
@@ -207,17 +233,138 @@
         <Setter Property="FontWeight" Value="Medium" />
     </Style>
 
+    <Style Selector="TextBlock.shell-bar-text">
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.error-text">
+        <Setter Property="Foreground" Value="{StaticResource BrushError}" />
+    </Style>
+
+    <Style Selector="TextBlock.label-badge-text">
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.label-badge-text.status">
+        <Setter Property="Foreground" Value="{StaticResource BrushAccent}" />
+    </Style>
+
     <Style Selector="Border.active-focus-frame">
         <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
     </Style>
 
-    <Style Selector="Border.form-section">
+    <Style Selector="Border.surface-card">
         <Setter Property="Background" Value="{StaticResource BrushSurface}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Border.surface-card.muted-border">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
+    </Style>
+
+    <Style Selector="Border.surface-panel-card">
+        <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Border.screen-header-bar">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+
+    <Style Selector="Border.shell-header-bar">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="Border.modal-overlay">
+        <Setter Property="Background" Value="{StaticResource BrushOverlayScrim}" />
+    </Style>
+
+    <Style Selector="Border.chrome-shell">
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Padding" Value="8,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.chrome-shell.input">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+    </Style>
+
+    <Style Selector="Border.chrome-shell.panel">
+        <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+    </Style>
+
+    <Style Selector="Border.label-badge">
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Padding" Value="6,1" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.label-badge.keys">
+        <Setter Property="Background" Value="{StaticResource BrushButtonDefault}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+    </Style>
+
+    <Style Selector="Border.label-badge.status">
+        <Setter Property="Background" Value="{StaticResource BrushAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}" />
+    </Style>
+
+    <Style Selector="Border.modal-overlay">
+        <Setter Property="Background" Value="{StaticResource BrushOverlayScrim}" />
+        <Setter Property="Padding" Value="24" />
+    </Style>
+
+    <Style Selector="Border.status-dot">
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+    </Style>
+
+    <Style Selector="Border.thumbnail-placeholder">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+
+    <Style Selector="Border.flat-row">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="Border.list-row-shell">
+        <Setter Property="Margin" Value="4,2" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="Border.suggestion-row">
+        <Setter Property="Margin" Value="0,2" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
     </Style>
 
     <Style Selector="Border.prefix-tags-frame">
@@ -231,33 +378,57 @@
         <Setter Property="BorderBrush" Value="{StaticResource BrushError}" />
     </Style>
 
-    <Style Selector="Border.stage-row">
-        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
-        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
-        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
-    </Style>
-
     <Style Selector="Button.project-card">
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-    </Style>
-
-    <Style Selector="Border.project-card-frame">
-        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
-        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
-        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
     </Style>
 
     <Style Selector="Button.project-card:pointerover Border.project-card-frame">
         <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
     </Style>
 
+    <Style Selector="Button.project-card:pointerover, Button.project-card:pressed, Button.project-card:focus-visible">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Button.chromeless">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="Button.chromeless:pointerover, Button.chromeless:pressed, Button.chromeless:focus-visible">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.stage-editor-list">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
     <Style Selector="ListBox.stage-editor-list ListBoxItem">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="ListBox.plain-list">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="Border.status-dot">
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
     </Style>
 
     <Style Selector="ListBox.category-list">

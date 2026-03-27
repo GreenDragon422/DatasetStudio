@@ -8,10 +8,9 @@
     <conv:TagStatusToBrushConverter x:Key="TagStatusToBrushConverter" />
   </UserControl.Resources>
 
-  <Border Width="12"
+  <Border Classes="status-dot"
+          Width="12"
           Height="12"
-          CornerRadius="6"
           Background="{Binding Status, Converter={StaticResource TagStatusToBrushConverter}}"
-          BorderBrush="{DynamicResource BrushSurfaceElevated}"
-          BorderThickness="1" />
+          />
 </UserControl>
