@@ -1,0 +1,12 @@
+using Avalonia;
+using Avalonia.Themes.Fluent;
+
+namespace __TEST_NAMESPACE__;
+
+public class TestApp : Application
+{
+    public override void Initialize()
+    {
+        Styles.Add(new FluentTheme());
+    }
+}

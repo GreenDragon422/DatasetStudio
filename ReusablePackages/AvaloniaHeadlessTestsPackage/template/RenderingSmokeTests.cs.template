@@ -1,0 +1,57 @@
+using System.IO;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Headless.NUnit;
+
+namespace __TEST_NAMESPACE__;
+
+public class RenderingSmokeTests
+{
+    [AvaloniaTest]
+    public async Task ShouldRenderWindowAndCreateGif()
+    {
+        TestOutputHelper.ClearTestOutputs();
+
+        TextBlock textBlock = new TextBlock
+        {
+            Text = "__TARGET_PROJECT_NAME__ headless test",
+            FontSize = 24,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        };
+
+        Window window = new Window
+        {
+            Width = 360,
+            Height = 140,
+            Content = textBlock
+        };
+
+        window.Show();
+
+        HeadlessGifCaptureOptions options = new HeadlessGifCaptureOptions
+        {
+            RunName = nameof(ShouldRenderWindowAndCreateGif),
+            FramePrefix = "frame",
+            GifFileName = "rendering-smoke.gif",
+            InitialDelayMs = 50,
+            CaptureIntervalMs = 50,
+            MaxFrames = 6,
+            GifFrameDelayMs = 100,
+            RepeatCount = 0,
+            CaptureInitialFrame = true
+        };
+
+        HeadlessGifCaptureResult captureResult = await HeadlessGifHarness.CaptureAsync(
+            window,
+            options,
+            beforeEachFrameCapture: frameIndex =>
+            {
+                textBlock.Text = $"Frame {frameIndex}";
+                return Task.CompletedTask;
+            });
+
+        Assert.That(captureResult.FrameCount, Is.EqualTo(6));
+        Assert.That(File.Exists(captureResult.GifPath), Is.True);
+    }
+}

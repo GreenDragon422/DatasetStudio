@@ -1,0 +1,146 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DatasetStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1440"
+             d:DesignHeight="860"
+             x:Class="DatasetStudio.Views.ProjectsHubView"
+             x:DataType="vm:ProjectsHubViewModel"
+             x:CompileBindings="True">
+    <UserControl.Styles>
+        <Style Selector="Button.project-card">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <Style Selector="Button.project-card:pointerover Border.project-card-frame">
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushPrimary}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="64,*"
+          Margin="24"
+          RowSpacing="16">
+        <Border Grid.Row="0"
+                Background="{DynamicResource BrushSurface}"
+                BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                BorderThickness="1"
+                CornerRadius="2"
+                Padding="16,12">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+                  ColumnSpacing="12">
+                <TextBlock Text="Master root"
+                           VerticalAlignment="Center"
+                           Classes="heading-medium" />
+
+                <TextBox Grid.Column="1"
+                         Watermark="Choose a master root folder, or paste a path and press Enter..."
+                         Text="{Binding MasterRootPath, Mode=TwoWay}"
+                         VerticalAlignment="Center">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter"
+                                    Command="{Binding ScanMasterRootCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+
+                <Button Grid.Column="2"
+                        Content="Browse"
+                        Click="OnBrowseMasterRootClick"
+                        VerticalAlignment="Center" />
+
+                <Button Grid.Column="3"
+                        Classes="primary"
+                        Content="New Project"
+                        Command="{Binding NewProjectCommand}"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Border IsVisible="{Binding IsEmptyStateVisible}"
+                    Background="{DynamicResource BrushSurface}"
+                    BorderBrush="{DynamicResource BrushMuted}"
+                    BorderThickness="1"
+                    CornerRadius="2"
+                    Padding="32">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="8">
+                    <TextBlock Text="No datasets found. Create your first project or point to a master folder."
+                               Classes="heading-medium"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Width="520" />
+                    <TextBlock Text="Choose a master root and the hub will scan it automatically. Press Enter after typing a path."
+                               Classes="mono"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Width="520" />
+                </StackPanel>
+            </Border>
+
+            <ScrollViewer IsVisible="{Binding HasProjects}"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Projects}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel ItemWidth="320"
+                                       ItemHeight="180"
+                                       Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProjectsHubProjectCardViewModel">
+                            <Button Classes="project-card"
+                                    Command="{Binding OpenCommand}">
+                                <Border Classes="project-card-frame"
+                                        Width="300"
+                                        Height="164"
+                                        Background="{DynamicResource BrushSurface}"
+                                        BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                                        BorderThickness="1"
+                                        CornerRadius="2"
+                                        Padding="16"
+                                        Margin="0,0,16,16">
+                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+                                          RowSpacing="6">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Classes="heading-medium"
+                                                   TextTrimming="CharacterEllipsis" />
+
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding RootFolderPath}"
+                                                   Classes="mono"
+                                                   Foreground="{DynamicResource BrushMuted}"
+                                                   TextTrimming="CharacterEllipsis" />
+
+                                        <StackPanel Grid.Row="2"
+                                                    Orientation="Horizontal"
+                                                    HorizontalAlignment="Stretch"
+                                                    Spacing="12">
+                                            <TextBlock Text="{Binding ImageCountText}"
+                                                       Classes="mono" />
+                                            <TextBlock Text="{Binding TaggedPercentageText}"
+                                                       Classes="mono" />
+                                        </StackPanel>
+
+                                        <ProgressBar Grid.Row="3"
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Value="{Binding TaggedPercentage}"
+                                                     Height="10"
+                                                     Foreground="{DynamicResource BrushAccent}" />
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

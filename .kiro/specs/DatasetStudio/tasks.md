@@ -2,90 +2,107 @@
 
 ## Overview
 
-Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curating and tagging image datasets. Implementation proceeds bottom-up in four phases:
+Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curating and tagging image datasets. The repository currently contains authoritative `.kiro` planning/spec documents, non-authoritative design-reference artifacts, and no application code yet, so implementation must begin with `.kiro` alignment and app bootstrap work before feature delivery. Implementation proceeds bottom-up in five phases:
 
+- **Phase 0 — Preflight Alignment (Single Agent):** Lock `.kiro/specs/DatasetStudio/` as the authoritative design/spec source, settle Avalonia package/setup decisions, and explicitly mark older mockups as non-authoritative where they conflict.
 - **Phase 1 — Foundation (Single Agent):** Solution scaffold, design tokens, models, interfaces, DI, navigation, MainWindow shell. Must complete before anything else.
 - **Phase 2 — Core Services (Single Agent):** All service implementations with TDD tests. Builds on Phase 1 infra. Must complete before screens.
 - **Phase 3 — Screens (Parallel Sub-Agents):** Each screen (ViewModel + View) is independent and can be built in parallel once Phase 2 is done.
 - **Phase 4 — Integration Wiring (Single Agent):** Cross-cutting concerns — keyboard routing, state persistence hookup, AI tagger wiring, FileSystemWatcher.
 
+## Phase 0 — Preflight Alignment (Single Agent, Sequential)
+
+- [x] 0. Lock the implementation sources of truth
+  - [x] 0.1 Treat the `.kiro/specs/DatasetStudio/` documents as the only authoritative product, architecture, behavior, and implementation-plan source
+  - [x] 0.2 Treat all files under `design reference/` as example material only for rough layout inspiration, never as requirements or token authority
+  - [x] 0.3 Resolve any conflict in favor of the `.kiro/specs/DatasetStudio/` documents without exception
+  - [x] 0.4 Explicitly exclude the old bottom "command terminal" from MVP scope unless it is added back into the requirements, because the current specs define a HintBar and StatusBar instead
+  - _Requirements: 9.2, 9.3, 10.1, 10.2, 10.4_
+
+- [x] 0. Confirm Avalonia bootstrap decisions before feature work
+  - [x] 0.5 Select the exact Avalonia package version and keep all Avalonia package references on the same version
+  - [x] 0.6 Enable compiled bindings by default in the app project and use `x:DataType` across views as they are introduced
+  - [x] 0.7 Include `Avalonia.Controls.DataGrid` and its Fluent theme wiring up front so Tag Dictionary work does not require later startup refactors
+  - [x] 0.8 Decide the IBM Plex font loading strategy (bundled assets vs. documented install prerequisite) before writing styles
+  - _Requirements: 5.1, 10.2, 10.4, 13.1_
+
 ## Phase 1 — Foundation (Single Agent, Sequential)
 
-- [ ] 1. Create solution and project files
-  - [ ] 1.1 Create `DatasetStudio.sln` with two projects: `DatasetStudio` (Avalonia app, net10.0) and `DatasetStudio.Tests` (NUnit class library, net10.0)
-  - [ ] 1.2 Add NuGet references to `DatasetStudio.csproj`: Avalonia, Avalonia.Desktop, Avalonia.Themes.Fluent, CommunityToolkit.Mvvm, Microsoft.Extensions.DependencyInjection
-  - [ ] 1.3 Add NuGet references to `DatasetStudio.Tests.csproj`: NUnit, NUnit3TestAdapter, Microsoft.NET.Test.Sdk, project reference to DatasetStudio
-  - [ ] 1.4 Create folder structure: `Models/`, `ViewModels/`, `Views/`, `Services/`, `Messages/`, `Controls/`, `Resources/`
+- [x] 1. Create solution and project files
+  - [x] 1.1 Create `DatasetStudio.sln` with two projects: `DatasetStudio` (Avalonia app, net10.0) and `DatasetStudio.Tests` (NUnit class library, net10.0)
+  - [x] 1.2 Add NuGet references to `DatasetStudio.csproj`: Avalonia, Avalonia.Desktop, Avalonia.Themes.Fluent, Avalonia.Controls.DataGrid, CommunityToolkit.Mvvm, Microsoft.Extensions.DependencyInjection. Enable `<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>` in the project file.
+  - [x] 1.3 Add NuGet references to `DatasetStudio.Tests.csproj`: NUnit, NUnit3TestAdapter, Microsoft.NET.Test.Sdk, project reference to DatasetStudio
+  - [x] 1.4 Create folder structure: `Models/`, `ViewModels/`, `Views/`, `Services/`, `Messages/`, `Controls/`, `Resources/`, `Assets/Fonts/`, `Converters/`
   - _Requirements: 13.1, 13.3_
 
-- [ ] 2. Create XAML design system resources
-  - [ ] 2.1 Create `Resources/Colors.axaml` — Gruvbox Light palette: Background `#FBF1C7`, Surface `#EBDBB2`, Surface Elevated `#D5C4A1`, Primary `#D65D0E`, Text `#3C3836`, Muted `#7C6F64`, Accent `#98971A`, Warning `#D79921`, Error `#CC241D`
-  - [ ] 2.2 Create `Resources/Typography.axaml` — IBM Plex Sans (headings 600/18-24px, body 400/13px, buttons 500/12px uppercase 0.5px tracking), IBM Plex Mono (tags/metadata 500/12px)
-  - [ ] 2.3 Create `Resources/Styles.axaml` — spacing tokens (4px, 8px, 16px, 24px), 2px border radius, 1px solid borders, ActiveFocusFrame style (2px solid Warning `#D79921`)
-  - [ ] 2.4 Merge all ResourceDictionaries into `App.axaml`
+- [x] 2. Create XAML design system resources
+  - [x] 2.1 Create `Resources/Colors.axaml` — Gruvbox Light palette: Background `#FBF1C7`, Surface `#EBDBB2`, Surface Elevated `#D5C4A1`, Primary `#D65D0E`, Text `#3C3836`, Muted `#7C6F64`, Accent `#98971A`, Warning `#D79921`, Error `#CC241D`
+  - [x] 2.2 Create `Resources/Typography.axaml` — IBM Plex Sans (headings 600/18-24px, body 400/13px, buttons 500/12px uppercase 0.5px tracking), IBM Plex Mono (tags/metadata 500/12px), and wire font assets if fonts are bundled with the app
+  - [x] 2.3 Create `Resources/Styles.axaml` — spacing tokens (4px, 8px, 16px, 24px), 2px border radius, 1px solid borders, ActiveFocusFrame style (2px solid Warning `#D79921`)
+  - [x] 2.4 Merge all ResourceDictionaries into `App.axaml` and include the DataGrid Fluent theme resource
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 3. Create core data models
-  - [ ] 3.1 Create `Models/Project.cs` — Id (string GUID), Name, RootFolderPath, Stages (List<WorkflowStage>), PrefixTags (List<string>), AiModelName, LastModified
-  - [ ] 3.2 Create `Models/WorkflowStage.cs` — Order (int), FolderName (string), DisplayName (string)
-  - [ ] 3.3 Create `Models/ImageEntry.cs` — FilePath, FileName, TagFilePath, Status (TagStatus), Tags (List<string>), IsSelected, IsAiProcessing
-  - [ ] 3.4 Create `Models/TagStatus.cs` enum — Untagged, AutoTagged, Ready
-  - [ ] 3.5 Create `Models/TagDictionaryEntry.cs` — CanonicalName, Aliases (List<string>), GlobalFrequency (int)
-  - [ ] 3.6 Create `Models/AiModelInfo.cs` — Id, DisplayName, ModelPath
-  - [ ] 3.7 Create `Models/AppState.cs` — LastOpenedProjectId, WindowWidth, WindowHeight, WindowX, WindowY, LastMasterRootDirectory
-  - [ ] 3.8 Create `Models/ProjectState.cs` — ActiveStageFolderName, ZoomSliderValue, SelectedAiModelName, LastInspectedImagePath
+- [x] 3. Create core data models
+  - [x] 3.1 Create `Models/Project.cs` — Id (string GUID), Name, RootFolderPath, Stages (List<WorkflowStage>), PrefixTags (List<string>), AiModelName, LastModified, TagDictionaryEntries (List<TagDictionaryEntry>), State (ProjectState)
+  - [x] 3.2 Create `Models/WorkflowStage.cs` — Order (int), FolderName (string), DisplayName (string)
+  - [x] 3.3 Create `Models/ImageEntry.cs` — FilePath, FileName, TagFilePath, Status (TagStatus), Tags (List<string>), IsSelected, IsAiProcessing
+  - [x] 3.4 Create `Models/TagStatus.cs` enum — Untagged, AutoTagged, Ready
+  - [x] 3.5 Create `Models/TagDictionaryEntry.cs` — CanonicalName, Aliases (List<string>), GlobalFrequency (int)
+  - [x] 3.6 Create `Models/AiModelInfo.cs` — Id, DisplayName, ModelPath
+  - [x] 3.7 Create `Models/AppState.cs` — LastOpenedProjectId, WindowWidth, WindowHeight, WindowX, WindowY, LastMasterRootDirectory
+  - [x] 3.8 Create `Models/ProjectState.cs` — ActiveStageFolderName, ZoomSliderValue, SelectedAiModelName, LastInspectedImagePath
   - _Requirements: 8.2, 6.1, 7.4, 11.1, 11.4_
 
-- [ ] 4. Create IMessenger event messages
-  - [ ] 4.1 Create `Messages/ImageMovedMessage.cs` — record(string ImagePath, string SourceFolder, string TargetFolder)
-  - [ ] 4.2 Create `Messages/ImageDeletedMessage.cs` — record(string ImagePath, string FolderPath)
-  - [ ] 4.3 Create `Messages/ImageSelectionChangedMessage.cs` — record(string ImagePath, bool IsSelected)
-  - [ ] 4.4 Create `Messages/TagsChangedMessage.cs` — record(string ImagePath, IReadOnlyList<string> NewTags)
-  - [ ] 4.5 Create `Messages/TagDictionaryChangedMessage.cs` — record(string ProjectId)
-  - [ ] 4.6 Create `Messages/WorkflowStageChangedMessage.cs` — record(string ProjectId, string FolderPath)
-  - [ ] 4.7 Create `Messages/ProjectOpenedMessage.cs` — record(string ProjectId)
-  - [ ] 4.8 Create `Messages/AiTaggingCompletedMessage.cs` — record(string ImagePath, IReadOnlyList<string> GeneratedTags)
-  - [ ] 4.9 Create `Messages/ProjectConfigSavedMessage.cs` — record(string ProjectId)
+- [x] 4. Create IMessenger event messages
+  - [x] 4.1 Create `Messages/ImageMovedMessage.cs` — record(string ImagePath, string SourceFolder, string TargetFolder)
+  - [x] 4.2 Create `Messages/ImageDeletedMessage.cs` — record(string ImagePath, string FolderPath)
+  - [x] 4.3 Create `Messages/ImageSelectionChangedMessage.cs` — record(string ImagePath, bool IsSelected)
+  - [x] 4.4 Create `Messages/TagsChangedMessage.cs` — record(string ImagePath, IReadOnlyList<string> NewTags)
+  - [x] 4.5 Create `Messages/TagDictionaryChangedMessage.cs` — record(string ProjectId)
+  - [x] 4.6 Create `Messages/WorkflowStageChangedMessage.cs` — record(string ProjectId, string FolderPath)
+  - [x] 4.7 Create `Messages/ProjectOpenedMessage.cs` — record(string ProjectId)
+  - [x] 4.8 Create `Messages/AiTaggingCompletedMessage.cs` — record(string ImagePath, IReadOnlyList<string> GeneratedTags)
+  - [x] 4.9 Create `Messages/ProjectConfigSavedMessage.cs` — record(string ProjectId)
   - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-- [ ] 5. Create service interfaces
-  - [ ] 5.1 Create `Services/IFileSystemService.cs` — DiscoverProjectFoldersAsync, GetImageFilesAsync, MoveFileAsync, RecycleFileAsync, EnsureFolderExistsAsync, WatchFolder
-  - [ ] 5.2 Create `Services/IThumbnailCacheService.cs` — GetThumbnailAsync, InvalidateAsync, InvalidateFolderAsync
-  - [ ] 5.3 Create `Services/ITagFileService.cs` — ReadTagsAsync, WriteTagsAsync, ReadTagsWithPrefixAsync, GetTagFilePath, TagFileExists
-  - [ ] 5.4 Create `Services/IAiTaggerService.cs` — GenerateTagsAsync, GetAvailableModelsAsync, IsProcessing, TagGenerationCompleted event
-  - [ ] 5.5 Create `Services/IProjectService.cs` — LoadProjectsAsync, CreateProjectAsync, SaveProjectAsync, DeleteProjectAsync
-  - [ ] 5.6 Create `Services/ITagDictionaryService.cs` — GetAllEntriesAsync, SearchTagsAsync, RenameTagAsync, MergeTagsAsync, DeleteTagAsync, AddAliasAsync, ResolveAlias
-  - [ ] 5.7 Create `Services/INavigationService.cs` — NavigateTo<T>(), NavigateTo<T>(object), GoBack()
-  - [ ] 5.8 Create `Services/IClipboardService.cs` — CopyTagsAsync, PasteTagsAsync
-  - [ ] 5.9 Create `Services/IStatePersistenceService.cs` — SaveAppStateAsync, LoadAppStateAsync, SaveProjectStateAsync, LoadProjectStateAsync
+- [x] 5. Create service interfaces
+  - [x] 5.1 Create `Services/IFileSystemService.cs` — DiscoverProjectFoldersAsync, GetImageFilesAsync, MoveFileAsync, RecycleFileAsync, EnsureFolderExistsAsync, WatchFolder
+  - [x] 5.2 Create `Services/IThumbnailCacheService.cs` — GetThumbnailAsync, InvalidateAsync, InvalidateFolderAsync
+  - [x] 5.3 Create `Services/ITagFileService.cs` — ReadTagsAsync, WriteTagsAsync, ReadTagsWithPrefixAsync, GetTagFilePath, TagFileExists
+  - [x] 5.4 Create `Services/IAiTaggerService.cs` — GenerateTagsAsync, GetAvailableModelsAsync, IsProcessing, TagGenerationCompleted event
+  - [x] 5.5 Create `Services/IProjectService.cs` — LoadProjectsAsync, CreateProjectAsync, SaveProjectAsync, DeleteProjectAsync
+  - [x] 5.6 Create `Services/ITagDictionaryService.cs` — GetAllEntriesAsync, SearchTagsAsync, RenameTagAsync, MergeTagsAsync, DeleteTagAsync, AddAliasAsync, ResolveAlias
+  - [x] 5.7 Create `Services/INavigationService.cs` — NavigateTo<T>(), NavigateTo<T>(object), GoBack()
+  - [x] 5.8 Create `Services/IClipboardService.cs` — CopyTagsAsync, PasteTagsAsync
+  - [x] 5.9 Create `Services/IStatePersistenceService.cs` — SaveAppStateAsync, LoadAppStateAsync, SaveProjectStateAsync, LoadProjectStateAsync
   - _Requirements: 13.3, 12.1_
 
-- [ ] 6. Create ViewModelBase and MainWindowViewModel
-  - [ ] 6.1 Create `ViewModels/ViewModelBase.cs` — abstract class extending ObservableRecipient, with `[ObservableProperty]` for HintText (string) and StatusText (string)
-  - [ ] 6.2 Create `ViewModels/MainWindowViewModel.cs` — `[ObservableProperty]` for CurrentView (ViewModelBase), IsConfigOpen (bool), HintText, StatusText. Inject INavigationService and IMessenger.
+- [x] 6. Create ViewModelBase and MainWindowViewModel
+  - [x] 6.1 Create `ViewModels/ViewModelBase.cs` — abstract class extending ObservableRecipient, with `[ObservableProperty]` for HintText (string) and StatusText (string)
+  - [x] 6.2 Create `ViewModels/MainWindowViewModel.cs` — `[ObservableProperty]` for CurrentView (ViewModelBase), IsConfigOpen (bool), HintText, StatusText. Inject INavigationService and IMessenger.
   - _Requirements: 13.1, 13.2, 9.2, 9.3_
 
-- [ ] 7. Implement NavigationService
-  - [ ] 7.1 Create `Services/NavigationService.cs` — implements INavigationService, resolves ViewModels from DI, sets MainWindowViewModel.CurrentView, maintains back stack for GoBack()
+- [x] 7. Implement NavigationService
+  - [x] 7.1 Create `Services/NavigationService.cs` — implements INavigationService, resolves ViewModels from DI, sets MainWindowViewModel.CurrentView, maintains back stack for GoBack()
   - _Requirements: 1.7, 2.18, 3.15_
 
 - [ ] 8. Create DI container and App startup
-  - [ ] 8.1 Create `App.axaml.cs` — build IServiceProvider, register all service interfaces → implementations, register all ViewModels, resolve MainWindowViewModel on startup
-  - [ ] 8.2 Create `Program.cs` entry point with Avalonia AppBuilder configuration
+  - [ ] 8.1 Create `App.axaml.cs` — build IServiceProvider, register all service interfaces → implementations, register all ViewModels, configure ViewModel-to-View resolution for the navigation host, resolve MainWindowViewModel on startup
+  - [x] 8.2 Create `Program.cs` entry point with Avalonia AppBuilder configuration
   - _Requirements: 12.1, 13.2_
 
-- [ ] 9. Create MainWindow shell
-  - [ ] 9.1 Create `Views/MainWindow.axaml` — 64px TopBar with AppLogo + Title ("DatasetStudio") and ContentPresenter for screen-specific controls, ContentControl bound to CurrentView, overlay Panel for ProjectConfig modal (toggled by IsConfigOpen), bottom HintBar (24px) and StatusBar (24px)
-  - [ ] 9.2 Create `Views/MainWindow.axaml.cs` code-behind — DataContext assignment, global KeyDown handler stub (delegates to active ViewModel)
+- [x] 9. Create MainWindow shell
+  - [x] 9.1 Create `Views/MainWindow.axaml` — 64px TopBar with AppLogo + Title ("DatasetStudio") and ContentPresenter for screen-specific controls, ContentControl bound to CurrentView, overlay Panel for ProjectConfig modal (toggled by IsConfigOpen), bottom HintBar (24px) and StatusBar (24px)
+  - [x] 9.2 Create `Views/MainWindow.axaml.cs` code-behind — DataContext assignment, global KeyDown handler stub (delegates to active ViewModel)
   - _Requirements: 9.2, 9.3, 13.4_
 
-- [ ] 10. Create shared UI controls
-  - [ ] 10.1 Create `Controls/WorkflowStageList.axaml` — reusable ListBox showing workflow folders with stripped numeric prefixes and image counts, bindable ItemsSource and SelectedItem
-  - [ ] 10.2 Create `Controls/HintBar.axaml` — 24px-height bar, IBM Plex Mono, content bound to HintText property
-  - [ ] 10.3 Create `Controls/StatusBar.axaml` — 24px-height display-only bar, bound to StatusText property
-  - [ ] 10.4 Create `Controls/TagPill.axaml` — Border with tag text (IBM Plex Mono) + `x` remove button, Background `#EBDBB2`, border `1px solid #D5C4A1`, exposes Tag (string) and RemoveCommand
-  - [ ] 10.5 Create `Controls/StatusDot.axaml` — 12px circle, color bound to TagStatus enum (Red=#CC241D, Yellow=#D79921, Green=#98971A)
-  - [ ] 10.6 Create `Controls/BatchPopup.axaml` — Popup with TextBox + ListBox for autocomplete tag selection, parameterized for add vs. remove mode via Mode property
+- [x] 10. Create shared UI controls
+  - [x] 10.1 Create `Controls/WorkflowStageList.axaml` — reusable ListBox showing workflow folders with stripped numeric prefixes and image counts, bindable ItemsSource and SelectedItem
+  - [x] 10.2 Create `Controls/HintBar.axaml` — 24px-height bar, IBM Plex Mono, content bound to HintText property
+  - [x] 10.3 Create `Controls/StatusBar.axaml` — 24px-height display-only bar, bound to StatusText property
+  - [x] 10.4 Create `Controls/TagPill.axaml` — Border with tag text (IBM Plex Mono) + `x` remove button, Background `#EBDBB2`, border `1px solid #D5C4A1`, exposes Tag (string) and RemoveCommand
+  - [x] 10.5 Create `Controls/StatusDot.axaml` — 12px circle, color bound to TagStatus enum (Red=#CC241D, Yellow=#D79921, Green=#98971A)
+  - [x] 10.6 Create `Controls/BatchPopup.axaml` — Popup with TextBox + ListBox for autocomplete tag selection, parameterized for add vs. remove mode via Mode property
   - _Requirements: 2.5, 2.23, 3.5, 9.2, 9.3, 10.3, 10.5_
 
 - [ ] 11. Foundation checkpoint
@@ -94,190 +111,194 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 ## Phase 2 — Core Services with TDD Tests (Single Agent, Sequential)
 
-- [ ] 12. Implement TagFileService
-  - [ ] 12.1 Create `Services/TagFileService.cs` implementing ITagFileService
-  - [ ] 12.2 Implement `GetTagFilePath` — derive .txt path from image path (replace extension with .txt)
-  - [ ] 12.3 Implement `TagFileExists` — check if companion .txt file exists on disk
-  - [ ] 12.4 Implement `ReadTagsAsync` — read .txt file, split by comma, trim whitespace per tag, return list. Return empty list if file missing or empty.
-  - [ ] 12.5 Implement `WriteTagsAsync` — join tags with ", " separator, write single line to .txt file
-  - [ ] 12.6 Implement `ReadTagsWithPrefixAsync` — call ReadTagsAsync, prepend prefix tags to result
+- [x] 12. Implement TagFileService
+  - [x] 12.1 Create `Services/TagFileService.cs` implementing ITagFileService
+  - [x] 12.2 Implement `GetTagFilePath` — derive .txt path from image path (replace extension with .txt)
+  - [x] 12.3 Implement `TagFileExists` — check if companion .txt file exists on disk
+  - [x] 12.4 Implement `ReadTagsAsync` — read .txt file, split by comma, trim whitespace per tag, return list. Return empty list if file missing or empty.
+  - [x] 12.5 Implement `WriteTagsAsync` — join tags with ", " separator, write single line to .txt file
+  - [x] 12.6 Implement `ReadTagsWithPrefixAsync` — call ReadTagsAsync, prepend prefix tags to result
   - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ]* 13. Write TagFileService tests
-  - [ ]* 13.1 Test `GetTagFilePath` — .png → .txt, .jpg → .txt, .jpeg → .txt, .webp → .txt, .bmp → .txt
-  - [ ]* 13.2 Test read/write round-trip — write tags then read back produces identical list
-  - [ ]* 13.3 Test comma parsing with whitespace trimming — "tag1 , tag2 ,  tag3 " → ["tag1", "tag2", "tag3"]
-  - [ ]* 13.4 Test prefix tag prepending — prefix ["a", "b"] + tags ["c", "d"] → file contains "a, b, c, d"
-  - [ ]* 13.5 Test empty file returns empty list
-  - [ ]* 13.6 Test missing file returns empty list (no exception)
-  - [ ]* 13.7 Test whitespace-only tags are excluded
+- [x]* 13. Write TagFileService tests
+  - [x]* 13.1 Test `GetTagFilePath` — .png → .txt, .jpg → .txt, .jpeg → .txt, .webp → .txt, .bmp → .txt
+  - [x]* 13.2 Test read/write round-trip — write tags then read back produces identical list
+  - [x]* 13.3 Test comma parsing with whitespace trimming — "tag1 , tag2 ,  tag3 " → ["tag1", "tag2", "tag3"]
+  - [x]* 13.4 Test prefix tag prepending — prefix ["a", "b"] + tags ["c", "d"] → file contains "a, b, c, d"
+  - [x]* 13.5 Test empty file returns empty list
+  - [x]* 13.6 Test missing file returns empty list (no exception)
+  - [x]* 13.7 Test whitespace-only tags are excluded
   - _Requirements: 6.4_
 
-- [ ] 14. Implement WorkflowStage parsing logic
-  - [ ] 14.1 Create `Services/WorkflowStageParser.cs` (static helper or service) — parse numeric prefix from folder name (regex `^\d+[_-]`), extract order int and display name
-  - [ ] 14.2 Implement sorting: folders with numeric prefixes sorted by prefix value, folders without prefixes sorted alphabetically after numbered ones
-  - [ ] 14.3 Implement display name stripping: remove numeric prefix and separator (e.g., "01_Inbox" → "Inbox", "02-Review" → "Review")
+- [x] 14. Implement WorkflowStage parsing logic
+  - [x] 14.1 Create `Services/WorkflowStageParser.cs` (static helper or service) — parse numeric prefix from folder name (regex `^\d+[_-]`), extract order int and display name
+  - [x] 14.2 Implement sorting: folders with numeric prefixes sorted by prefix value, folders without prefixes sorted alphabetically after numbered ones
+  - [x] 14.3 Implement display name stripping: remove numeric prefix and separator (e.g., "01_Inbox" → "Inbox", "02-Review" → "Review")
   - _Requirements: 8.1, 8.2, 8.4_
 
-- [ ]* 15. Write WorkflowStage parsing tests
-  - [ ]* 15.1 Test ordering: ["03_Ready", "01_Inbox", "02_Review"] → sorted as [Inbox(1), Review(2), Ready(3)]
-  - [ ]* 15.2 Test display name stripping: "01_Inbox" → "Inbox", "02-Review" → "Review"
-  - [ ]* 15.3 Test folders without numeric prefix sorted after numbered ones
-  - [ ]* 15.4 Test single-digit and multi-digit prefixes: "1_A", "10_B", "2_C" → [A(1), C(2), B(10)]
+- [x]* 15. Write WorkflowStage parsing tests
+  - [x]* 15.1 Test ordering: ["03_Ready", "01_Inbox", "02_Review"] → sorted as [Inbox(1), Review(2), Ready(3)]
+  - [x]* 15.2 Test display name stripping: "01_Inbox" → "Inbox", "02-Review" → "Review"
+  - [x]* 15.3 Test folders without numeric prefix sorted after numbered ones
+  - [x]* 15.4 Test single-digit and multi-digit prefixes: "1_A", "10_B", "2_C" → [A(1), C(2), B(10)]
   - _Requirements: 8.2_
 
-- [ ] 16. Implement FileSystemService
-  - [ ] 16.1 Create `Services/FileSystemService.cs` implementing IFileSystemService
-  - [ ] 16.2 Implement `GetImageFilesAsync` — enumerate files in folder, filter by extensions (.png, .jpg, .jpeg, .webp, .bmp), return sorted list
-  - [ ] 16.3 Implement `DiscoverProjectFoldersAsync` — scan master root for subfolders containing `.datasetstudio.json`
-  - [ ] 16.4 Implement `MoveFileAsync` — File.Move with overwrite protection
-  - [ ] 16.5 Implement `RecycleFileAsync` — send to OS recycle bin (use Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile with RecycleOption on Windows)
-  - [ ] 16.6 Implement `EnsureFolderExistsAsync` — Directory.CreateDirectory if not exists
-  - [ ] 16.7 Implement `WatchFolder` — return configured FileSystemWatcher for project root
+- [x] 16. Implement FileSystemService
+  - [x] 16.1 Create `Services/FileSystemService.cs` implementing IFileSystemService
+  - [x] 16.2 Implement `GetImageFilesAsync` — enumerate files in folder, filter by extensions (.png, .jpg, .jpeg, .webp, .bmp), return sorted list
+  - [x] 16.3 Implement `DiscoverProjectFoldersAsync` — scan master root for subfolders containing `.datasetstudio.json`
+  - [x] 16.4 Implement `MoveFileAsync` — File.Move with overwrite protection
+  - [x] 16.5 Implement `RecycleFileAsync` — send to OS recycle bin (use Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile with RecycleOption on Windows)
+  - [x] 16.6 Implement `EnsureFolderExistsAsync` — Directory.CreateDirectory if not exists
+  - [x] 16.7 Implement `WatchFolder` — return configured FileSystemWatcher for project root
   - _Requirements: 8.1, 8.3, 8.5, 14.1, 14.3_
 
-- [ ]* 17. Write FileSystemService tests
-  - [ ]* 17.1 Test `GetImageFilesAsync` returns only supported extensions, ignores .txt and other files
-  - [ ]* 17.2 Test `MoveFileAsync` — source gone, target exists
-  - [ ]* 17.3 Test `EnsureFolderExistsAsync` — creates folder, no error if already exists
-  - [ ]* 17.4 Test `DiscoverProjectFoldersAsync` — finds folders with .datasetstudio.json, ignores others
+- [x]* 17. Write FileSystemService tests
+  - [x]* 17.1 Test `GetImageFilesAsync` returns only supported extensions, ignores .txt and other files
+  - [x]* 17.2 Test `MoveFileAsync` — source gone, target exists
+  - [x]* 17.3 Test `EnsureFolderExistsAsync` — creates folder, no error if already exists
+  - [x]* 17.4 Test `DiscoverProjectFoldersAsync` — finds folders with .datasetstudio.json, ignores others
   - _Requirements: 8.3, 14.1_
 
-- [ ] 18. Implement ProjectService
-  - [ ] 18.1 Create `Services/ProjectService.cs` implementing IProjectService
-  - [ ] 18.2 Implement `LoadProjectsAsync` — scan for `.datasetstudio.json` files in known paths, deserialize with System.Text.Json
-  - [ ] 18.3 Implement `CreateProjectAsync` — generate GUID, build default Project with auto-detected stages, write `.datasetstudio.json`
-  - [ ] 18.4 Implement `SaveProjectAsync` — serialize Project to `.datasetstudio.json` with indented formatting
-  - [ ] 18.5 Implement `DeleteProjectAsync` — remove `.datasetstudio.json` file
-  - [ ] 18.6 Handle malformed JSON — catch JsonException, return default Project using folder name as project name
+- [x] 18. Implement ProjectService
+  - [x] 18.1 Create `Services/ProjectService.cs` implementing IProjectService
+  - [x] 18.2 Implement `LoadProjectsAsync` — scan for `.datasetstudio.json` files in known paths (currently the persisted `LastMasterRootDirectory`), deserialize with System.Text.Json
+  - [x] 18.3 Implement `CreateProjectAsync` — generate GUID, build default Project with auto-detected stages, write `.datasetstudio.json`
+  - [x] 18.4 Implement `SaveProjectAsync` — serialize Project to `.datasetstudio.json` with indented formatting, including the nested `state` block
+  - [x] 18.5 Implement `DeleteProjectAsync` — remove `.datasetstudio.json` file
+  - [x] 18.6 Handle malformed JSON — catch JsonException, return default Project using folder name as project name
   - _Requirements: 1.3, 4.7, 11.4_
 
-- [ ]* 19. Write ProjectService tests
-  - [ ]* 19.1 Test save/load round-trip — all fields preserved (id, name, stages, prefixTags, aiModelName, state block)
-  - [ ]* 19.2 Test malformed JSON falls back to default Project
-  - [ ]* 19.3 Test CreateProjectAsync generates valid GUID and writes file
+- [x]* 19. Write ProjectService tests
+  - [x]* 19.1 Test save/load round-trip — all fields preserved (id, name, stages, prefixTags, aiModelName, state block)
+  - [x]* 19.2 Test malformed JSON falls back to default Project
+  - [x]* 19.3 Test CreateProjectAsync generates valid GUID and writes file
   - _Requirements: 11.4_
 
-- [ ] 20. Implement StatePersistenceService
-  - [ ] 20.1 Create `Services/StatePersistenceService.cs` implementing IStatePersistenceService
-  - [ ] 20.2 Implement `SaveAppStateAsync` / `LoadAppStateAsync` — persist AppState to `datasetstudio-settings.json` in Environment.SpecialFolder.ApplicationData
-  - [ ] 20.3 Implement `SaveProjectStateAsync` / `LoadProjectStateAsync` — read/write the `state` block within `.datasetstudio.json`
-  - [ ] 20.4 Implement debounced save — use a Timer that resets on each save call, fires after 500ms of inactivity
-  - [ ] 20.5 Handle missing files — return default AppState/ProjectState with sensible defaults
+- [x] 20. Implement StatePersistenceService
+  - [x] 20.1 Create `Services/StatePersistenceService.cs` implementing IStatePersistenceService
+  - [x] 20.2 Implement `SaveAppStateAsync` / `LoadAppStateAsync` — persist AppState to `datasetstudio-settings.json` in Environment.SpecialFolder.ApplicationData
+  - [x] 20.3 Implement `SaveProjectStateAsync` / `LoadProjectStateAsync` — read/write the `state` block within `.datasetstudio.json`
+  - [x] 20.4 Implement debounced save — use a Timer that resets on each save call, fires after 500ms of inactivity
+  - [x] 20.5 Handle missing files — return default AppState/ProjectState with sensible defaults
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-- [ ]* 21. Write StatePersistenceService tests
-  - [ ]* 21.1 Test AppState round-trip — window geometry, last project ID, last master root directory all preserved
-  - [ ]* 21.2 Test ProjectState round-trip — active stage, zoom value, selected AI model, last inspected image path all preserved
-  - [ ]* 21.3 Test missing settings file returns default AppState
-  - [ ]* 21.4 Test missing project state returns default ProjectState
+- [x]* 21. Write StatePersistenceService tests
+  - [x]* 21.1 Test AppState round-trip — window geometry, last project ID, last master root directory all preserved
+  - [x]* 21.2 Test ProjectState round-trip — active stage, zoom value, selected AI model, last inspected image path all preserved
+  - [x]* 21.3 Test missing settings file returns default AppState
+  - [x]* 21.4 Test missing project state returns default ProjectState
   - _Requirements: 11.1, 11.2_
 
-- [ ] 22. Implement ThumbnailCacheService
-  - [ ] 22.1 Create `Services/ThumbnailCacheService.cs` implementing IThumbnailCacheService
-  - [ ] 22.2 Implement `GetThumbnailAsync` — compute cache path from image path + size, check if cached file exists and source timestamp matches, return cached stream on hit
-  - [ ] 22.3 Implement cache miss path — load source image, resize to requested size (square crop), encode as WebP, write to `.datasetstudio-cache/` subfolder, return stream
-  - [ ] 22.4 Implement `InvalidateAsync` — delete cached thumbnail for a single image
-  - [ ] 22.5 Implement `InvalidateFolderAsync` — delete all cached thumbnails in a folder's cache directory
+- [x] 22. Implement ThumbnailCacheService
+  - [x] 22.1 Create `Services/ThumbnailCacheService.cs` implementing IThumbnailCacheService
+  - [x] 22.2 Implement `GetThumbnailAsync` — compute cache path from image path + size, check if cached file exists and source timestamp matches, return cached stream on hit
+  - [x] 22.3 Implement cache miss path — load source image, resize to requested size (square crop), encode as WebP, write to `.datasetstudio-cache/` subfolder, return stream
+  - [x] 22.4 Implement `InvalidateAsync` — delete cached thumbnail for a single image
+  - [x] 22.5 Implement `InvalidateFolderAsync` — delete all cached thumbnails in a folder's cache directory
   - _Requirements: 15.1, 15.2, 15.3, 14.2_
 
-- [ ]* 23. Write ThumbnailCacheService tests
-  - [ ]* 23.1 Test cache miss generates thumbnail file in correct cache path
-  - [ ]* 23.2 Test cache hit returns existing file without regenerating
-  - [ ]* 23.3 Test stale cache — when source timestamp changes, old cache is invalidated and new thumbnail generated
-  - [ ]* 23.4 Test InvalidateAsync removes the cached file
+- [x]* 23. Write ThumbnailCacheService tests
+  - [x]* 23.1 Test cache miss generates thumbnail file in correct cache path
+  - [x]* 23.2 Test cache hit returns existing file without regenerating
+  - [x]* 23.3 Test stale cache — when source timestamp changes, old cache is invalidated and new thumbnail generated
+  - [x]* 23.4 Test InvalidateAsync removes the cached file
   - _Requirements: 15.1, 15.2, 15.3_
 
-- [ ] 24. Implement TagDictionaryService
-  - [ ] 24.1 Create `Services/TagDictionaryService.cs` implementing ITagDictionaryService
-  - [ ] 24.2 Implement `GetAllEntriesAsync` — scan all tag files in project, build frequency map, return TagDictionaryEntry list
-  - [ ] 24.3 Implement `SearchTagsAsync` — filter entries by substring match on canonical name and aliases
-  - [ ] 24.4 Implement `AddAliasAsync` — add alias mapping to a canonical tag entry
-  - [ ] 24.5 Implement `ResolveAlias` — given input string, return canonical tag name if alias exists, otherwise return input unchanged
-  - [ ] 24.6 Implement `RenameTagAsync` — rename tag in dictionary and update all tag files that contain it
-  - [ ] 24.7 Implement `MergeTagsAsync` — merge source tag into target, update all tag file references, detect circular alias before merge
-  - [ ] 24.8 Implement `DeleteTagAsync` — remove from dictionary, optionally scan and remove from all tag files
-  - [ ] 24.9 Implement in-memory cache — load dictionary once per project open, subscribe to TagDictionaryChangedMessage for refresh
+- [x] 24. Implement TagDictionaryService
+  - [x] 24.1 Create `Services/TagDictionaryService.cs` implementing ITagDictionaryService
+  - [x] 24.2 Implement `GetAllEntriesAsync` — scan all tag files in project, build frequency map, return TagDictionaryEntry list
+  - [x] 24.3 Implement `SearchTagsAsync` — filter entries by substring match on canonical name and aliases
+  - [x] 24.4 Implement `AddAliasAsync` — add alias mapping to a canonical tag entry
+  - [x] 24.5 Implement `ResolveAlias` — given input string, return canonical tag name if alias exists, otherwise return input unchanged
+  - [x] 24.6 Implement `RenameTagAsync` — rename tag in dictionary and update all tag files that contain it
+  - [x] 24.7 Implement `MergeTagsAsync` — merge source tag into target, update all tag file references, detect circular alias before merge
+  - [x] 24.8 Implement `DeleteTagAsync` — remove from dictionary, optionally scan and remove from all tag files
+  - [x] 24.9 Implement in-memory cache — load dictionary once per project open, subscribe to TagDictionaryChangedMessage for refresh
   - _Requirements: 5.3, 5.4, 5.5, 5.6, 15.4_
 
-- [ ]* 25. Write TagDictionaryService tests
-  - [ ]* 25.1 Test alias resolution — alias "cat" → canonical "feline" returns "feline"
-  - [ ]* 25.2 Test unknown alias returns input unchanged
-  - [ ]* 25.3 Test RenameTagAsync updates tag in all files
-  - [ ]* 25.4 Test MergeTagsAsync merges source into target across all files
-  - [ ]* 25.5 Test circular alias detection — merging A→B when B→A already exists throws/returns error
-  - [ ]* 25.6 Test frequency counting — tag appearing in 5 files has GlobalFrequency=5
-  - [ ]* 25.7 Test DeleteTagAsync with removeFromFiles=true removes tag from all tag files
+- [x]* 25. Write TagDictionaryService tests
+  - [x]* 25.1 Test alias resolution — alias "cat" → canonical "feline" returns "feline"
+  - [x]* 25.2 Test unknown alias returns input unchanged
+  - [x]* 25.3 Test RenameTagAsync updates tag in all files
+  - [x]* 25.4 Test MergeTagsAsync merges source into target across all files
+  - [x]* 25.5 Test circular alias detection — merging A→B when B→A already exists throws/returns error
+  - [x]* 25.6 Test frequency counting — tag appearing in 5 files has GlobalFrequency=5
+  - [x]* 25.7 Test DeleteTagAsync with removeFromFiles=true removes tag from all tag files
   - _Requirements: 5.3, 5.4, 5.5, 5.6_
 
-- [ ] 26. Implement ClipboardService
-  - [ ] 26.1 Create `Services/ClipboardService.cs` implementing IClipboardService
-  - [ ] 26.2 Implement `CopyTagsAsync` — serialize tag list to comma-separated string, set to system clipboard
-  - [ ] 26.3 Implement `PasteTagsAsync` — read clipboard text, parse as comma-separated tags, return list
+- [x] 26. Implement ClipboardService
+  - [x] 26.1 Create `Services/ClipboardService.cs` implementing IClipboardService
+  - [x] 26.2 Implement `CopyTagsAsync` — serialize tag list to comma-separated string, set to system clipboard
+  - [x] 26.3 Implement `PasteTagsAsync` — read clipboard text, parse as comma-separated tags, return list
   - _Requirements: 2.19, 3.12, 9.5_
 
-- [ ] 27. Implement AiTaggerService (stub)
-  - [ ] 27.1 Create `Services/AiTaggerService.cs` implementing IAiTaggerService
-  - [ ] 27.2 Implement `GetAvailableModelsAsync` — read `ai_models.json` config file, deserialize to List<AiModelInfo>, handle missing/malformed file gracefully
-  - [ ] 27.3 Implement `GenerateTagsAsync` — stub returning placeholder tags (real AI integration is external). Set IsProcessing=true during execution, fire TagGenerationCompleted event on completion.
-  - [ ] 27.4 Implement `IsProcessing` — track per-image processing state via ConcurrentDictionary
+- [x] 27. Implement AiTaggerService (stub)
+  - [x] 27.1 Create `Services/AiTaggerService.cs` implementing IAiTaggerService
+  - [x] 27.2 Implement `GetAvailableModelsAsync` — read `ai_models.json` config file, deserialize to List<AiModelInfo>, handle missing/malformed file gracefully
+  - [x] 27.3 Implement `GenerateTagsAsync` — stub returning placeholder tags (real AI integration is external). Set IsProcessing=true during execution, fire TagGenerationCompleted event on completion.
+  - [x] 27.4 Implement `IsProcessing` — track per-image processing state via ConcurrentDictionary
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 28. Implement batch tag operation helpers
-  - [ ] 28.1 Create `Services/BatchTagOperationService.cs` (or static helper)
-  - [ ] 28.2 Implement batch add — for each target image: read tags, skip if tag already present, append tag, write back. Resolve alias before adding.
-  - [ ] 28.3 Implement batch remove — for each target image: read tags, remove matching tag, write back. Preserve all other tags.
-  - [ ] 28.4 Publish TagsChangedMessage for each modified image after batch completes
+- [x] 28. Implement batch tag operation helpers
+  - [x] 28.1 Create `Services/BatchTagOperationService.cs` (or static helper)
+  - [x] 28.2 Implement batch add — for each target image: read tags, skip if tag already present, append tag, write back. Resolve alias before adding.
+  - [x] 28.3 Implement batch remove — for each target image: read tags, remove matching tag, write back. Preserve all other tags.
+  - [x] 28.4 Publish TagsChangedMessage for each modified image after batch completes
   - _Requirements: 2.11, 2.12_
 
-- [ ]* 29. Write batch operation tests
-  - [ ]* 29.1 Test batch add skips duplicates — adding "cat" when "cat" already exists doesn't create duplicate
-  - [ ]* 29.2 Test batch add with alias resolution — adding alias "kitty" resolves to "cat" before adding
-  - [ ]* 29.3 Test batch remove eliminates only target tag, all other tags preserved
-  - [ ]* 29.4 Test batch remove on tag that doesn't exist is a no-op (no error)
+- [x]* 29. Write batch operation tests
+  - [x]* 29.1 Test batch add skips duplicates — adding "cat" when "cat" already exists doesn't create duplicate
+  - [x]* 29.2 Test batch add with alias resolution — adding alias "kitty" resolves to "cat" before adding
+  - [x]* 29.3 Test batch remove eliminates only target tag, all other tags preserved
+  - [x]* 29.4 Test batch remove on tag that doesn't exist is a no-op (no error)
   - _Requirements: 2.11, 2.12_
 
-- [ ] 30. Register all services in DI container
-  - [ ] 30.1 Update `App.axaml.cs` — register all implemented services as singletons/transients in the IServiceProvider, register IMessenger as WeakReferenceMessenger.Default
+- [x] 30. Register all services in DI container
+  - [x] 30.1 Update `App.axaml.cs` — register all implemented services as singletons/transients in the IServiceProvider, register IMessenger as WeakReferenceMessenger.Default
   - _Requirements: 12.1, 13.2_
 
-- [ ] 31. Core services checkpoint
-  - Run all NUnit tests, verify they pass. Verify DI container resolves all services. Ask user if questions arise.
+- [x] 31. Core services checkpoint
+  - [x] Run all NUnit tests, verify they pass.
+  - [x] Verify DI container resolves all services.
+  - [x] Ask user if questions arise.
 
 
 ## Phase 3 — Screens (Parallel Sub-Agents)
 
 > Each screen below is independent. Once Phase 2 is complete, these can be executed in parallel by separate sub-agents. Each task includes both ViewModel and View for a complete screen.
 
-- [ ] 32. Implement Projects Hub screen
-  - [ ] 32.1 Create `ViewModels/ProjectsHubViewModel.cs` — inject IProjectService, IFileSystemService, INavigationService, IMessenger
-  - [ ] 32.2 Implement observable properties: Projects (ObservableCollection), HasProjects (bool), MasterRootPath (string), IsScanning (bool)
-  - [ ] 32.3 Implement `LoadProjectsCommand` — call IProjectService.LoadProjectsAsync, populate Projects collection with card data (name, path, image count, tagged percentage)
-  - [ ] 32.4 Implement `ScanMasterRootCommand` — call IFileSystemService.DiscoverProjectFoldersAsync, auto-create Project entries for discovered subfolders
-  - [ ] 32.5 Implement `NewProjectCommand` — create new Project via IProjectService, signal MainWindowVM to open ProjectConfig modal
-  - [ ] 32.6 Implement `OpenProjectCommand` — navigate to LibraryGrid with selected project, publish ProjectOpenedMessage
-  - [ ] 32.7 Create `Views/ProjectsHubView.axaml` — 64px top bar with MasterRootDirectoryPicker (TextBox + Browse button) and NewProject button
-  - [ ] 32.8 Implement ProjectCardGrid — ItemsControl with WrapPanel, each card showing name, path, image count, progress bar, hover border (1px solid Primary)
-  - [ ] 32.9 Implement empty state placeholder — dashed border, centered text "No datasets found. Create your first project or point to a master folder.", bound to HasProjects
+- [x] 32. Implement Projects Hub screen
+  - [x] 32.1 Create `ViewModels/ProjectsHubViewModel.cs` — inject IProjectService, IFileSystemService, INavigationService, IMessenger
+  - [x] 32.2 Implement observable properties: Projects (ObservableCollection), HasProjects (bool), MasterRootPath (string), IsScanning (bool)
+  - [x] 32.3 Implement `LoadProjectsCommand` — call IProjectService.LoadProjectsAsync, populate Projects collection with card data (name, path, image count, tagged percentage)
+  - [x] 32.4 Implement `ScanMasterRootCommand` — call IFileSystemService.DiscoverProjectFoldersAsync, auto-create Project entries for discovered subfolders
+  - [x] 32.5 Implement `NewProjectCommand` — create new Project via IProjectService, signal MainWindowVM to open ProjectConfig modal
+  - [x] 32.6 Implement `OpenProjectCommand` — navigate to LibraryGrid with selected project, publish ProjectOpenedMessage
+  - [x] 32.7 Create `Views/ProjectsHubView.axaml` — 64px top bar with MasterRootDirectoryPicker (TextBox + Browse button) and NewProject button
+  - [x] 32.8 Implement ProjectCardGrid — ItemsControl with WrapPanel, each card showing name, path, image count, progress bar, hover border (1px solid Primary)
+  - [x] 32.9 Implement empty state placeholder — dashed border, centered text "No datasets found. Create your first project or point to a master folder.", bound to HasProjects
+  - Note (2026-03-27): The top bar now matches Requirement 1.4 more closely: browsing a master root scans automatically, pressing Enter in the path field scans typed paths, and a master-root FileSystemWatcher resyncs project cards when project folders or `.datasetstudio.json` files change.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
 
-- [ ] 33. Implement Project Configuration modal
-  - [ ] 33.1 Create `ViewModels/ProjectConfigurationViewModel.cs` — inject IProjectService, IAiTaggerService, IFileSystemService, IMessenger
-  - [ ] 33.2 Implement observable properties: ProjectName, RootFolderPath, SelectedAiModel, PrefixTagsText, Stages (ObservableCollection<WorkflowStage>), PrefixTagsError (string), HasPrefixTagsError (bool)
-  - [ ] 33.3 Implement `BrowseRootFolderCommand` — open folder picker dialog, set RootFolderPath
-  - [ ] 33.4 Implement `LoadAiModelsCommand` — call IAiTaggerService.GetAvailableModelsAsync, populate dropdown
-  - [ ] 33.5 Implement prefix tags validation — on PrefixTagsText change, validate for invalid characters, set error state
-  - [ ] 33.6 Implement workflow stages builder commands: AddStageCommand, RemoveStageCommand, reorder via drag
-  - [ ] 33.7 Implement `SaveCommand` — validate all fields, save via IProjectService, create stage subfolders via IFileSystemService.EnsureFolderExistsAsync, publish ProjectConfigSavedMessage, signal close
-  - [ ] 33.8 Create `Views/ProjectConfigurationView.axaml` — centered 600px modal overlay with semi-transparent background wash
-  - [ ] 33.9 Implement modal form layout — Root folder TextBox + Browse button, AI model ComboBox, Prefix tags TextArea with conditional error border and message, draggable/reorderable stage list with inline editing + delete + "Add Stage" button, Save button
+- [x] 33. Implement Project Configuration modal
+  - [x] 33.1 Create `ViewModels/ProjectConfigurationViewModel.cs` — inject IProjectService, IAiTaggerService, IFileSystemService, IMessenger
+  - [x] 33.2 Implement observable properties: ProjectName, RootFolderPath, SelectedAiModel, PrefixTagsText, Stages (ObservableCollection<WorkflowStage>), PrefixTagsError (string), HasPrefixTagsError (bool)
+  - [x] 33.3 Implement `BrowseRootFolderCommand` — open folder picker dialog, set RootFolderPath
+  - [x] 33.4 Implement `LoadAiModelsCommand` — call IAiTaggerService.GetAvailableModelsAsync, populate dropdown
+  - [x] 33.5 Implement prefix tags validation — on PrefixTagsText change, validate for invalid characters, set error state
+  - [x] 33.6 Implement workflow stages builder commands: AddStageCommand, RemoveStageCommand, reorder via drag
+  - [x] 33.7 Implement `SaveCommand` — validate all fields, save via IProjectService, create stage subfolders via IFileSystemService.EnsureFolderExistsAsync, publish ProjectConfigSavedMessage, signal close
+  - [x] 33.8 Create `Views/ProjectConfigurationView.axaml` — centered 600px modal overlay with semi-transparent background wash
+  - [x] 33.9 Implement modal form layout — Root folder TextBox + Browse button, AI model ComboBox, Prefix tags TextArea with conditional error border and message, draggable/reorderable stage list with inline editing + delete + "Add Stage" button, Save button
+  - Note (2026-03-27): The modal shell and form layout were tightened so the content auto-fits within the overlay width, and stage-row actions now flow onto a second row instead of clipping on narrower popup widths.
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 8.5_
 
 - [ ] 34. Implement Library Grid screen
-  - [ ] 34.1 Create `ViewModels/LibraryGridViewModel.cs` — inject IFileSystemService, ITagFileService, ITagDictionaryService, IThumbnailCacheService, IClipboardService, INavigationService, IMessenger
-  - [ ] 34.2 Implement observable properties: Stages (ObservableCollection), ActiveStage (WorkflowStage), Images (ObservableCollection<ImageEntry>), SelectedImages (ObservableCollection), FocusedImageIndex (int), FilterText (string), ZoomValue (int, default 160), IsBatchAddOpen (bool), IsBatchRemoveOpen (bool), ProjectName (string), AiModels (ObservableCollection), SelectedAiModel (AiModelInfo)
-  - [ ] 34.3 Implement `LoadStagesCommand` — parse workflow stages from disk using WorkflowStageParser, populate sidebar
-  - [ ] 34.4 Implement `SelectStageCommand` — load images for selected folder via IFileSystemService.GetImageFilesAsync, build ImageEntry list with tag status
+  - [x] 34.1 Create `ViewModels/LibraryGridViewModel.cs` — inject IFileSystemService, ITagFileService, ITagDictionaryService, IThumbnailCacheService, IClipboardService, INavigationService, IMessenger
+  - [x] 34.2 Implement observable properties: Stages (ObservableCollection), ActiveStage (WorkflowStage), Images (ObservableCollection<ImageEntry>), SelectedImages (ObservableCollection), FocusedImageIndex (int), FilterText (string), ZoomValue (int, default 160), IsBatchAddOpen (bool), IsBatchRemoveOpen (bool), ProjectName (string), AiModels (ObservableCollection), SelectedAiModel (AiModelInfo)
+  - [x] 34.3 Implement `LoadStagesCommand` — parse workflow stages from disk using WorkflowStageParser, populate sidebar
+  - [x] 34.4 Implement `SelectStageCommand` — load images for selected folder via IFileSystemService.GetImageFilesAsync, build ImageEntry list with tag status
   - [ ] 34.5 Implement `NavigateGridCommand` — arrow key spatial navigation, update FocusedImageIndex, expose IsFocused per ImageEntry
   - [ ] 34.6 Implement `ToggleSelectionCommand` — `x` key toggles IsSelected on focused image, publish ImageSelectionChangedMessage
   - [ ] 34.7 Implement `OpenBatchAddCommand` / `CloseBatchAddCommand` — `+` opens BatchAddPopup, Enter commits tag via BatchTagOperationService, close popup
@@ -288,18 +309,18 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [ ] 34.12 Implement `FocusFilterCommand` — `/` key focuses QuickFilterBar
   - [ ] 34.13 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
   - [ ] 34.14 Implement `OpenInspectorCommand` — double-click navigates to InspectorMode with selected image
-  - [ ] 34.15 Implement quick filter logic — filter Images collection by tag content matching FilterText
+  - [x] 34.15 Implement quick filter logic — filter Images collection by tag content matching FilterText
   - [ ] 34.16 Implement drag-and-drop — drag thumbnail to sidebar folder moves image, flash target folder in Accent green, set drag opacity 50%
-  - [ ] 34.17 Subscribe to messenger events — ImageMovedMessage (refresh folder counts), ImageDeletedMessage (remove from grid), TagsChangedMessage (update status dots), AiTaggingCompletedMessage (update status to Yellow)
-  - [ ] 34.18 Create `Views/LibraryGridView.axaml` — three-column layout: 240px left sidebar, fluid center, 64px top bar
-  - [ ] 34.19 Implement top bar — ProjectName TextBlock (18px IBM Plex Sans 600), AI model ComboBox, QuickFilterBar TextBox (IBM Plex Mono)
-  - [ ] 34.20 Implement left sidebar — WorkflowStageList shared control bound to Stages/ActiveStage
-  - [ ] 34.21 Implement center grid — ItemsControl with WrapPanel (min cell size bound to ZoomValue), each item: 1:1 square crop thumbnail, StatusDot bottom-right, hover checkbox top-left, ActiveFocusFrame on focused item
-  - [ ] 34.22 Implement ZoomSlider — Slider bottom-right, range 100-400, bound to ZoomValue
+  - [x] 34.17 Subscribe to messenger events — ImageMovedMessage (refresh folder counts), ImageDeletedMessage (remove from grid), TagsChangedMessage (update status dots), AiTaggingCompletedMessage (update status to Yellow)
+  - [x] 34.18 Create `Views/LibraryGridView.axaml` — three-column layout: 240px left sidebar, fluid center, 64px top bar
+  - [x] 34.19 Implement top bar — ProjectName TextBlock (18px IBM Plex Sans 600), AI model ComboBox, QuickFilterBar TextBox (IBM Plex Mono)
+  - [x] 34.20 Implement left sidebar — WorkflowStageList shared control bound to Stages/ActiveStage
+  - [ ] 34.21 Implement center grid — virtualization-friendly image grid (prefer `ItemsRepeater` or an equivalent virtualizing layout over a fully materialized WrapPanel for large folders), min cell size bound to ZoomValue, each item: 1:1 square crop thumbnail, StatusDot bottom-right, hover checkbox top-left, ActiveFocusFrame on focused item
+  - [x] 34.22 Implement ZoomSlider — Slider bottom-right, range 100-400, bound to ZoomValue
   - [ ] 34.23 Implement BatchAddPopup and BatchRemovePopup overlays using shared BatchPopup control
-  - [ ] 34.24 Implement empty folder placeholder — centered text "Folder is empty. Drag images here to stage."
+  - [x] 34.24 Implement empty folder placeholder — centered text "Folder is empty. Drag images here to stage."
   - [ ] 34.25 Implement AI processing indicator — spinning icon overlay with reduced opacity on processing thumbnails
-  - [ ] 34.26 Wire HintBar and StatusBar at bottom
+  - [x] 34.26 Wire HintBar and StatusBar at bottom
   - [ ] 34.27 Implement Escape key handling — dismiss popup → unfocus TextBox → no-op (in priority order)
   - _Requirements: 2.1–2.24, 9.1, 9.4, 9.5_
 
@@ -326,22 +347,23 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [ ] 35.20 Implement letter key auto-focus in code-behind — PreviewKeyDown handler checks if letter key and no TextBox focused, then focuses TagInput
   - _Requirements: 3.1–3.15, 9.1, 9.5_
 
-- [ ] 36. Implement Tag Dictionary screen
-  - [ ] 36.1 Create `ViewModels/TagDictionaryViewModel.cs` — inject ITagDictionaryService, IMessenger
-  - [ ] 36.2 Implement observable properties: AllEntries (ObservableCollection<TagDictionaryEntry>), FilteredEntries (filtered view), SearchText (string), SelectedCategory (string), SelectedEntry (TagDictionaryEntry), IsEditing (bool)
-  - [ ] 36.3 Implement `LoadEntriesCommand` — call ITagDictionaryService.GetAllEntriesAsync, populate AllEntries
-  - [ ] 36.4 Implement category filters — "All Tags" (all), "Needs Alias" (entries with empty aliases), "Orphaned Tags" (frequency=0), "Frequent Tags" (frequency > threshold)
-  - [ ] 36.5 Implement search filter — filter entries by SearchText substring match on canonical name and aliases
-  - [ ] 36.6 Implement `EditEntryCommand` — double-click enters inline edit mode, allow rename and alias configuration
-  - [ ] 36.7 Implement `MergeTagCommand` — prompt for target tag, call ITagDictionaryService.MergeTagsAsync, publish TagDictionaryChangedMessage
-  - [ ] 36.8 Implement `DeleteTagCommand` — call ITagDictionaryService.DeleteTagAsync with option to remove from files, publish TagDictionaryChangedMessage
-  - [ ] 36.9 Implement `NewTagCommand` — add new entry to dictionary
-  - [ ] 36.10 Subscribe to TagDictionaryChangedMessage — refresh entries
-  - [ ] 36.11 Create `Views/TagDictionaryView.axaml` — two-column layout: 240px left sidebar with category filter ListBox, fluid center with DataGrid
-  - [ ] 36.12 Implement top bar — search/filter TextBox + "New Tag" button
-  - [ ] 36.13 Implement DataGrid — sortable columns: Tag Name (IBM Plex Mono), Alias, Global Frequency, Actions (Edit/Merge/Delete buttons)
-  - [ ] 36.14 Implement inline edit mode on double-click row
-  - [ ] 36.15 Wire HintBar and StatusBar at bottom
+- [x] 36. Implement Tag Dictionary screen
+  - [x] 36.1 Create `ViewModels/TagDictionaryViewModel.cs` — inject ITagDictionaryService, IMessenger
+  - [x] 36.2 Implement observable properties: AllEntries (ObservableCollection<TagDictionaryEntry>), FilteredEntries (filtered view), SearchText (string), SelectedCategory (string), SelectedEntry (TagDictionaryEntry), IsEditing (bool)
+  - [x] 36.3 Implement `LoadEntriesCommand` — call ITagDictionaryService.GetAllEntriesAsync, populate AllEntries
+  - [x] 36.4 Implement category filters — "All Tags" (all), "Needs Alias" (entries with empty aliases), "Orphaned Tags" (frequency=0), "Frequent Tags" (frequency > threshold)
+  - [x] 36.5 Implement search filter — filter entries by SearchText substring match on canonical name and aliases
+  - [x] 36.6 Implement `EditEntryCommand` — double-click enters inline edit mode, allow rename and alias configuration
+  - [x] 36.7 Implement `MergeTagCommand` — prompt for target tag, call ITagDictionaryService.MergeTagsAsync, publish TagDictionaryChangedMessage
+  - [x] 36.8 Implement `DeleteTagCommand` — call ITagDictionaryService.DeleteTagAsync with option to remove from files, publish TagDictionaryChangedMessage
+  - [x] 36.9 Implement `NewTagCommand` — add new entry to dictionary
+  - [x] 36.10 Subscribe to TagDictionaryChangedMessage — refresh entries
+  - [x] 36.11 Create `Views/TagDictionaryView.axaml` — two-column layout: 240px left sidebar with category filter ListBox, fluid center with DataGrid
+  - [x] 36.12 Implement top bar — search/filter TextBox + "New Tag" button
+  - [x] 36.13 Implement DataGrid — sortable columns: Tag Name (IBM Plex Mono), Alias, Global Frequency, Actions (Edit/Merge/Delete buttons)
+  - [x] 36.14 Implement inline edit mode on double-click row
+  - [x] 36.15 Wire HintBar and StatusBar at bottom
+  - Note (2026-03-27): Shared DataGrid and control styling were adjusted for the Gruvbox Light palette so tag text and action controls remain readable against the screen background and grid chrome.
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
 - [ ] 37. Screens checkpoint
@@ -356,6 +378,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [ ] 38.3 Implement TextBox focus detection — when TextBox has focus, letter keys consumed by TextBox; Escape returns focus to parent container
   - [ ] 38.4 Implement Escape priority chain — dismiss open popup → unfocus TextBox → navigate back (InspectorMode only)
   - [ ] 38.5 Implement HintBar reactive updates — bind HintBar content to current screen + IsTextInputFocused state, update shortcut hints contextually
+  - Progress note (2026-03-27): The HintBar/StatusBar runtime binding issue is fixed, the footer bars are visible/readable again, and the shell now uses control-relative XAML bindings instead of `DataContext = this`; remaining work is the full text-input-focus/context routing described in 38.1–38.5.
   - _Requirements: 9.1, 9.2, 9.4, 9.5, 2.8, 2.24, 3.6, 3.15_
 
 - [ ] 39. Wire state persistence into ViewModel lifecycle
@@ -393,3 +416,5 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 - Each task references specific requirements for traceability
 - Checkpoints (tasks 11, 31, 37, 42) are pause points for validation
 - AI tagger service is stubbed; real model integration is external to this plan
+- The `.kiro/specs/DatasetStudio/` documents are authoritative for scope, behavior, architecture, and visual tokens
+- Files under `design reference/` are examples only and must not override `.kiro` decisions

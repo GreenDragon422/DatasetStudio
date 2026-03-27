@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:DatasetStudio.Controls"
+             x:Class="DatasetStudio.Controls.StatusBar"
+             x:Name="Root"
+             x:DataType="controls:StatusBar">
+  <Border Background="{DynamicResource BrushSurfacePanel}"
+          BorderBrush="{DynamicResource BrushSurfaceElevated}"
+          BorderThickness="1"
+          CornerRadius="2"
+          Height="24"
+          Padding="8,0"
+          VerticalAlignment="Center">
+    <Grid ColumnDefinitions="Auto,*"
+          ColumnSpacing="10">
+      <Border Background="{DynamicResource BrushAccentSoft}"
+              BorderBrush="{DynamicResource BrushAccent}"
+              BorderThickness="1"
+              CornerRadius="2"
+              Padding="6,1"
+              VerticalAlignment="Center">
+        <TextBlock Text="STATUS"
+                   Classes="mono"
+                   FontSize="10"
+                   Foreground="{DynamicResource BrushAccent}"
+                   VerticalAlignment="Center" />
+      </Border>
+      <TextBlock Grid.Column="1"
+                 Text="{Binding #Root.Text}"
+                 Classes="mono"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource BrushTextStrong}"
+                 TextTrimming="CharacterEllipsis" />
+    </Grid>
+  </Border>
+</UserControl>

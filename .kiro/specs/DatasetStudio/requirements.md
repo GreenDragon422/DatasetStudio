@@ -1,5 +1,9 @@
 # Requirements Document
 
+## Authority Note
+
+The files under `.kiro/specs/DatasetStudio/` are the authoritative source for DatasetStudio requirements, design, and implementation planning. If anything under `design reference/` conflicts with this document or its sibling `.kiro` documents, the `.kiro` documents win.
+
 ## Introduction
 
 DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XAML, C#, .NET 10) for rapidly curating and tagging image datasets used in AI inference training. The application enables machine learning engineers and dataset curators to process thousands of images without breaking flow state, through workflow staging folders, batch tag manipulation, background AI auto-tagging, and lightning-fast keyboard-driven navigation. The visual identity follows a warm, Gruvbox Light palette with IBM Plex Sans/Mono typography, sharp 2px border radiuses, and an earthy, retro-utilitarian aesthetic.

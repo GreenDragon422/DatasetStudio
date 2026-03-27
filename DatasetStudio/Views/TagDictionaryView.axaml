@@ -1,0 +1,143 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DatasetStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="DatasetStudio.Views.TagDictionaryView"
+             x:DataType="vm:TagDictionaryViewModel"
+             x:CompileBindings="True"
+             d:DesignWidth="1440"
+             d:DesignHeight="860">
+    <Grid RowDefinitions="64,*"
+          Margin="24"
+          RowSpacing="16">
+        <Border Grid.Row="0"
+                Background="{DynamicResource BrushSurface}"
+                BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                BorderThickness="1"
+                CornerRadius="2"
+                Padding="16,12">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+                <TextBox Watermark="Search tags or aliases..."
+                         Text="{Binding SearchText, Mode=TwoWay}"
+                         VerticalAlignment="Center" />
+                <Button Grid.Column="1"
+                        Classes="primary"
+                        Content="New Tag"
+                        Command="{Binding NewTagCommand}"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="240,*"
+              ColumnSpacing="16">
+            <Border Background="{DynamicResource BrushSurface}"
+                    BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                    BorderThickness="1"
+                    CornerRadius="2"
+                    Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Categories"
+                               Classes="heading-medium" />
+                    <ListBox ItemsSource="{Binding Categories}"
+                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Background="{DynamicResource BrushSurface}"
+                    BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                    BorderThickness="1"
+                    CornerRadius="2"
+                    Padding="8">
+                <DataGrid ItemsSource="{Binding FilteredEntries}"
+                          SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          Background="{DynamicResource BrushSurface}"
+                          BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                          Foreground="{DynamicResource BrushTextStrong}"
+                          GridLinesVisibility="All"
+                          HorizontalGridLinesBrush="{DynamicResource BrushSurfaceElevated}"
+                          VerticalGridLinesBrush="{DynamicResource BrushSurfaceElevated}"
+                          CanUserSortColumns="True"
+                          HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Tag Name"
+                                                SortMemberPath="CanonicalName"
+                                                Width="2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
+                                    <Border Background="Transparent"
+                                            DoubleTapped="OnEntryDoubleTapped"
+                                            Padding="8,4">
+                                        <Grid>
+                                            <TextBlock Text="{Binding CanonicalName}"
+                                                       Classes="mono"
+                                                       VerticalAlignment="Center"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <TextBox Text="{Binding CanonicalName, Mode=TwoWay}"
+                                                     IsVisible="{Binding IsEditing}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Alias"
+                                                Width="3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
+                                    <Grid Margin="8,4">
+                                        <TextBlock Text="{Binding DisplayAliases}"
+                                                   Classes="mono"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding !IsEditing}" />
+                                        <TextBox Text="{Binding EditableAliasesText, Mode=TwoWay}"
+                                                 Watermark="comma, separated, aliases"
+                                                 IsVisible="{Binding IsEditing}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="Global Frequency"
+                                            Binding="{Binding GlobalFrequency}"
+                                            Width="*"/>
+
+                        <DataGridTemplateColumn Header="Actions"
+                                                Width="2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
+                                    <WrapPanel Margin="4"
+                                               Orientation="Horizontal"
+                                               ItemHeight="32"
+                                               ItemWidth="88">
+                                        <Button Content="Edit"
+                                                IsVisible="{Binding !IsEditing}"
+                                                Click="OnEditClick" />
+                                        <Button Content="Save"
+                                                IsVisible="{Binding IsEditing}"
+                                                Click="OnSaveClick" />
+                                        <Button Content="Cancel"
+                                                IsVisible="{Binding IsEditing}"
+                                                Click="OnCancelClick" />
+                                        <Button Content="Merge"
+                                                Click="OnMergeClick" />
+                                        <Button Content="Delete"
+                                                Click="OnDeleteClick" />
+                                        <Button Content="Delete + Files"
+                                                Click="OnDeleteWithFilesClick" />
+                                    </WrapPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,5 +1,9 @@
 # Design Document: DatasetStudio
 
+## Authority Note
+
+The files under `.kiro/specs/DatasetStudio/` are the authoritative source for DatasetStudio requirements, design, and implementation planning. Files under `design reference/` are illustrative only and may show older directions or incomplete mockups. If there is any conflict, the `.kiro` documents win.
+
 ## Overview
 
 DatasetStudio is a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curating and tagging image datasets used in AI training. The application follows the MVVM (Model-View-ViewModel) pattern native to Avalonia, with a service layer handling file system operations, AI model integration, and tag parsing. The visual identity uses the Gruvbox Light palette with IBM Plex Sans/Mono typography and a retro-utilitarian aesthetic with hard 2px border radiuses.
@@ -97,7 +101,7 @@ public record ProjectConfigSavedMessage(string ProjectId);
 
 ### Screen Component Hierarchy
 
-> **Reference Sketches:** Conceptual screen layouts are available in `design reference/*/screen.png`. These are rough sketches showing the general layout idea only — colors are dark-themed and do not reflect the final Gruvbox Light palette, and some visual elements may be missing or incomplete. The implementation must produce fully working screens based on the requirements and component hierarchies below, not pixel-perfect reproductions of the sketches.
+> **Reference Sketches:** Conceptual screen layouts are available in `design reference/*/screen.png`. These are rough, non-authoritative sketches showing the general layout idea only. They do not override `.kiro/specs/DatasetStudio/`, their colors do not reflect the final Gruvbox Light palette, and some visual elements may be missing or incomplete. The implementation must produce fully working screens based on the `.kiro` requirements and component hierarchies below, not pixel-perfect reproductions of the sketches.
 
 #### MainWindow
 

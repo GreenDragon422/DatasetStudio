@@ -1,0 +1,162 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <CornerRadius x:Key="CornerRadiusSharp">2</CornerRadius>
+        <Thickness x:Key="BorderThicknessThin">1</Thickness>
+        <Thickness x:Key="BorderThicknessActive">2</Thickness>
+        <x:Double x:Key="Space4">4</x:Double>
+        <x:Double x:Key="Space8">8</x:Double>
+        <x:Double x:Key="Space16">16</x:Double>
+        <x:Double x:Key="Space24">24</x:Double>
+    </Styles.Resources>
+
+    <Style Selector="Application">
+        <Setter Property="TextElement.Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="TextElement.FontFamily" Value="{StaticResource FontFamilySans}" />
+    </Style>
+
+    <Style Selector="Window">
+        <Setter Property="Background" Value="{StaticResource BrushBackground}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilySans}" />
+    </Style>
+
+    <Style Selector="Button">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilySans}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Padding" Value="12,8" />
+    </Style>
+
+    <Style Selector="Button:pointerover">
+        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimary}" />
+    </Style>
+
+    <Style Selector="Button:pressed">
+        <Setter Property="Background" Value="{StaticResource BrushPrimary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+    </Style>
+
+    <Style Selector="Button:disabled">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushMuted}" />
+        <Setter Property="Opacity" Value="0.8" />
+    </Style>
+
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{StaticResource BrushPrimary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+    </Style>
+
+    <Style Selector="Button.primary:pointerover">
+        <Setter Property="Background" Value="{StaticResource BrushPrimaryDeep}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+    </Style>
+
+    <Style Selector="Button.primary:pressed">
+        <Setter Property="Background" Value="{StaticResource BrushPrimaryDeep}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushBackground}" />
+        <Setter Property="Opacity" Value="0.92" />
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
+    </Style>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="ListBox">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="ListBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="Padding" Value="8,6" />
+    </Style>
+
+    <Style Selector="ListBoxItem:pointerover">
+        <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
+    </Style>
+
+    <Style Selector="ListBoxItem:selected">
+        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="DataGrid">
+        <Setter Property="Background" Value="{StaticResource BrushSurface}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="RowBackground" Value="{StaticResource BrushSurface}" />
+        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BrushSurfaceElevated}" />
+    </Style>
+
+    <Style Selector="DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="DataGridCell">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+    </Style>
+
+    <Style Selector="DataGridRow:selected">
+        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
+        <Setter Property="FontWeight" Value="Medium" />
+    </Style>
+
+    <Style Selector="TextBlock.heading-large">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilySans}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeHeadingLarge}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.heading-medium">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilySans}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeHeadingMedium}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="Border.active-focus-frame">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushWarning}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessActive}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+    </Style>
+</Styles>

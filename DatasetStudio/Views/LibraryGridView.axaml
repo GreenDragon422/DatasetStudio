@@ -1,0 +1,171 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:DatasetStudio.Controls"
+             xmlns:models="using:DatasetStudio.Models"
+             xmlns:vm="using:DatasetStudio.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="DatasetStudio.Views.LibraryGridView"
+             x:Name="Root"
+             x:DataType="vm:LibraryGridViewModel"
+             x:CompileBindings="True"
+             d:DesignWidth="1440"
+             d:DesignHeight="860">
+    <Grid RowDefinitions="64,*"
+          Margin="24"
+          RowSpacing="16">
+        <Border Grid.Row="0"
+                Background="{DynamicResource BrushSurface}"
+                BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                BorderThickness="1"
+                CornerRadius="2"
+                Padding="16,12">
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+                <StackPanel Spacing="2"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ProjectName}"
+                               Classes="heading-medium" />
+                    <TextBlock Text="Library Grid · batch review, folder staging, and multi-image tag operations."
+                               Classes="mono"
+                               Foreground="{DynamicResource BrushMuted}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <ComboBox Grid.Column="1"
+                          Width="220"
+                          ItemsSource="{Binding AiModels}"
+                          SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}"
+                          VerticalAlignment="Center">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:AiModelInfo">
+                            <TextBlock Text="{Binding DisplayName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBox Grid.Column="2"
+                         Width="280"
+                         Watermark="Quick filter tags or filenames..."
+                         Text="{Binding FilterText, Mode=TwoWay}"
+                         VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="240,*"
+              ColumnSpacing="16">
+            <controls:WorkflowStageList ItemsSource="{Binding Stages}"
+                                        SelectedItem="{Binding ActiveStage, Mode=TwoWay}" />
+
+            <Grid Grid.Column="1"
+                  RowDefinitions="*,Auto"
+                  RowSpacing="12">
+                <Border Background="{DynamicResource BrushSurface}"
+                        BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                        BorderThickness="1"
+                        CornerRadius="2"
+                        Padding="16">
+                    <Grid>
+                        <TextBlock Text="Folder is empty. Drag images here to stage."
+                                   Classes="heading-medium"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding !HasImages}" />
+
+                        <ScrollViewer IsVisible="{Binding HasImages}"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Images}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LibraryGridImageViewModel">
+                                        <Border Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                Margin="0,0,16,16"
+                                                Background="{DynamicResource BrushSurface}"
+                                                BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                                                BorderThickness="1"
+                                                CornerRadius="2"
+                                                Padding="8">
+                                            <Grid RowDefinitions="Auto,*,Auto">
+                                                <Grid ColumnDefinitions="Auto,*">
+                                                    <CheckBox Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ToggleSelectionCommand}"
+                                                              CommandParameter="{Binding}"
+                                                              IsChecked="{Binding IsSelected, Mode=OneWay}" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding FileName}"
+                                                               Margin="8,0,0,0"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center" />
+                                                </Grid>
+
+                                                <Button Grid.Row="1"
+                                                        Margin="0,8,0,8"
+                                                        Padding="0"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).FocusImageCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <Grid Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                          Height="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}">
+                                                        <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                                                CornerRadius="2" />
+                                                        <Image Source="{Binding Thumbnail}"
+                                                               Stretch="UniformToFill"
+                                                               IsVisible="{Binding HasThumbnail}" />
+                                                        <TextBlock Text="{Binding FileName}"
+                                                                   TextWrapping="Wrap"
+                                                                   TextAlignment="Center"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="12"
+                                                                   IsVisible="{Binding !HasThumbnail}" />
+                                                        <Border BorderBrush="{DynamicResource BrushPrimary}"
+                                                                BorderThickness="2"
+                                                                CornerRadius="2"
+                                                                IsVisible="{Binding IsFocused}" />
+                                                        <controls:StatusDot HorizontalAlignment="Right"
+                                                                            VerticalAlignment="Bottom"
+                                                                            Margin="0,0,6,6"
+                                                                            Status="{Binding Status}" />
+                                                    </Grid>
+                                                </Button>
+
+                                                <TextBlock Grid.Row="2"
+                                                           Text="{Binding TagsPreview}"
+                                                           Classes="mono"
+                                                           FontSize="11"
+                                                           MaxWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                           TextWrapping="Wrap"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Opacity="0.8" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Spacing="12">
+                    <TextBlock Text="Zoom"
+                               Classes="mono"
+                               VerticalAlignment="Center" />
+                    <Slider Width="180"
+                            Minimum="100"
+                            Maximum="400"
+                            Value="{Binding ZoomValue, Mode=TwoWay}" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

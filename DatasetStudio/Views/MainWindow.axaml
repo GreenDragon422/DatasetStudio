@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:DatasetStudio.Controls"
+        xmlns:vm="using:DatasetStudio.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="1440"
+        d:DesignHeight="900"
+        x:Class="DatasetStudio.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/datasetstudio-icon.ico"
+        Title="DatasetStudio"
+        Width="1440"
+        Height="900"
+        MinWidth="960"
+        MinHeight="640"
+        KeyDown="OnWindowKeyDown">
+    <Grid RowDefinitions="64,*,Auto,Auto">
+        <Border Grid.Row="0"
+                Background="{DynamicResource BrushSurface}"
+                BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                BorderThickness="0,0,0,1"
+                Padding="16,12">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+                  ColumnSpacing="12">
+                <Image Width="24"
+                       Height="24"
+                       Source="/Assets/datasetstudio-icon.png"
+                       VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="DatasetStudio"
+                           Classes="heading-medium"
+                           VerticalAlignment="Center" />
+                <ContentPresenter Grid.Column="3"
+                                  Content="{Binding TopBarContent}"
+                                  VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <ContentControl Content="{Binding CurrentView}" />
+
+            <Border IsVisible="{Binding IsConfigOpen}"
+                    Background="#DDFBF1C7"
+                    Padding="24"
+                    ZIndex="10">
+                <Border HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        MaxWidth="960"
+                        MaxHeight="780"
+                        Background="{DynamicResource BrushSurface}"
+                        BorderBrush="{DynamicResource BrushSurfaceElevated}"
+                        BorderThickness="1"
+                        CornerRadius="2"
+                        Padding="24">
+                    <ContentControl Content="{Binding ProjectConfigurationContent}" />
+                </Border>
+            </Border>
+        </Grid>
+
+        <controls:HintBar Grid.Row="2"
+                          Text="{Binding HintText}" />
+        <controls:StatusBar Grid.Row="3"
+                            Text="{Binding StatusText}" />
+    </Grid>
+</Window>

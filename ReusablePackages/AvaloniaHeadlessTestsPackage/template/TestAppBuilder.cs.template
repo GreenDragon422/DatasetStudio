@@ -1,0 +1,20 @@
+using Avalonia;
+using Avalonia.Headless;
+using Avalonia.Skia;
+
+[assembly: AvaloniaTestApplication(typeof(__TEST_NAMESPACE__.TestAppBuilder))]
+
+namespace __TEST_NAMESPACE__;
+
+public static class TestAppBuilder
+{
+    public static AppBuilder BuildAvaloniaApp()
+    {
+        return AppBuilder.Configure<TestApp>()
+            .UseSkia()
+            .UseHeadless(new AvaloniaHeadlessPlatformOptions
+            {
+                UseHeadlessDrawing = false
+            });
+    }
+}
