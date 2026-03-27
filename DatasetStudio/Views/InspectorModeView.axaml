@@ -1,0 +1,187 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:DatasetStudio.Controls"
+             x:Class="DatasetStudio.Views.InspectorModeView"
+             x:Name="InspectorRoot"
+             x:CompileBindings="False"
+             TextInput="OnScreenTextInput"
+             Loaded="OnLoaded">
+    <Grid RowDefinitions="Auto,*"
+          Margin="24"
+          RowSpacing="16">
+        <Border Grid.Row="0"
+                Classes="screen-header-bar">
+            <Grid ColumnDefinitions="Auto,*,Auto"
+                  ColumnSpacing="12">
+                <Button Content="Back"
+                        Command="{Binding GoBackCommand}"
+                        VerticalAlignment="Center" />
+
+                <StackPanel Grid.Column="1"
+                            Spacing="2"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding FileName}"
+                               Classes="heading-medium"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding ProjectName}"
+                               Classes="mono subtle-text small"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                    <controls:StatusDot Status="{Binding CurrentStatus}"
+                                        VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding CurrentStatus}"
+                               Classes="mono shell-bar-text" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="240,*,320"
+              ColumnSpacing="16">
+            <Grid RowDefinitions="Auto,Auto,*"
+                  RowSpacing="8">
+                <TextBlock Text="Workflow stages"
+                           Classes="heading-medium" />
+                <TextBlock Grid.Row="1"
+                           Text="Choose a stage, then keep moving through the dataset with the keyboard."
+                           Classes="mono screen-subtitle"
+                           TextWrapping="Wrap" />
+                <controls:WorkflowStageList Grid.Row="2"
+                                            ItemsSource="{Binding Stages}"
+                                            SelectedItem="{Binding ActiveStage, Mode=TwoWay}" />
+            </Grid>
+
+            <Border Grid.Column="1"
+                    Classes="surface-card"
+                    Padding="16">
+                <Grid RowDefinitions="*,Auto">
+                    <Grid HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
+                        <Viewbox Stretch="Uniform"
+                                 StretchDirection="Both"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                            <Border BorderBrush="{DynamicResource BrushWarning}"
+                                    BorderThickness="2"
+                                    CornerRadius="2"
+                                    Background="{DynamicResource BrushSurfaceInput}"
+                                    Padding="8">
+                                <Image Source="{Binding CurrentImageSource}"
+                                       Stretch="Uniform" />
+                            </Border>
+                        </Viewbox>
+
+                        <Button Content="Prev"
+                                Command="{Binding NavigatePreviousCommand}"
+                                FontSize="20"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Margin="8" />
+
+                        <Button Content="Next"
+                                Command="{Binding NavigateNextCommand}"
+                                FontSize="20"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Margin="8" />
+                    </Grid>
+
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding CurrentImageSource}"
+                               IsVisible="False" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2"
+                    Classes="surface-card"
+                    Padding="16">
+                <Grid RowDefinitions="Auto,Auto,*,Auto"
+                      RowSpacing="12">
+                    <Border Classes="surface-panel-card"
+                            Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Prefix tags"
+                                       Classes="heading-medium" />
+                            <TextBlock Text="{Binding PrefixTagsText}"
+                                       Classes="mono"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Grid.Row="1"
+                                Spacing="6">
+                        <TextBlock Text="Add tag"
+                                   Classes="form-label" />
+                        <TextBox x:Name="TagInputTextBox"
+                                 Height="32"
+                                 Text="{Binding TagInputText, Mode=TwoWay}"
+                                 Watermark="Type a tag and press Enter..."
+                                 VerticalContentAlignment="Center" />
+                        <Border Classes="surface-panel-card"
+                                IsVisible="{Binding IsSuggestOpen}"
+                                Padding="8">
+                            <ListBox ItemsSource="{Binding AutoSuggestTags}"
+                                     Classes="plain-list"
+                                     BorderThickness="0"
+                                     Background="Transparent">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Classes="suggestion-row">
+                                            <TextBlock Text="{Binding}"
+                                                       Classes="mono" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </StackPanel>
+
+                    <Grid Grid.Row="2">
+                        <Border Classes="surface-panel-card"
+                                Padding="12">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Applied tags"
+                                               Classes="heading-medium" />
+                                    <ItemsControl ItemsSource="{Binding AppliedTags}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel ItemHeight="32"
+                                                           Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <controls:TagPill Tag="{Binding}"
+                                                                  RemoveCommand="{Binding DataContext.RemoveTagCommand, ElementName=InspectorRoot}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <Border IsVisible="{Binding IsBusy}"
+                                Background="{DynamicResource BrushOverlayScrim}"
+                                Padding="12"
+                                VerticalAlignment="Stretch">
+                            <ProgressBar IsIndeterminate="True"
+                                         VerticalAlignment="Top"
+                                         Height="4" />
+                        </Border>
+                    </Grid>
+
+                    <Button Grid.Row="3"
+                            Classes="primary"
+                            Content="Commit &amp; Next"
+                            Command="{Binding CommitTagCommand}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
