@@ -16,14 +16,13 @@
             <Grid ColumnDefinitions="*,Auto"
                   Classes="screen-header-layout">
                 <TextBox x:Name="SearchTextBox"
+                         Classes="header-control"
                          Watermark="Search tags or aliases..."
-                         Text="{Binding SearchText, Mode=TwoWay}"
-                         VerticalAlignment="Center" />
+                         Text="{Binding SearchText, Mode=TwoWay}" />
                 <Button Grid.Column="1"
-                        Classes="primary"
+                        Classes="primary header-control"
                         Content="New Tag"
-                        Command="{Binding NewTagCommand}"
-                        VerticalAlignment="Center" />
+                        Command="{Binding NewTagCommand}" />
             </Grid>
         </Border>
 
@@ -96,7 +95,7 @@
                                                 Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
-                                    <WrapPanel Classes="flow-actions inset">
+                                    <WrapPanel Classes="flow-actions compact inset">
                                         <Button Content="Edit"
                                                 IsVisible="{Binding !IsEditing}"
                                                 Click="OnEditClick" />

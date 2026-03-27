@@ -16,25 +16,23 @@
             <Grid ColumnDefinitions="Auto,*,Auto,Auto"
                   Classes="screen-header-layout">
                 <TextBlock Text="Master root"
-                           VerticalAlignment="Center"
                            Classes="heading-medium" />
 
                 <TextBox x:Name="MasterRootPathTextBox"
                          Grid.Column="1"
+                         Classes="header-control"
                          Watermark="Choose a master root folder, or paste a path and press Enter..."
-                         Text="{Binding MasterRootPath, Mode=TwoWay}"
-                         VerticalAlignment="Center" />
+                         Text="{Binding MasterRootPath, Mode=TwoWay}" />
 
                 <Button Grid.Column="2"
+                        Classes="header-control"
                         Content="Browse"
-                        Click="OnBrowseMasterRootClick"
-                        VerticalAlignment="Center" />
+                        Click="OnBrowseMasterRootClick" />
 
                 <Button Grid.Column="3"
-                        Classes="primary"
+                        Classes="primary header-control"
                         Content="New Project"
-                        Command="{Binding NewProjectCommand}"
-                        VerticalAlignment="Center" />
+                        Command="{Binding NewProjectCommand}" />
             </Grid>
         </Border>
 

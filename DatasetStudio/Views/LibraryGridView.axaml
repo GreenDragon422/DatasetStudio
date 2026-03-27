@@ -27,10 +27,10 @@
                 </StackPanel>
 
                 <ComboBox Grid.Column="1"
+                          Classes="header-control"
                           Width="220"
                           ItemsSource="{Binding AiModels}"
-                          SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}"
-                          VerticalAlignment="Center">
+                          SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="models:AiModelInfo">
                             <TextBlock Text="{Binding DisplayName}" />
@@ -40,10 +40,10 @@
 
                 <TextBox x:Name="FilterTextBox"
                          Grid.Column="2"
+                         Classes="header-control"
                          Width="280"
                          Watermark="Quick filter tags or filenames..."
-                         Text="{Binding FilterText, Mode=TwoWay}"
-                         VerticalAlignment="Center" />
+                         Text="{Binding FilterText, Mode=TwoWay}" />
             </Grid>
         </Border>
 

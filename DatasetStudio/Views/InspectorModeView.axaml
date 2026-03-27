@@ -15,8 +15,9 @@
             <Grid ColumnDefinitions="Auto,*,Auto"
                   Classes="screen-header-layout">
                 <Button Content="Back"
+                        Classes="header-control"
                         Command="{Binding GoBackCommand}"
-                        VerticalAlignment="Center" />
+                        />
 
                 <StackPanel Grid.Column="1"
                             Classes="screen-title-stack">
@@ -140,8 +141,7 @@
                                     <ItemsControl ItemsSource="{Binding AppliedTags}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <WrapPanel ItemHeight="32"
-                                                           Orientation="Horizontal" />
+                                                <WrapPanel Classes="tag-cloud" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>

@@ -12,9 +12,7 @@
                x:DataType="vm:ProjectConfigurationViewModel"
                x:CompileBindings="True">
     <Grid RowDefinitions="Auto,*,Auto"
-          RowSpacing="16"
-          MaxWidth="880"
-          MinWidth="0">
+          Classes="dialog-layout">
         <StackPanel Grid.Row="0"
                     Classes="section-stack tight">
             <TextBlock Text="Project Configuration"
@@ -26,31 +24,29 @@
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16">
+            <StackPanel Classes="section-stack wide">
                 <Border Classes="surface-card pad-16">
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
-                          RowSpacing="12">
+                          Classes="standard-rows">
                         <Grid ColumnDefinitions="136,*"
                               Classes="form-row">
                             <TextBlock Text="Project name"
-                                       Classes="form-label"
-                                       VerticalAlignment="Center" />
+                                       Classes="form-label" />
                             <TextBox x:Name="ProjectNameTextBox"
-                                     Grid.Column="1"
-                                      MinWidth="0"
-                                      Text="{Binding ProjectName, Mode=TwoWay}" />
+                                      Grid.Column="1"
+                                      Classes="field-input"
+                                       Text="{Binding ProjectName, Mode=TwoWay}" />
                         </Grid>
 
                         <Grid Grid.Row="1"
                               ColumnDefinitions="136,*,Auto"
                               Classes="form-row with-action">
                             <TextBlock Text="Root folder"
-                                       Classes="form-label"
-                                       VerticalAlignment="Center" />
+                                       Classes="form-label" />
                             <TextBox x:Name="RootFolderPathTextBox"
-                                     Grid.Column="1"
-                                      MinWidth="0"
-                                      Text="{Binding RootFolderPath, Mode=TwoWay}" />
+                                      Grid.Column="1"
+                                      Classes="field-input"
+                                       Text="{Binding RootFolderPath, Mode=TwoWay}" />
                             <Button Grid.Column="2"
                                     Content="Browse"
                                     Click="OnBrowseRootFolderClick" />
@@ -60,10 +56,9 @@
                               ColumnDefinitions="136,*"
                               Classes="form-row">
                             <TextBlock Text="AI model"
-                                       Classes="form-label"
-                                       VerticalAlignment="Center" />
+                                       Classes="form-label" />
                             <ComboBox Grid.Column="1"
-                                      MinWidth="0"
+                                      Classes="field-input"
                                        ItemsSource="{Binding AvailableAiModels}"
                                        SelectedValue="{Binding SelectedAiModelName, Mode=TwoWay}"
                                        SelectedValueBinding="{Binding Id}"
@@ -88,10 +83,7 @@
                                     Classes.error="{Binding HasPrefixTagsError}"
                                     Padding="0">
                                 <TextBox Text="{Binding PrefixTagsText, Mode=TwoWay}"
-                                         Classes="chromeless-input"
-                                         AcceptsReturn="True"
-                                         TextWrapping="Wrap"
-                                         MinHeight="72"
+                                         Classes="chromeless-input multiline-input"
                                          Watermark="lora_style, masterpiece, best quality" />
                             </Border>
                             <TextBlock Text="{Binding PrefixTagsError}"
@@ -123,7 +115,7 @@
                                             DetachedFromVisualTree="OnStageRowDetachedFromVisualTree">
                                         <Grid RowDefinitions="Auto,Auto"
                                               ColumnDefinitions="Auto,Auto,*,*"
-                                              RowSpacing="8"
+                                              Classes="compact-rows"
                                               ColumnSpacing="10">
                                             <TextBlock Text="⋮⋮"
                                                         Width="24"
@@ -139,12 +131,12 @@
                                                        VerticalAlignment="Center" />
 
                                             <TextBox Grid.Column="2"
-                                                     MinWidth="0"
+                                                     Classes="field-input"
                                                      Text="{Binding FolderName, Mode=TwoWay}"
                                                      Watermark="01_Inbox" />
 
                                             <TextBox Grid.Column="3"
-                                                     MinWidth="0"
+                                                     Classes="field-input"
                                                      Text="{Binding DisplayName, Mode=TwoWay}"
                                                      Watermark="Inbox" />
 

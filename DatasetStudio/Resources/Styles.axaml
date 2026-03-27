@@ -98,6 +98,20 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
 
+    <Style Selector="TextBox.multiline-input">
+        <Setter Property="AcceptsReturn" Value="True" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="MinHeight" Value="72" />
+    </Style>
+
+    <Style Selector="TextBox.field-input, ComboBox.field-input">
+        <Setter Property="MinWidth" Value="0" />
+    </Style>
+
+    <Style Selector="TextBox.header-control, ComboBox.header-control, Button.header-control">
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
     <Style Selector="ComboBox">
         <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
@@ -269,6 +283,12 @@
         <Setter Property="RowSpacing" Value="16" />
     </Style>
 
+    <Style Selector="Grid.dialog-layout">
+        <Setter Property="RowSpacing" Value="16" />
+        <Setter Property="MaxWidth" Value="880" />
+        <Setter Property="MinWidth" Value="0" />
+    </Style>
+
     <Style Selector="Grid.screen-header-layout">
         <Setter Property="ColumnSpacing" Value="12" />
     </Style>
@@ -312,6 +332,7 @@
         <Setter Property="FontFamily" Value="{StaticResource FontFamilyMono}" />
         <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
         <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
     <Style Selector="TextBlock.mono-caption">
@@ -356,6 +377,7 @@
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style Selector="TextBlock.screen-subtitle">
@@ -708,12 +730,21 @@
         <Setter Property="HorizontalAlignment" Value="Right" />
     </Style>
 
+    <Style Selector="WrapPanel.flow-actions.compact">
+        <Setter Property="ItemHeight" Value="32" />
+    </Style>
+
     <Style Selector="WrapPanel.flow-actions.inset">
         <Setter Property="Margin" Value="4" />
     </Style>
 
     <Style Selector="WrapPanel.flow-actions > Button">
         <Setter Property="Margin" Value="0,0,6,6" />
+    </Style>
+
+    <Style Selector="WrapPanel.tag-cloud">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="ItemHeight" Value="32" />
     </Style>
 
     <Style Selector="StackPanel.dialog-actions">
