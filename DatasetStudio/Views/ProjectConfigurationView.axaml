@@ -16,7 +16,7 @@
           MaxWidth="880"
           MinWidth="0">
         <StackPanel Grid.Row="0"
-                    Spacing="6">
+                    Classes="section-stack tight">
             <TextBlock Text="Project Configuration"
                        Classes="heading-large" />
             <TextBlock Text="Update the project folder, AI model, prefix tags, and workflow stages."
@@ -31,7 +31,7 @@
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
                           RowSpacing="12">
                         <Grid ColumnDefinitions="136,*"
-                              ColumnSpacing="12">
+                              Classes="form-row">
                             <TextBlock Text="Project name"
                                        Classes="form-label"
                                        VerticalAlignment="Center" />
@@ -43,7 +43,7 @@
 
                         <Grid Grid.Row="1"
                               ColumnDefinitions="136,*,Auto"
-                              ColumnSpacing="12">
+                              Classes="form-row">
                             <TextBlock Text="Root folder"
                                        Classes="form-label"
                                        VerticalAlignment="Center" />
@@ -58,7 +58,7 @@
 
                         <Grid Grid.Row="2"
                               ColumnDefinitions="136,*"
-                              ColumnSpacing="12">
+                              Classes="form-row">
                             <TextBlock Text="AI model"
                                        Classes="form-label"
                                        VerticalAlignment="Center" />
@@ -70,7 +70,7 @@
                                       PlaceholderText="Select an AI model">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="models:AiModelInfo">
-                                        <StackPanel Spacing="2">
+                                        <StackPanel Classes="screen-title-stack">
                                             <TextBlock Text="{Binding DisplayName}" />
                                             <TextBlock Text="{Binding ModelPath}"
                                                        Classes="mono-caption" />
@@ -103,9 +103,9 @@
                 </Border>
 
                 <Border Classes="surface-card pad-16">
-                    <StackPanel Spacing="12">
+                    <StackPanel Classes="section-stack wide">
                         <Grid ColumnDefinitions="*,Auto"
-                              ColumnSpacing="12">
+                              Classes="form-row">
                             <TextBlock Text="Workflow stages"
                                        Classes="heading-medium" />
                             <Button Grid.Column="1"

@@ -6,7 +6,7 @@
              x:DataType="controls:HintBar">
   <Border Classes="chrome-shell input">
     <Grid ColumnDefinitions="Auto,*"
-          ColumnSpacing="10">
+          Classes="info-bar-layout">
       <Border Classes="label-badge keys">
         <TextBlock Text="KEYS"
                    Classes="mono label-badge-text" />

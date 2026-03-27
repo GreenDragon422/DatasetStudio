@@ -17,9 +17,8 @@
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="*,Auto,Auto"
-                  ColumnSpacing="12">
-                <StackPanel Spacing="2"
-                            VerticalAlignment="Center">
+                  Classes="screen-header-layout">
+                <StackPanel Classes="screen-title-stack">
                     <TextBlock Text="{Binding ProjectName}"
                                Classes="heading-medium" />
                     <TextBlock Text="Review Workspace · choose a workflow stage, review staged images, filter by tags, and prepare batch tag edits."
@@ -48,11 +47,35 @@
             </Grid>
         </Border>
 
+        <controls:BatchPopup x:Name="BatchAddPopup"
+                             Grid.Row="0"
+                             IsOpen="{Binding IsBatchAddOpen, Mode=TwoWay}"
+                             Mode="Add"
+                             PlacementTarget="{Binding #FilterTextBox}"
+                             Placement="Bottom"
+                             HorizontalOffset="0"
+                             VerticalOffset="8"
+                             QueryText="{Binding BatchAddQueryText, Mode=TwoWay}"
+                             Suggestions="{Binding BatchAddSuggestions}"
+                             SelectedSuggestion="{Binding SelectedBatchAddSuggestion, Mode=TwoWay}" />
+
+        <controls:BatchPopup x:Name="BatchRemovePopup"
+                             Grid.Row="0"
+                             IsOpen="{Binding IsBatchRemoveOpen, Mode=TwoWay}"
+                             Mode="Remove"
+                             PlacementTarget="{Binding #FilterTextBox}"
+                             Placement="Bottom"
+                             HorizontalOffset="0"
+                             VerticalOffset="8"
+                             QueryText="{Binding BatchRemoveQueryText, Mode=TwoWay}"
+                             Suggestions="{Binding BatchRemoveSuggestions}"
+                             SelectedSuggestion="{Binding SelectedBatchRemoveSuggestion, Mode=TwoWay}" />
+
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
               ColumnSpacing="16">
             <Grid RowDefinitions="Auto,Auto,*"
-                  RowSpacing="8">
+                  Classes="stage-sidebar-layout">
                 <TextBlock Text="Workflow stages"
                            Classes="heading-medium" />
                 <TextBlock Grid.Row="1"
@@ -75,7 +98,8 @@
                                    VerticalAlignment="Center"
                                    IsVisible="{Binding !HasImages}" />
 
-                        <ScrollViewer IsVisible="{Binding HasImages}"
+                        <ScrollViewer x:Name="ImagesScrollViewer"
+                                      IsVisible="{Binding HasImages}"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Images}">
                                 <ItemsControl.ItemsPanel>

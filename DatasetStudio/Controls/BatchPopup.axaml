@@ -1,16 +1,17 @@
 <Popup xmlns="https://github.com/avaloniaui"
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:controls="using:DatasetStudio.Controls"
+       xmlns:vm="using:DatasetStudio.ViewModels"
        x:Class="DatasetStudio.Controls.BatchPopup"
        x:Name="Root"
        x:DataType="controls:BatchPopup">
-  <Border Classes="surface-panel-card pad-12"
-          Width="280">
+  <Border Classes="surface-panel-card pad-12 popup-card">
     <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
       <TextBlock Text="{Binding #Root.Mode}"
                  Classes="heading-medium" />
 
-      <TextBox Grid.Row="1"
+      <TextBox x:Name="QueryTextBox"
+               Grid.Row="1"
                Text="{Binding #Root.QueryText, Mode=TwoWay}"
                Watermark="Type to filter tags" />
 
@@ -20,15 +21,15 @@
                Classes="plain-list"
                MaxHeight="220">
         <ListBox.ItemTemplate>
-        <DataTemplate x:CompileBindings="False">
+        <DataTemplate x:DataType="vm:BatchTagSuggestionViewModel">
           <Border Classes="suggestion-row">
               <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="{Binding}"
+                <TextBlock Text="{Binding Tag}"
                            Classes="mono" />
                  <TextBlock Grid.Column="1"
                             Text="{Binding Frequency}"
-                            Classes="mono-caption"
-                            Margin="12,0,0,0"
+                            Classes="mono-caption trailing-meta"
+                            IsVisible="{Binding HasFrequency}"
                             />
                </Grid>
              </Border>

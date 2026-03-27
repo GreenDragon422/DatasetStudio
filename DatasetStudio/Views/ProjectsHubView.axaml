@@ -14,7 +14,7 @@
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="Auto,*,Auto,Auto"
-                  ColumnSpacing="12">
+                  Classes="screen-header-layout">
                 <TextBlock Text="Master root"
                            VerticalAlignment="Center"
                            Classes="heading-medium" />
@@ -41,9 +41,7 @@
         <Grid Grid.Row="1">
             <Border IsVisible="{Binding IsEmptyStateVisible}"
                     Classes="surface-card muted-border pad-32">
-                <StackPanel HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Spacing="8">
+                <StackPanel Classes="empty-state-stack">
                     <TextBlock Text="No datasets found. Create your first project or point to a master folder."
                                Classes="heading-medium"
                                TextAlignment="Center"

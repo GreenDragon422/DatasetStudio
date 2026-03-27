@@ -12,9 +12,7 @@
       <Button Grid.Column="1"
               Command="{Binding #Root.RemoveCommand}"
               CommandParameter="{Binding #Root.Tag}"
-              Classes="chromeless"
-              Margin="8,0,0,0"
-              VerticalAlignment="Center">
+              Classes="inline-glyph">
         <TextBlock Text="x"
                    Classes="mono subtle-text"
                    FontWeight="SemiBold"

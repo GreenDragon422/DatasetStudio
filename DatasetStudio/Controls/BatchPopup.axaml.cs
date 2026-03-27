@@ -1,6 +1,8 @@
 using System.Collections;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 
 namespace DatasetStudio.Controls;
 
@@ -45,5 +47,12 @@ public partial class BatchPopup : Popup
     {
         get => GetValue(SelectedSuggestionProperty);
         set => SetValue(SelectedSuggestionProperty, value);
+    }
+
+    public void FocusQueryTextBox()
+    {
+        bool didFocus = QueryTextBox.Focus(NavigationMethod.Tab, KeyModifiers.None);
+        _ = didFocus;
+        QueryTextBox.SelectAll();
     }
 }

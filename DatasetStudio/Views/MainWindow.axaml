@@ -20,7 +20,7 @@
         <Border Grid.Row="0"
                 Classes="shell-header-bar">
             <Grid ColumnDefinitions="Auto,Auto,*,Auto"
-                  ColumnSpacing="12">
+                  Classes="screen-header-layout">
                 <Image Width="44"
                        Height="44"
                        Source="/Assets/datasetstudio-icon.png"
@@ -42,11 +42,7 @@
             <Border IsVisible="{Binding IsConfigOpen}"
                     Classes="modal-overlay"
                     ZIndex="10">
-                <Border HorizontalAlignment="Stretch"
-                        VerticalAlignment="Center"
-                        MaxWidth="960"
-                        MaxHeight="780"
-                        Classes="surface-card pad-24">
+                <Border Classes="surface-card pad-24 modal-card">
                     <ContentControl x:Name="ProjectConfigurationHost"
                                     Content="{Binding ProjectConfigurationContent}" />
                 </Border>

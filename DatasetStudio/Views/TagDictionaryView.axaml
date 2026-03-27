@@ -14,7 +14,7 @@
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="*,Auto"
-                  ColumnSpacing="12">
+                  Classes="screen-header-layout">
                 <TextBox x:Name="SearchTextBox"
                          Watermark="Search tags or aliases..."
                          Text="{Binding SearchText, Mode=TwoWay}"
@@ -31,7 +31,7 @@
               ColumnDefinitions="240,*"
               ColumnSpacing="16">
             <Border Classes="surface-card pad-12">
-                <StackPanel Spacing="8">
+                <StackPanel Classes="section-stack">
                     <TextBlock Text="Categories"
                                Classes="heading-medium" />
                     <ListBox ItemsSource="{Binding Categories}"
@@ -97,7 +97,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
                                     <WrapPanel Margin="4"
-                                               Classes="action-row compact">
+                                               Classes="flow-actions">
                                         <Button Content="Edit"
                                                 IsVisible="{Binding !IsEditing}"
                                                 Click="OnEditClick" />

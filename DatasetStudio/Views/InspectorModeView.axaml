@@ -13,14 +13,13 @@
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
             <Grid ColumnDefinitions="Auto,*,Auto"
-                  ColumnSpacing="12">
+                  Classes="screen-header-layout">
                 <Button Content="Back"
                         Command="{Binding GoBackCommand}"
                         VerticalAlignment="Center" />
 
                 <StackPanel Grid.Column="1"
-                            Spacing="2"
-                            VerticalAlignment="Center">
+                            Classes="screen-title-stack">
                     <TextBlock Text="{Binding FileName}"
                                Classes="heading-medium"
                                TextTrimming="CharacterEllipsis" />
@@ -45,7 +44,7 @@
               ColumnDefinitions="240,*,320"
               ColumnSpacing="16">
             <Grid RowDefinitions="Auto,Auto,*"
-                  RowSpacing="8">
+                  Classes="stage-sidebar-layout">
                 <TextBlock Text="Workflow stages"
                            Classes="heading-medium" />
                 <TextBlock Grid.Row="1"
@@ -99,7 +98,7 @@
                 <Grid RowDefinitions="Auto,Auto,*,Auto"
                       RowSpacing="12">
                     <Border Classes="surface-panel-card pad-12">
-                        <StackPanel Spacing="8">
+                        <StackPanel Classes="section-stack">
                             <TextBlock Text="Prefix tags"
                                        Classes="heading-medium" />
                             <TextBlock Text="{Binding PrefixTagsText}"
@@ -138,7 +137,7 @@
                     <Grid Grid.Row="2">
                         <Border Classes="surface-panel-card pad-12">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <StackPanel Spacing="8">
+                                <StackPanel Classes="section-stack">
                                     <TextBlock Text="Applied tags"
                                                Classes="heading-medium" />
                                     <ItemsControl ItemsSource="{Binding AppliedTags}">

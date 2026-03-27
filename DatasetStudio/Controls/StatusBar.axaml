@@ -6,7 +6,7 @@
              x:DataType="controls:StatusBar">
   <Border Classes="chrome-shell panel">
     <Grid ColumnDefinitions="Auto,*"
-          ColumnSpacing="10">
+          Classes="info-bar-layout">
       <Border Classes="label-badge status">
         <TextBlock Text="STATUS"
                    Classes="mono label-badge-text status" />

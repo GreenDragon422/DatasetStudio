@@ -299,15 +299,15 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 34.2 Implement observable properties: Stages (ObservableCollection), ActiveStage (WorkflowStage), Images (ObservableCollection<ImageEntry>), SelectedImages (ObservableCollection), FocusedImageIndex (int), FilterText (string), ZoomValue (int, default 160), IsBatchAddOpen (bool), IsBatchRemoveOpen (bool), ProjectName (string), AiModels (ObservableCollection), SelectedAiModel (AiModelInfo)
   - [x] 34.3 Implement `LoadStagesCommand` — parse workflow stages from disk using WorkflowStageParser, populate sidebar
   - [x] 34.4 Implement `SelectStageCommand` — load images for selected folder via IFileSystemService.GetImageFilesAsync, build ImageEntry list with tag status
-  - [ ] 34.5 Implement `NavigateGridCommand` — arrow key spatial navigation, update FocusedImageIndex, expose IsFocused per ImageEntry
-  - [ ] 34.6 Implement `ToggleSelectionCommand` — `x` key toggles IsSelected on focused image, publish ImageSelectionChangedMessage
-  - [ ] 34.7 Implement `OpenBatchAddCommand` / `CloseBatchAddCommand` — `+` opens BatchAddPopup, Enter commits tag via BatchTagOperationService, close popup
-  - [ ] 34.8 Implement `OpenBatchRemoveCommand` / `CloseBatchRemoveCommand` — `-` opens BatchRemovePopup with tag frequencies, Enter removes tag, close popup
-  - [ ] 34.9 Implement `MoveImageCommand` — `[`/`]` move selected images to prev/next stage via IFileSystemService.MoveFileAsync (image + tag file), publish ImageMovedMessage
-  - [ ] 34.10 Implement `NavigateStageCommand` — `Alt+[`/`Alt+]` switch active folder view without moving images
-  - [ ] 34.11 Implement `DeleteImageCommand` — Delete key recycles selected images + tag files via IFileSystemService.RecycleFileAsync, publish ImageDeletedMessage, auto-advance focus
-  - [ ] 34.12 Implement `FocusFilterCommand` — `/` key focuses QuickFilterBar
-  - [ ] 34.13 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
+  - [x] 34.5 Implement `NavigateGridCommand` — arrow key spatial navigation, update FocusedImageIndex, expose IsFocused per ImageEntry
+  - [x] 34.6 Implement `ToggleSelectionCommand` — `x` key toggles IsSelected on focused image, publish ImageSelectionChangedMessage
+  - [x] 34.7 Implement `OpenBatchAddCommand` / `CloseBatchAddCommand` — `+` opens BatchAddPopup, Enter commits tag via BatchTagOperationService, close popup
+  - [x] 34.8 Implement `OpenBatchRemoveCommand` / `CloseBatchRemoveCommand` — `-` opens BatchRemovePopup with tag frequencies, Enter removes tag, close popup
+  - [x] 34.9 Implement `MoveImageCommand` — `[`/`]` move selected images to prev/next stage via IFileSystemService.MoveFileAsync (image + tag file), publish ImageMovedMessage
+  - [x] 34.10 Implement `NavigateStageCommand` — `Alt+[`/`Alt+]` switch active folder view without moving images
+  - [x] 34.11 Implement `DeleteImageCommand` — Delete key recycles selected images + tag files via IFileSystemService.RecycleFileAsync, publish ImageDeletedMessage, auto-advance focus
+  - [x] 34.12 Implement `FocusFilterCommand` — `/` key focuses QuickFilterBar
+  - [x] 34.13 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
   - [x] 34.14 Implement `OpenInspectorCommand` — double-click navigates to InspectorMode with selected image
   - [x] 34.15 Implement quick filter logic — filter Images collection by tag content matching FilterText
   - [ ] 34.16 Implement drag-and-drop — drag thumbnail to sidebar folder moves image, flash target folder in Accent green, set drag opacity 50%
@@ -317,11 +317,12 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 34.20 Implement left sidebar — WorkflowStageList shared control bound to Stages/ActiveStage
   - [ ] 34.21 Implement center grid — virtualization-friendly image grid (prefer `ItemsRepeater` or an equivalent virtualizing layout over a fully materialized WrapPanel for large folders), min cell size bound to ZoomValue, each item: 1:1 square crop thumbnail, StatusDot bottom-right, hover checkbox top-left, ActiveFocusFrame on focused item
   - [x] 34.22 Implement ZoomSlider — Slider bottom-right, range 100-400, bound to ZoomValue
-  - [ ] 34.23 Implement BatchAddPopup and BatchRemovePopup overlays using shared BatchPopup control
+  - [x] 34.23 Implement BatchAddPopup and BatchRemovePopup overlays using shared BatchPopup control
   - [x] 34.24 Implement empty folder placeholder — centered text "Folder is empty. Drag images here to stage."
   - [ ] 34.25 Implement AI processing indicator — spinning icon overlay with reduced opacity on processing thumbnails
   - [x] 34.26 Wire HintBar and StatusBar at bottom
-  - [ ] 34.27 Implement Escape key handling — dismiss popup → unfocus TextBox → no-op (in priority order)
+  - [x] 34.27 Implement Escape key handling — dismiss popup → unfocus TextBox → no-op (in priority order)
+  - Progress note (2026-03-27): Review Workspace now supports keyboard-driven batch add/remove popups anchored from the filter bar, selection-scoped or folder-wide batch tag operations, selected-image move/delete behavior, focused-image clipboard copy/paste, and popup-priority Escape handling. This slice is unit-tested for batch scope, move behavior, and clipboard normalization.
   - _Requirements: 2.1–2.24, 9.1, 9.4, 9.5_
 
 - [x] 35. Implement Inspector Mode screen
@@ -377,6 +378,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-27): Inspector Mode is now implemented and reachable from Review Workspace via double-click or Enter on the focused image. The screen loads the current stage/image from `ProjectState.LastInspectedImagePath`, supports keyboard-first tag commit/remove/copy/paste/move/delete flows, and is covered by unit tests plus headless rendering smoke.
   - Progress note (2026-03-27): Shared chrome was consolidated further so new screens can compose theme variants instead of reintroducing inline spacing and control-state styling. `Resources/Styles.axaml` now owns `screen-root`, card padding variants, wrap-tile/list-item spacing, action-row shells, dialog action rows, edge-nav buttons, ComboBox item hover/selection states, and themed Slider track selectors; current screen XAML was updated to consume those shared classes.
   - Progress note (2026-03-27): Reusable controls were tightened to keep visual behavior in XAML and shared theme selectors instead of code-behind self-`DataContext` patterns. `WorkflowStageList`, `BatchPopup`, `TagPill`, and `StatusDot` now bind through their XAML roots, while `plain-list` row states and the new `mono-caption` text treatment are centralized for reuse across screens.
+  - Progress note (2026-03-27): Another theme sweep consolidated recurring screen/header/form/footer structure into shared classes like `screen-header-layout`, `screen-title-stack`, `stage-sidebar-layout`, `form-row`, `info-bar-layout`, `flow-actions`, `inline-glyph`, and `trailing-meta`. Current screens now compose those generic building blocks instead of re-styling the same layout chrome in each view, and the remaining base control leaks were narrowed with shared `ComboBox`, `CheckBox`, `ScrollViewer`, and `ScrollBar` theming.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)

@@ -106,6 +106,10 @@
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
     </Style>
 
+    <Style Selector="ComboBox:pointerover:not(:disabled)">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimary}" />
+    </Style>
+
     <Style Selector="ComboBoxItem">
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="Padding" Value="8,6" />
@@ -122,9 +126,17 @@
     </Style>
 
     <Style Selector="CheckBox">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
         <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
         <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="CheckBox:pointerover:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushSelectionSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
     </Style>
 
     <Style Selector="Slider">
@@ -239,9 +251,60 @@
         <Setter Property="Foreground" Value="{StaticResource BrushAccent}" />
     </Style>
 
+    <Style Selector="ScrollViewer">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ScrollBar">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushPrimary}" />
+    </Style>
+
+    <Style Selector="ScrollBar:pointerover">
+        <Setter Property="Foreground" Value="{StaticResource BrushPrimaryDeep}" />
+    </Style>
+
     <Style Selector="Grid.screen-root">
         <Setter Property="Margin" Value="24" />
         <Setter Property="RowSpacing" Value="16" />
+    </Style>
+
+    <Style Selector="Grid.screen-header-layout">
+        <Setter Property="ColumnSpacing" Value="12" />
+    </Style>
+
+    <Style Selector="Grid.content-columns">
+        <Setter Property="ColumnSpacing" Value="16" />
+    </Style>
+
+    <Style Selector="Grid.info-bar-layout">
+        <Setter Property="ColumnSpacing" Value="10" />
+    </Style>
+
+    <Style Selector="Grid.stage-sidebar-layout">
+        <Setter Property="RowSpacing" Value="8" />
+    </Style>
+
+    <Style Selector="Grid.compact-rows">
+        <Setter Property="RowSpacing" Value="8" />
+    </Style>
+
+    <Style Selector="Grid.standard-rows">
+        <Setter Property="RowSpacing" Value="12" />
+    </Style>
+
+    <Style Selector="Grid.form-row">
+        <Setter Property="ColumnDefinitions" Value="136,*" />
+        <Setter Property="ColumnSpacing" Value="12" />
+    </Style>
+
+    <Style Selector="Grid.form-row.with-action">
+        <Setter Property="ColumnDefinitions" Value="136,*,Auto" />
+    </Style>
+
+    <Style Selector="Grid.section-header-row">
+        <Setter Property="ColumnDefinitions" Value="*,Auto" />
+        <Setter Property="ColumnSpacing" Value="12" />
     </Style>
 
     <Style Selector="TextBlock.mono">
@@ -280,6 +343,12 @@
     <Style Selector="TextBlock.meta-text">
         <Setter Property="Foreground" Value="{StaticResource BrushText}" />
         <Setter Property="FontSize" Value="11" />
+    </Style>
+
+    <Style Selector="TextBlock.trailing-meta">
+        <Setter Property="Margin" Value="12,0,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style Selector="TextBlock.form-label">
@@ -401,6 +470,17 @@
         <Setter Property="Padding" Value="24" />
     </Style>
 
+    <Style Selector="Border.modal-card">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="MaxWidth" Value="960" />
+        <Setter Property="MaxHeight" Value="780" />
+    </Style>
+
+    <Style Selector="Border.popup-card">
+        <Setter Property="Width" Value="280" />
+    </Style>
+
     <Style Selector="Border.chrome-shell">
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
@@ -519,6 +599,22 @@
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
+    <Style Selector="Button.inline-glyph">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.inline-glyph:pointerover, Button.inline-glyph:pressed, Button.inline-glyph:focus-visible">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
     <Style Selector="Button.edge-nav">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="MinWidth" Value="72" />
@@ -606,9 +702,64 @@
         <Setter Property="ItemHeight" Value="36" />
     </Style>
 
+    <Style Selector="WrapPanel.action-row.compact.inset">
+        <Setter Property="Margin" Value="4" />
+    </Style>
+
+    <Style Selector="WrapPanel.flow-actions">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <Style Selector="WrapPanel.flow-actions > Button">
+        <Setter Property="Margin" Value="0,0,6,6" />
+    </Style>
+
     <Style Selector="StackPanel.dialog-actions">
         <Setter Property="Orientation" Value="Horizontal" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="Spacing" Value="8" />
+    </Style>
+
+    <Style Selector="StackPanel.screen-title-stack">
+        <Setter Property="Spacing" Value="2" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="StackPanel.section-stack">
+        <Setter Property="Spacing" Value="8" />
+    </Style>
+
+    <Style Selector="StackPanel.section-stack.tight">
+        <Setter Property="Spacing" Value="6" />
+    </Style>
+
+    <Style Selector="StackPanel.section-stack.wide">
+        <Setter Property="Spacing" Value="12" />
+    </Style>
+
+    <Style Selector="StackPanel.empty-state-stack">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Spacing" Value="8" />
+    </Style>
+
+    <Style Selector="StackPanel.inline-status-row">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Spacing" Value="8" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="StackPanel.inline-metrics">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Spacing" Value="12" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="StackPanel.toolbar-row">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Spacing" Value="12" />
     </Style>
 </Styles>

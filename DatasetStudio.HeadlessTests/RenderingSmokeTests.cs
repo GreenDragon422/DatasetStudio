@@ -104,6 +104,7 @@ public class RenderingSmokeTests
             scenario.ThumbnailCacheService,
             scenario.ClipboardService,
             scenario.NavigationService,
+            new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger);
         libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
