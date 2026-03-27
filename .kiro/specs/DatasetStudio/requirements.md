@@ -184,7 +184,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 
 #### Acceptance Criteria
 
-1. THE Application SHALL use the Gruvbox Light color palette: Background `#FBF1C7`, Surface `#EBDBB2`, Surface Elevated `#D5C4A1`, Primary `#D65D0E`, Text `#3C3836`, Muted `#7C6F64`, Accent `#98971A`, Warning `#D79921`, Error `#CC241D`.
+1. THE Application SHALL use the Gruvbox Light color palette with a calmer desktop primary accent: Background `#FBF1C7`, Surface `#EBDBB2`, Surface Elevated `#D5C4A1`, Primary `#B57614`, Text `#3C3836`, Muted `#7C6F64`, Accent `#98971A`, Warning `#D79921`, Error `#CC241D`.
 2. THE Application SHALL use IBM Plex Sans for headings (600 weight, 18-24px), body text (400 weight, 13px), and buttons (500 weight, 12px, uppercase, 0.5px tracking). THE Application SHALL use IBM Plex Mono for tags, metadata, and code inputs (500 weight, 12px).
 3. THE Application SHALL use hard 2px border radiuses, sharp 1px borders, and 1px solid Primary-colored borders for active states instead of background color changes. THE Application SHALL use a 2px solid Warning-colored (`#D79921`) border to indicate the currently focused/active item in grids and image views.
 4. THE Application SHALL define XAML ResourceDictionaries containing all design tokens including colors, fonts, spacing (4px, 8px, 16px, 24px), and border styles for consistent reuse across all screens.

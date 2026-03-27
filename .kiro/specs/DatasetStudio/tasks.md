@@ -36,7 +36,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - _Requirements: 13.1, 13.3_
 
 - [x] 2. Create XAML design system resources
-  - [x] 2.1 Create `Resources/Colors.axaml` — Gruvbox Light palette: Background `#FBF1C7`, Surface `#EBDBB2`, Surface Elevated `#D5C4A1`, Primary `#D65D0E`, Text `#3C3836`, Muted `#7C6F64`, Accent `#98971A`, Warning `#D79921`, Error `#CC241D`
+  - [x] 2.1 Create `Resources/Colors.axaml` — Gruvbox Light palette with calmer desktop primary accent: Background `#FBF1C7`, Surface `#EBDBB2`, Surface Elevated `#D5C4A1`, Primary `#B57614`, Text `#3C3836`, Muted `#7C6F64`, Accent `#98971A`, Warning `#D79921`, Error `#CC241D`
   - [x] 2.2 Create `Resources/Typography.axaml` — IBM Plex Sans (headings 600/18-24px, body 400/13px, buttons 500/12px uppercase 0.5px tracking), IBM Plex Mono (tags/metadata 500/12px), and wire font assets if fonts are bundled with the app
   - [x] 2.3 Create `Resources/Styles.axaml` — spacing tokens (4px, 8px, 16px, 24px), 2px border radius, 1px solid borders, ActiveFocusFrame style (2px solid Warning `#D79921`)
   - [x] 2.4 Merge all ResourceDictionaries into `App.axaml` and include the DataGrid Fluent theme resource
@@ -369,6 +369,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 - [ ] 37. Screens checkpoint
   - Verify all five screens render and navigate correctly. Verify data binding works end-to-end. Ask user if questions arise.
   - Progress note (2026-03-27): Shared shell visuals were retuned for readability: buttons now use a neutral default-action treatment instead of the older orange fill, Fluent accent/selection colors were shifted away from blue, low-contrast item text was strengthened, the app icon was refreshed, and updated headless captures were regenerated for review. The checkpoint remains open until the remaining screen work is complete.
+  - Progress note (2026-03-27): The shared palette was realigned to the authoritative Gruvbox-light base colors with the user-selected calmer desktop primary `#B57614`, while keeping the olive accent `#98971A`. Derived surface, button, and selection shades were retuned from those anchors and headless screen captures were regenerated for review.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)
