@@ -73,7 +73,7 @@
                                         <StackPanel Spacing="2">
                                             <TextBlock Text="{Binding DisplayName}" />
                                             <TextBlock Text="{Binding ModelPath}"
-                                                       Classes="mono subtle-text small" />
+                                                       Classes="mono-caption" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>

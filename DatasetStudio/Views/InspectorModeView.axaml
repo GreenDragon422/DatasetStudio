@@ -25,7 +25,7 @@
                                Classes="heading-medium"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding ProjectName}"
-                               Classes="mono subtle-text small"
+                               Classes="mono-caption"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
 

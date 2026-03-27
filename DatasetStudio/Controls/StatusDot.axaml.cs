@@ -12,7 +12,6 @@ public partial class StatusDot : UserControl
     public StatusDot()
     {
         InitializeComponent();
-        DataContext = this;
     }
 
     public TagStatus Status

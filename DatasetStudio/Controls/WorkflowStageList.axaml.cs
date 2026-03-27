@@ -15,7 +15,6 @@ public partial class WorkflowStageList : UserControl
     public WorkflowStageList()
     {
         InitializeComponent();
-        DataContext = this;
     }
 
     public IEnumerable? ItemsSource

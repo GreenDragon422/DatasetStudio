@@ -2,15 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:DatasetStudio.Controls"
              x:Class="DatasetStudio.Controls.TagPill"
+             x:Name="Root"
              x:DataType="controls:TagPill">
   <Border Classes="surface-card pad-compact">
     <Grid ColumnDefinitions="Auto,Auto" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Tag}"
+      <TextBlock Text="{Binding #Root.Tag}"
                  Classes="mono"
                  VerticalAlignment="Center" />
       <Button Grid.Column="1"
-              Command="{Binding RemoveCommand}"
-              CommandParameter="{Binding Tag}"
+              Command="{Binding #Root.RemoveCommand}"
+              CommandParameter="{Binding #Root.Tag}"
               Classes="chromeless"
               Margin="8,0,0,0"
               VerticalAlignment="Center">

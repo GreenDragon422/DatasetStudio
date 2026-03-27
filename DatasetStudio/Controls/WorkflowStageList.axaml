@@ -2,10 +2,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:DatasetStudio.Controls"
              x:Class="DatasetStudio.Controls.WorkflowStageList"
+             x:Name="Root"
              x:DataType="controls:WorkflowStageList">
   <Border Classes="surface-card">
-    <ListBox ItemsSource="{Binding ItemsSource}"
-             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+    <ListBox ItemsSource="{Binding #Root.ItemsSource}"
+             SelectedItem="{Binding #Root.SelectedItem, Mode=TwoWay}"
              Classes="plain-list">
       <ListBox.ItemTemplate>
         <DataTemplate x:CompileBindings="False">
@@ -15,7 +16,7 @@
                 <TextBlock Text="{Binding DisplayName}"
                            Classes="heading-medium" />
                 <TextBlock Text="{Binding FolderName}"
-                           Classes="mono subtle-text small" />
+                           Classes="mono-caption" />
               </StackPanel>
               <TextBlock Grid.Column="1"
                          Text="{Binding ImageCount}"

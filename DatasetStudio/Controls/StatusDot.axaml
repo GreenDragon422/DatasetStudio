@@ -3,6 +3,7 @@
              xmlns:controls="using:DatasetStudio.Controls"
              xmlns:conv="using:DatasetStudio.Converters"
              x:Class="DatasetStudio.Controls.StatusDot"
+             x:Name="Root"
              x:DataType="controls:StatusDot">
   <UserControl.Resources>
     <conv:TagStatusToBrushConverter x:Key="TagStatusToBrushConverter" />
@@ -11,6 +12,6 @@
   <Border Classes="status-dot"
           Width="12"
           Height="12"
-          Background="{Binding Status, Converter={StaticResource TagStatusToBrushConverter}}"
+          Background="{Binding #Root.Status, Converter={StaticResource TagStatusToBrushConverter}}"
           />
 </UserControl>

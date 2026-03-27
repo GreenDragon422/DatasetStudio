@@ -15,7 +15,6 @@ public partial class TagPill : UserControl
     public TagPill()
     {
         InitializeComponent();
-        DataContext = this;
     }
 
     public new string Tag

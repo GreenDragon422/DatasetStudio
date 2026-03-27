@@ -21,7 +21,6 @@ public partial class BatchPopup : Popup
     public BatchPopup()
     {
         InitializeComponent();
-        DataContext = this;
     }
 
     public BatchPopupMode Mode

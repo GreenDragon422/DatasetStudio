@@ -2,20 +2,21 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:controls="using:DatasetStudio.Controls"
        x:Class="DatasetStudio.Controls.BatchPopup"
+       x:Name="Root"
        x:DataType="controls:BatchPopup">
   <Border Classes="surface-panel-card pad-12"
           Width="280">
     <Grid RowDefinitions="Auto,Auto,*" RowSpacing="8">
-      <TextBlock Text="{Binding Mode}"
+      <TextBlock Text="{Binding #Root.Mode}"
                  Classes="heading-medium" />
 
       <TextBox Grid.Row="1"
-               Text="{Binding QueryText, Mode=TwoWay}"
+               Text="{Binding #Root.QueryText, Mode=TwoWay}"
                Watermark="Type to filter tags" />
 
       <ListBox Grid.Row="2"
-               ItemsSource="{Binding Suggestions}"
-               SelectedItem="{Binding SelectedSuggestion, Mode=TwoWay}"
+               ItemsSource="{Binding #Root.Suggestions}"
+               SelectedItem="{Binding #Root.SelectedSuggestion, Mode=TwoWay}"
                Classes="plain-list"
                MaxHeight="220">
         <ListBox.ItemTemplate>
@@ -26,7 +27,7 @@
                            Classes="mono" />
                  <TextBlock Grid.Column="1"
                             Text="{Binding Frequency}"
-                            Classes="mono subtle-text small"
+                            Classes="mono-caption"
                             Margin="12,0,0,0"
                             />
                </Grid>
