@@ -156,6 +156,131 @@ public class RenderingSmokeTests
         window.Close();
     }
 
+    [AvaloniaTest]
+    public async Task ProjectsHubCtrlNShortcutCreatesProjectAndOpensConfigurationModal()
+    {
+        using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
+        ProjectsHubViewModel projectsHubViewModel = new ProjectsHubViewModel(
+            scenario.ProjectService,
+            scenario.FileSystemService,
+            scenario.NavigationService,
+            scenario.Messenger,
+            scenario.StatePersistenceService);
+
+        DirectoryInfo? masterRootDirectory = Directory.GetParent(scenario.PrimaryProject.RootFolderPath);
+        Assert.That(masterRootDirectory, Is.Not.Null);
+        string masterRootPath = masterRootDirectory.FullName;
+        projectsHubViewModel.MasterRootPath = masterRootPath;
+
+        ServiceCollection services = new ServiceCollection();
+        services.AddSingleton<IMessenger>(scenario.Messenger);
+        services.AddSingleton<IProjectService>(scenario.ProjectService);
+        services.AddSingleton<IAiTaggerService>(scenario.AiTaggerService);
+        services.AddSingleton<IFileSystemService>(scenario.FileSystemService);
+        services.AddTransient<ProjectConfigurationViewModel>();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        MainWindowViewModel mainWindowViewModel = new MainWindowViewModel(serviceProvider, scenario.NavigationService, scenario.Messenger)
+        {
+            CurrentView = projectsHubViewModel,
+        };
+
+        MainWindow window = new MainWindow(mainWindowViewModel)
+        {
+            Width = 1440,
+            Height = 900,
+        };
+        window.Show();
+        await Task.Delay(300).ConfigureAwait(true);
+
+        bool didFocusWindow = window.Focus();
+        _ = didFocusWindow;
+        window.KeyPress(Key.N, RawInputModifiers.Control, PhysicalKey.N, "n");
+        await WaitForConditionAsync(() => mainWindowViewModel.IsConfigOpen).ConfigureAwait(true);
+
+        IReadOnlyList<Project> projects = await scenario.ProjectService.LoadProjectsAsync().ConfigureAwait(true);
+        Assert.That(projects.Count, Is.EqualTo(3));
+        Assert.That(mainWindowViewModel.ProjectConfigurationContent, Is.TypeOf<ProjectConfigurationViewModel>());
+
+        window.Close();
+        serviceProvider.Dispose();
+        projectsHubViewModel.Dispose();
+    }
+
+    [AvaloniaTest]
+    public async Task ProjectConfigurationCtrlSSavesProjectAndClosesModal()
+    {
+        using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
+        ProjectsHubViewModel projectsHubViewModel = new ProjectsHubViewModel(
+            scenario.ProjectService,
+            scenario.FileSystemService,
+            scenario.NavigationService,
+            scenario.Messenger,
+            scenario.StatePersistenceService);
+        ProjectConfigurationViewModel projectConfigurationViewModel = new ProjectConfigurationViewModel(
+            scenario.ProjectService,
+            scenario.AiTaggerService,
+            scenario.FileSystemService,
+            scenario.Messenger);
+        projectConfigurationViewModel.LoadProject(scenario.PrimaryProject);
+        projectConfigurationViewModel.ProjectName = "Animal Study Revised";
+
+        MainWindowViewModel mainWindowViewModel = scenario.CreateMainWindowViewModel();
+        mainWindowViewModel.CurrentView = projectsHubViewModel;
+        mainWindowViewModel.OpenProjectConfiguration(projectConfigurationViewModel);
+
+        MainWindow window = new MainWindow(mainWindowViewModel)
+        {
+            Width = 1440,
+            Height = 900,
+        };
+
+        window.Show();
+        await Task.Delay(450).ConfigureAwait(true);
+
+        TextBox? projectNameTextBox = FindDescendantByName<TextBox>(window, "ProjectNameTextBox");
+        Assert.That(projectNameTextBox, Is.Not.Null);
+
+        bool didFocusProjectNameTextBox = projectNameTextBox.Focus();
+        _ = didFocusProjectNameTextBox;
+        window.KeyPress(Key.S, RawInputModifiers.Control, PhysicalKey.S, "s");
+        await WaitForConditionAsync(() => !mainWindowViewModel.IsConfigOpen).ConfigureAwait(true);
+
+        IReadOnlyList<Project> savedProjects = await scenario.ProjectService.LoadProjectsAsync().ConfigureAwait(true);
+        Project? savedProject = savedProjects.SingleOrDefault(project => string.Equals(project.Id, scenario.PrimaryProject.Id, StringComparison.Ordinal));
+        Assert.That(savedProject, Is.Not.Null);
+        Assert.That(savedProject!.Name, Is.EqualTo("Animal Study Revised"));
+
+        window.Close();
+        projectsHubViewModel.Dispose();
+    }
+
+    [AvaloniaTest]
+    public async Task TagDictionarySlashShortcutFocusesSearchTextBox()
+    {
+        using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
+        TagDictionaryViewModel tagDictionaryViewModel = new TagDictionaryViewModel(
+            scenario.TagDictionaryService,
+            scenario.Messenger);
+        tagDictionaryViewModel.OnNavigatedTo(scenario.PrimaryProject.Id);
+
+        MainWindow window = scenario.CreateMainWindow(tagDictionaryViewModel);
+        window.Show();
+        await Task.Delay(350).ConfigureAwait(true);
+
+        TextBox? searchTextBox = FindDescendantByName<TextBox>(window, "SearchTextBox");
+        Assert.That(searchTextBox, Is.Not.Null);
+
+        bool didFocusWindow = window.Focus();
+        _ = didFocusWindow;
+        window.KeyPress(Key.Oem2, RawInputModifiers.None, PhysicalKey.Slash, "/");
+        await Task.Delay(50).ConfigureAwait(true);
+
+        Assert.That(searchTextBox!.IsKeyboardFocusWithin, Is.True);
+
+        window.Close();
+    }
+
     private static TControl? FindDescendantByName<TControl>(Window window, string controlName)
         where TControl : Control
     {
@@ -169,6 +294,21 @@ public class RenderingSmokeTests
         }
 
         return null;
+    }
+
+    private static async Task WaitForConditionAsync(Func<bool> condition)
+    {
+        for (int attempt = 0; attempt < 100; attempt++)
+        {
+            if (condition())
+            {
+                return;
+            }
+
+            await Task.Delay(25).ConfigureAwait(true);
+        }
+
+        Assert.Fail("Condition was not met within the allotted time.");
     }
 
     private static async Task CaptureProjectsHubAsync(CaptureScenario scenario, string outputFolder)

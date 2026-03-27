@@ -418,8 +418,9 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-28): Review Workspace and Inspector Mode now attach debounced project-root watchers while active, refresh stage and image state on folder/image/tag/config changes, and detach those watchers again through the shared screen activation lifecycle when navigation moves away. Review Workspace also invalidates changed image thumbnails before reloading. Coverage was expanded with screen activation tests plus watcher-driven stage/image refresh tests in both viewmodel suites, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 15.3, 15.5_
 
-- [ ] 42. Final integration checkpoint
+- [x] 42. Final integration checkpoint
   - Run all NUnit tests. Verify full navigation flow: ProjectsHub → LibraryGrid → InspectorMode → back. Verify keyboard shortcuts work across all screens. Verify state persistence round-trip. Ask user if questions arise.
+  - Progress note (2026-03-28): Added a real navigation integration test that exercises Projects Hub → Review Workspace → Inspector Mode → back using the actual NavigationService and current viewmodels, while asserting the persisted last-opened project and last-inspected image state updates along the way. Expanded the Avalonia headless suite with routed shortcut proofs for Projects Hub (`Ctrl+N` opens the configuration modal after creating a project), Project Configuration (`Ctrl+S` saves and closes the modal), and Tag Dictionary (`/` focuses search), complementing the existing Review Workspace and Inspector shortcut tests. Verified the full repository with `dotnet test DatasetStudio.sln` (75 unit tests, 7 headless tests).
 
 ## Notes
 
