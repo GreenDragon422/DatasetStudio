@@ -28,15 +28,12 @@
                             Classes="model-selection-stack">
                     <Grid ColumnDefinitions="*,Auto"
                           ColumnSpacing="8">
-                        <ComboBox Classes="header-control"
-                                  ItemsSource="{Binding AiModels}"
-                                  SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="models:AiModelInfo">
-                                    <TextBlock Text="{Binding DisplayName}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        <controls:AiModelSummary ModelName="{Binding SelectedAiModelDisplayName}"
+                                                 StatusText="{Binding SelectedAiModelBadgeText}"
+                                                 HasStatus="{Binding HasSelectedAiModelBadge}"
+                                                 IsInstalled="{Binding IsSelectedAiModelInstalled}"
+                                                 IsBusy="{Binding IsSelectedAiModelBusyState}"
+                                                 IsAttention="{Binding IsSelectedAiModelAttentionState}" />
 
                         <Grid Grid.Column="1">
                             <Button Classes="header-control"
@@ -44,18 +41,8 @@
                                     Command="{Binding DownloadSelectedAiModelCommand}"
                                     IsEnabled="{Binding CanDownloadSelectedAiModel}"
                                     IsVisible="{Binding ShowDownloadSelectedAiModelAction}" />
-
-                            <Border Classes="header-control-status-chip installed"
-                                    IsVisible="{Binding IsSelectedAiModelInstalled}">
-                                <TextBlock Classes="header-control-status-chip-text"
-                                           Text="Installed" />
-                            </Border>
                         </Grid>
                     </Grid>
-
-                    <TextBlock Text="{Binding SelectedAiModelStatusText}"
-                               Classes="mono-caption"
-                               TextWrapping="Wrap" />
                 </StackPanel>
 
                 <Button Grid.Column="2"

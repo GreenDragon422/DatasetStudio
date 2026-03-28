@@ -453,6 +453,72 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         }
     }
 
+    public string SelectedAiModelDisplayName
+    {
+        get
+        {
+            AiModelInfo? selectedModel = AvailableAiModels.FirstOrDefault(model =>
+                string.Equals(model.Id, SelectedAiModelName, StringComparison.OrdinalIgnoreCase));
+            if (selectedModel is not null)
+            {
+                return selectedModel.DisplayName;
+            }
+
+            return string.IsNullOrWhiteSpace(SelectedAiModelName)
+                ? "No AI model selected."
+                : SelectedAiModelName;
+        }
+    }
+
+    public string SelectedAiModelBadgeText
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(SelectedAiModelName))
+            {
+                return string.Empty;
+            }
+
+            if (IsDownloadingSelectedAiModel)
+            {
+                return "Downloading";
+            }
+
+            if (IsSelectedAiModelInstalled)
+            {
+                return "Installed";
+            }
+
+            return "Needs download";
+        }
+    }
+
+    public bool HasSelectedAiModelBadge
+    {
+        get
+        {
+            return !string.IsNullOrWhiteSpace(SelectedAiModelName);
+        }
+    }
+
+    public bool IsSelectedAiModelBusyState
+    {
+        get
+        {
+            return !string.IsNullOrWhiteSpace(SelectedAiModelName) && IsDownloadingSelectedAiModel;
+        }
+    }
+
+    public bool IsSelectedAiModelAttentionState
+    {
+        get
+        {
+            return !string.IsNullOrWhiteSpace(SelectedAiModelName)
+                && !IsSelectedAiModelInstalled
+                && !IsDownloadingSelectedAiModel;
+        }
+    }
+
     private bool ValidateBeforeSave()
     {
         if (string.IsNullOrWhiteSpace(ProjectName))
@@ -573,6 +639,11 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
             OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
             OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
             OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
+            OnPropertyChanged(nameof(SelectedAiModelDisplayName));
+            OnPropertyChanged(nameof(SelectedAiModelBadgeText));
+            OnPropertyChanged(nameof(HasSelectedAiModelBadge));
+            OnPropertyChanged(nameof(IsSelectedAiModelBusyState));
+            OnPropertyChanged(nameof(IsSelectedAiModelAttentionState));
             return;
         }
 
@@ -584,5 +655,10 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
         OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
         OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
+        OnPropertyChanged(nameof(SelectedAiModelDisplayName));
+        OnPropertyChanged(nameof(SelectedAiModelBadgeText));
+        OnPropertyChanged(nameof(HasSelectedAiModelBadge));
+        OnPropertyChanged(nameof(IsSelectedAiModelBusyState));
+        OnPropertyChanged(nameof(IsSelectedAiModelAttentionState));
     }
 }

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:DatasetStudio.Controls"
              xmlns:vm="using:DatasetStudio.ViewModels"
              xmlns:models="using:DatasetStudio.Models"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -87,18 +88,15 @@
                                                 Command="{Binding DownloadSelectedAiModelCommand}"
                                                 IsEnabled="{Binding CanDownloadSelectedAiModel}"
                                                 IsVisible="{Binding ShowDownloadSelectedAiModelAction}" />
-
-                                        <Border Classes="header-control-status-chip installed"
-                                                IsVisible="{Binding IsSelectedAiModelInstalled}">
-                                            <TextBlock Classes="header-control-status-chip-text"
-                                                       Text="Installed" />
-                                        </Border>
                                     </Grid>
                                 </Grid>
 
-                                <TextBlock Text="{Binding SelectedAiModelStatusText}"
-                                           Classes="mono-caption"
-                                           TextWrapping="Wrap" />
+                                <controls:AiModelSummary ModelName="{Binding SelectedAiModelDisplayName}"
+                                                         StatusText="{Binding SelectedAiModelBadgeText}"
+                                                         HasStatus="{Binding HasSelectedAiModelBadge}"
+                                                         IsInstalled="{Binding IsSelectedAiModelInstalled}"
+                                                         IsBusy="{Binding IsSelectedAiModelBusyState}"
+                                                         IsAttention="{Binding IsSelectedAiModelAttentionState}" />
                             </StackPanel>
                         </Grid>
 

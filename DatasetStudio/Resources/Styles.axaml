@@ -135,6 +135,45 @@
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
 
+    <Style Selector="Border.ai-model-summary">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Padding" Value="10,8" />
+    </Style>
+
+    <Style Selector="TextBlock.ai-model-summary-name">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMeta}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
+    <Style Selector="Border.ai-model-summary-chip">
+        <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushMuted}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.ai-model-summary-chip.installed">
+        <Setter Property="Background" Value="{StaticResource BrushAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}" />
+    </Style>
+
+    <Style Selector="TextBlock.ai-model-summary-chip-text">
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.ai-model-summary-detail">
+        <Setter Property="Foreground" Value="{StaticResource BrushText}" />
+    </Style>
+
     <Style Selector="ComboBox">
         <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
@@ -924,6 +963,53 @@
 
     <Style Selector="StackPanel.model-selection-stack">
         <Setter Property="Spacing" Value="6" />
+    </Style>
+
+    <Style Selector="StackPanel.ai-model-summary-stack">
+        <Setter Property="Spacing" Value="4" />
+    </Style>
+
+    <Style Selector="WrapPanel.ai-model-summary">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.ai-model-summary-name">
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,0,8,0" />
+    </Style>
+
+    <Style Selector="Border.ai-model-summary-chip">
+        <Setter Property="Background" Value="{StaticResource BrushSurfacePanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.ai-model-summary-chip.installed">
+        <Setter Property="Background" Value="{StaticResource BrushAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}" />
+    </Style>
+
+    <Style Selector="Border.ai-model-summary-chip.busy">
+        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimary}" />
+    </Style>
+
+    <Style Selector="Border.ai-model-summary-chip.attention">
+        <Setter Property="Background" Value="{StaticResource BrushPrimarySoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimary}" />
+    </Style>
+
+    <Style Selector="TextBlock.ai-model-summary-chip-text">
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style Selector="StackPanel.section-stack">

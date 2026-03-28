@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:DatasetStudio.Controls"
+             x:Class="DatasetStudio.Controls.AiModelSummary"
+             x:Name="Root"
+             x:DataType="controls:AiModelSummary">
+    <Border Classes="ai-model-summary">
+        <StackPanel Classes="ai-model-summary-stack">
+            <StackPanel Classes="inline-status-row">
+                <TextBlock Text="{Binding #Root.Summary.DisplayName}"
+                           Classes="ai-model-summary-name" />
+
+                <Border Classes="ai-model-summary-chip"
+                        Classes.installed="{Binding #Root.Summary.IsInstalled}"
+                        IsVisible="{Binding #Root.Summary.ShowBadge}">
+                    <TextBlock Text="{Binding #Root.Summary.BadgeText}"
+                               Classes="ai-model-summary-chip-text" />
+                </Border>
+            </StackPanel>
+
+            <TextBlock Text="{Binding #Root.Summary.DetailText}"
+                       Classes="mono-caption ai-model-summary-detail"
+                       IsVisible="{Binding #Root.Summary.ShowDetailText}"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+    </Border>
+</UserControl>

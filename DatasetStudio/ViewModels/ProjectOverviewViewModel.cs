@@ -847,6 +847,63 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         }
     }
 
+    public string SelectedAiModelDisplayName
+    {
+        get
+        {
+            return SelectedAiModel?.DisplayName ?? "No AI model selected.";
+        }
+    }
+
+    public string SelectedAiModelBadgeText
+    {
+        get
+        {
+            if (SelectedAiModel is null)
+            {
+                return string.Empty;
+            }
+
+            if (IsDownloadingSelectedAiModel)
+            {
+                return "Downloading";
+            }
+
+            if (IsSelectedAiModelInstalled)
+            {
+                return "Installed";
+            }
+
+            return "Needs download";
+        }
+    }
+
+    public bool HasSelectedAiModelBadge
+    {
+        get
+        {
+            return SelectedAiModel is not null;
+        }
+    }
+
+    public bool IsSelectedAiModelBusyState
+    {
+        get
+        {
+            return SelectedAiModel is not null && IsDownloadingSelectedAiModel;
+        }
+    }
+
+    public bool IsSelectedAiModelAttentionState
+    {
+        get
+        {
+            return SelectedAiModel is not null
+                && !IsSelectedAiModelInstalled
+                && !IsDownloadingSelectedAiModel;
+        }
+    }
+
     partial void OnBatchAddQueryTextChanged(string value)
     {
         if (IsBatchAddOpen)
@@ -1753,6 +1810,11 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
             OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
             OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
             OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
+            OnPropertyChanged(nameof(SelectedAiModelDisplayName));
+            OnPropertyChanged(nameof(SelectedAiModelBadgeText));
+            OnPropertyChanged(nameof(HasSelectedAiModelBadge));
+            OnPropertyChanged(nameof(IsSelectedAiModelBusyState));
+            OnPropertyChanged(nameof(IsSelectedAiModelAttentionState));
             return;
         }
 
@@ -1764,5 +1826,10 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
         OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
         OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
+        OnPropertyChanged(nameof(SelectedAiModelDisplayName));
+        OnPropertyChanged(nameof(SelectedAiModelBadgeText));
+        OnPropertyChanged(nameof(HasSelectedAiModelBadge));
+        OnPropertyChanged(nameof(IsSelectedAiModelBusyState));
+        OnPropertyChanged(nameof(IsSelectedAiModelAttentionState));
     }
 }
