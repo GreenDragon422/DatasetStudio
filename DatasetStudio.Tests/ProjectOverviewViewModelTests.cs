@@ -745,6 +745,60 @@ public class ProjectOverviewViewModelTests
     }
 
     [Test]
+    public async Task OpenTagsOverviewCommand_NavigatesWithProjectId()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestNavigationService navigationService = new TestNavigationService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            navigationService,
+            new TestAiTaggerService(),
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
+        string reviewImagePath = Path.Combine(reviewFolderPath, "cat.png");
+        fileSystemService.SetImageFiles(reviewFolderPath, new[] { reviewImagePath });
+        tagFileService.SetTags(reviewImagePath, new[] { "cat" });
+
+        Project project = new Project
+        {
+            Id = "project-tags-overview",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 2, FolderName = "02_Review", DisplayName = "Review" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "02_Review",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+        await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
+
+        viewModel.OpenTagsOverviewCommand.Execute(null);
+
+        Assert.That(navigationService.LastNavigationTargetType, Is.EqualTo(typeof(TagsOverviewViewModel)));
+        Assert.That(navigationService.LastNavigationParameter, Is.EqualTo(project.Id));
+    }
+
+    [Test]
     public async Task NavigateGridCommand_ChangesFocusedImageByOffset()
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();

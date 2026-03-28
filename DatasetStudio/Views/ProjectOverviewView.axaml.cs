@@ -53,6 +53,13 @@ public partial class ProjectOverviewView : ScreenViewBase<ProjectOverviewViewMod
                 allowWhenTextInputFocused: true,
                 isAvailable: IsAnyBatchPopupOpen),
             CreateShortcut(
+                Key.T,
+                KeyModifiers.Control,
+                "Ctrl+T",
+                "Tags Overview",
+                () => viewModel.OpenTagsOverviewCommand.Execute(null),
+                allowWhenTextInputFocused: true),
+            CreateShortcut(
                 Key.X,
                 KeyModifiers.None,
                 "X",

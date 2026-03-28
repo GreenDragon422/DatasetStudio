@@ -16,7 +16,7 @@
           Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
-            <Grid ColumnDefinitions="*,Auto,Auto"
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                   Classes="screen-header-layout">
                 <StackPanel Classes="screen-title-stack">
                     <TextBlock Text="{Binding ProjectName}"
@@ -53,8 +53,13 @@
                                TextWrapping="Wrap" />
                 </StackPanel>
 
+                <Button Grid.Column="2"
+                        Classes="header-control"
+                        Content="Tags Overview"
+                        Command="{Binding OpenTagsOverviewCommand}" />
+
                 <TextBox x:Name="FilterTextBox"
-                         Grid.Column="2"
+                         Grid.Column="3"
                          Classes="header-control"
                          Width="280"
                          Watermark="Quick filter tags or filenames..."

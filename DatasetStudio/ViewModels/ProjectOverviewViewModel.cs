@@ -284,6 +284,18 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
     }
 
     [RelayCommand]
+    private void OpenTagsOverview()
+    {
+        if (currentProject is null)
+        {
+            return;
+        }
+
+        navigationService.NavigateTo<TagsOverviewViewModel>(currentProject.Id);
+        StatusText = string.Format("Opening Tags Overview for {0}.", currentProject.Name);
+    }
+
+    [RelayCommand]
     private void ToggleSelection(ProjectOverviewImageViewModel? image)
     {
         if (image is null)
