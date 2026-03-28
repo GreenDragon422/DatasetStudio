@@ -36,7 +36,7 @@ public class RenderingSmokeTests
 
         await CaptureProjectsHubAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureProjectConfigurationAsync(scenario, outputFolder).ConfigureAwait(true);
-        await CaptureTagDictionaryAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureTagsOverviewAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureProjectOverviewAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureProjectOverviewBatchAddPopupAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureProjectOverviewBatchRemovePopupAsync(scenario, outputFolder).ConfigureAwait(true);
@@ -46,7 +46,7 @@ public class RenderingSmokeTests
 
         Assert.That(File.Exists(Path.Combine(outputFolder, "projects-hub.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "project-configuration.png")), Is.True);
-        Assert.That(File.Exists(Path.Combine(outputFolder, "tag-dictionary.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "tags-overview.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview-batch-add.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview-batch-remove.png")), Is.True);
@@ -264,15 +264,15 @@ public class RenderingSmokeTests
     }
 
     [AvaloniaTest]
-    public async Task TagDictionarySlashShortcutFocusesSearchTextBox()
+    public async Task TagsOverviewSlashShortcutFocusesSearchTextBox()
     {
         using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
-        TagDictionaryViewModel tagDictionaryViewModel = new TagDictionaryViewModel(
+        TagsOverviewViewModel tagsOverviewViewModel = new TagsOverviewViewModel(
             scenario.TagDictionaryService,
             scenario.Messenger);
-        tagDictionaryViewModel.OnNavigatedTo(scenario.PrimaryProject.Id);
+        tagsOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject.Id);
 
-        MainWindow window = scenario.CreateMainWindow(tagDictionaryViewModel);
+        MainWindow window = scenario.CreateMainWindow(tagsOverviewViewModel);
         window.Show();
         await Task.Delay(350).ConfigureAwait(true);
 
@@ -361,15 +361,15 @@ public class RenderingSmokeTests
         await CaptureWindowAsync(window, outputFolder, "project-configuration.png", 450).ConfigureAwait(true);
     }
 
-    private static async Task CaptureTagDictionaryAsync(CaptureScenario scenario, string outputFolder)
+    private static async Task CaptureTagsOverviewAsync(CaptureScenario scenario, string outputFolder)
     {
-        TagDictionaryViewModel tagDictionaryViewModel = new TagDictionaryViewModel(
+        TagsOverviewViewModel tagsOverviewViewModel = new TagsOverviewViewModel(
             scenario.TagDictionaryService,
             scenario.Messenger);
-        tagDictionaryViewModel.OnNavigatedTo(scenario.PrimaryProject.Id);
+        tagsOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject.Id);
 
-        MainWindow window = scenario.CreateMainWindow(tagDictionaryViewModel);
-        await CaptureWindowAsync(window, outputFolder, "tag-dictionary.png", 350).ConfigureAwait(true);
+        MainWindow window = scenario.CreateMainWindow(tagsOverviewViewModel);
+        await CaptureWindowAsync(window, outputFolder, "tags-overview.png", 350).ConfigureAwait(true);
     }
 
     private static async Task CaptureProjectOverviewAsync(CaptureScenario scenario, string outputFolder)

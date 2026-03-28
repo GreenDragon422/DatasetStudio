@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="DatasetStudio.Views.TagDictionaryView"
-             x:DataType="vm:TagDictionaryViewModel"
+             x:Class="DatasetStudio.Views.TagsOverviewView"
+             x:DataType="vm:TagsOverviewViewModel"
              x:CompileBindings="True"
              d:DesignWidth="1440"
              d:DesignHeight="860">
@@ -13,13 +13,22 @@
           Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
-            <Grid ColumnDefinitions="*,Auto"
+            <Grid ColumnDefinitions="*,Auto,Auto"
                   Classes="screen-header-layout">
+                <StackPanel Classes="screen-title-stack">
+                    <TextBlock Text="Tags Overview"
+                               Classes="heading-medium" />
+                    <TextBlock Text="Review aliases, frequencies, and tag cleanup actions across the active project."
+                               Classes="mono screen-subtitle"
+                               TextWrapping="Wrap" />
+                </StackPanel>
                 <TextBox x:Name="SearchTextBox"
+                         Grid.Column="1"
                          Classes="header-control"
+                         Width="320"
                          Watermark="Search tags or aliases..."
                          Text="{Binding SearchText, Mode=TwoWay}" />
-                <Button Grid.Column="1"
+                <Button Grid.Column="2"
                         Classes="primary header-control"
                         Content="New Tag"
                         Command="{Binding NewTagCommand}" />
@@ -51,7 +60,7 @@
                                                 SortMemberPath="CanonicalName"
                                                 Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
+                                <DataTemplate x:DataType="vm:TagsOverviewRowViewModel">
                                     <Border Classes="flat-row"
                                             DoubleTapped="OnEntryDoubleTapped">
                                         <Grid>
@@ -70,7 +79,7 @@
                         <DataGridTemplateColumn Header="Alias"
                                                 Width="3*">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
+                                <DataTemplate x:DataType="vm:TagsOverviewRowViewModel">
                                     <Border Classes="flat-row">
                                         <Grid>
                                             <TextBlock Text="{Binding DisplayAliases}"
@@ -94,7 +103,7 @@
                         <DataGridTemplateColumn Header="Actions"
                                                 Width="2*">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="vm:TagDictionaryRowViewModel">
+                                <DataTemplate x:DataType="vm:TagsOverviewRowViewModel">
                                     <WrapPanel Classes="flow-actions compact inset">
                                         <Button Content="Edit"
                                                 IsVisible="{Binding !IsEditing}"

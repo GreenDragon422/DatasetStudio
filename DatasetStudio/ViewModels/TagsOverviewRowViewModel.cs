@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class TagDictionaryRowViewModel : ObservableObject
+public partial class TagsOverviewRowViewModel : ObservableObject
 {
-    public TagDictionaryRowViewModel(TagDictionaryEntry entry)
+    public TagsOverviewRowViewModel(TagDictionaryEntry entry)
     {
         OriginalCanonicalName = entry.CanonicalName;
         CanonicalName = entry.CanonicalName;

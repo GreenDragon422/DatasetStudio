@@ -116,19 +116,19 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 6. THE Project_Configuration SHALL provide a Workflow Stages builder displaying a draggable, reorderable list of stage folder names with inline editing, delete buttons, and an "Add Stage" button.
 7. WHEN the user clicks the Save button, THE Project_Configuration SHALL close the modal and instantly apply all settings to the current session.
 
-### Requirement 5: Global Tag Dictionary Screen
+### Requirement 5: Tags Overview Screen
 
 **User Story:** As a dataset curator, I want a centralized tag taxonomy manager with alias support, frequency tracking, and inline editing, so that I can standardize tags across all my projects and resolve inconsistencies.
 
 #### Acceptance Criteria
 
-1. THE Tag_Dictionary screen SHALL display a two-column layout: a 240px left sidebar with category filters (All Tags, Needs Alias, Orphaned Tags, Frequent Tags) and a fluid center pane with a sortable DataGrid.
-2. THE Tag_Dictionary SHALL display a top-anchored search/filter bar for finding tags across all datasets.
-3. THE Tag_Dictionary DataGrid SHALL display sortable columns for Tag Name, Alias, Global Frequency, and Actions (Edit, Merge, Delete).
-4. WHEN the user double-clicks a DataGrid row, THE Tag_Dictionary SHALL enter inline edit mode for that row, allowing renaming of the tag and configuration of aliases.
-5. WHEN the user triggers a Merge action on a tag, THE Tag_Dictionary SHALL merge the selected tag into a target tag, updating all references across all projects.
-6. WHEN the user triggers a Delete action on a tag, THE Tag_Dictionary SHALL remove the tag from the dictionary and offer to remove the tag from all associated Tag_Files.
-7. THE Tag_Dictionary SHALL display tag names in monospace font.
+1. THE Tags_Overview screen SHALL display a two-column layout: a 240px left sidebar with category filters (All Tags, Needs Alias, Orphaned Tags, Frequent Tags) and a fluid center pane with a sortable DataGrid.
+2. THE Tags_Overview SHALL display a top-anchored search/filter bar for finding tags across all datasets.
+3. THE Tags_Overview DataGrid SHALL display sortable columns for Tag Name, Alias, Global Frequency, and Actions (Edit, Merge, Delete).
+4. WHEN the user double-clicks a DataGrid row, THE Tags_Overview SHALL enter inline edit mode for that row, allowing renaming of the tag and configuration of aliases.
+5. WHEN the user triggers a Merge action on a tag, THE Tags_Overview SHALL merge the selected tag into a target tag, updating all references across all projects.
+6. WHEN the user triggers a Delete action on a tag, THE Tags_Overview SHALL remove the tag from the dictionary and offer to remove the tag from all associated Tag_Files.
+7. THE Tags_Overview SHALL display tag names in monospace font.
 
 ### Requirement 6: Tag File Storage Format
 

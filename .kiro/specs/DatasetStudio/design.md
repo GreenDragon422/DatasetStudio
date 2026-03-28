@@ -8,7 +8,7 @@ The files under `.kiro/specs/DatasetStudio/` are the authoritative source for Da
 
 DatasetStudio is a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curating and tagging image datasets used in AI training. The application follows the MVVM (Model-View-ViewModel) pattern native to Avalonia, with a service layer handling file system operations, AI model integration, and tag parsing. The visual identity uses the Gruvbox Light palette with IBM Plex Sans/Mono typography and a retro-utilitarian aesthetic with hard 2px border radiuses.
 
-The application consists of five screens: Projects Hub (entry point), Project Overview (batch operations), Inspector Mode (sequential tagging), Project Configuration (modal settings), and Global Tag Dictionary (taxonomy management). All screens share a persistent Hint Bar for keyboard shortcuts. Data is stored entirely on the local file system — projects map to physical folders, tags live in Booru-style `.txt` sidecar files, and configuration is persisted as JSON.
+The application consists of five screens: Projects Hub (entry point), Project Overview (batch operations), Inspector Mode (sequential tagging), Project Configuration (modal settings), and Tags Overview (taxonomy management). All screens share a persistent Hint Bar for keyboard shortcuts. Data is stored entirely on the local file system — projects map to physical folders, tags live in Booru-style `.txt` sidecar files, and configuration is persisted as JSON.
 
 ## Architecture
 
@@ -26,11 +26,11 @@ DatasetStudio uses Avalonia's native MVVM architecture with CommunityToolkit.Mvv
 ┌─────────────────────────────────────────────────────────┐
 │                      Views (XAML)                        │
 │  ProjectsHubView │ ProjectOverviewView │ InspectorModeView  │
-│  ProjectConfigView │ TagDictionaryView                   │
+│  ProjectConfigView │ TagsOverviewView                    │
 ├─────────────────────────────────────────────────────────┤
 │                   ViewModels (C#)                        │
 │  ProjectsHubVM │ ProjectOverviewVM │ InspectorModeVM         │
-│  ProjectConfigVM │ TagDictionaryVM │ MainWindowVM         │
+│  ProjectConfigVM │ TagsOverviewVM │ MainWindowVM          │
 ├─────────────────────────────────────────────────────────┤
 │                   Services (C#)                          │
 │  IFileSystemService │ ITagFileService │ IAiTaggerService  │
@@ -57,7 +57,7 @@ graph LR
     A[ProjectsHub] -->|Click Project Card| B[ProjectOverview]
     B -->|Double-click Thumbnail| C[InspectorMode]
     C -->|Back button| B
-    B -->|Tag Dictionary nav| D[TagDictionary]
+    B -->|Tags Overview nav| D[TagsOverview]
     A -->|New Project| E[ProjectConfig Modal]
     B -->|Config button| E
 ```
@@ -114,7 +114,7 @@ MainWindow
 │   ├── ProjectsHubView
 │   ├── ProjectOverviewView
 │   ├── InspectorModeView
-│   └── TagDictionaryView
+│   └── TagsOverviewView
 ├── ProjectConfigOverlay (modal, toggled visibility)
 └── HintBar (24px, context-sensitive keyboard shortcuts)
 ```
@@ -173,9 +173,9 @@ InspectorModeView
 └── StatusBar
 ```
 
-#### TagDictionaryView
+#### TagsOverviewView
 ```
-TagDictionaryView
+TagsOverviewView
 ├── TopBar (search/filter bar + "New Tag" button)
 ├── TwoColumnLayout
 │   ├── LeftSidebar (240px)
@@ -413,7 +413,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 > **Note:** In Inspector Mode, the tag input has persistent focus by default (requirement 3.6). The "image navigation" state only applies when the user explicitly clicks outside the tag input or when the auto-suggest popup is dismissed. Any letter key immediately re-focuses the tag input.
 
-#### Tag Dictionary
+#### Tags Overview
 
 | Key | Action | HintBar Label |
 |---|---|---|
@@ -620,7 +620,7 @@ ProjectA/
 ```
 
 **In-Memory Caches:**
-- Tag Dictionary — loaded once per project open, refreshed on `TagDictionaryChangedMessage` events. Used for autocomplete in Inspector Mode and batch popups.
+- Tags Overview — loaded once per project open, refreshed on `TagDictionaryChangedMessage` events. Used for autocomplete in Inspector Mode and batch popups.
 - Workflow Stage list — parsed from disk on project open, refreshed when `FileSystemWatcher` detects folder structure changes (add/remove/rename subfolders).
 - Image file lists per folder — loaded on folder selection, refreshed on `FileSystemWatcher` file events or after move/delete operations.
 

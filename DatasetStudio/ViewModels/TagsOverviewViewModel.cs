@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAware
+public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAware
 {
     private const int FrequentTagThreshold = 5;
     private const string AllTagsCategory = "All Tags";
@@ -22,9 +22,9 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
 
     private readonly IMessenger messenger;
     private readonly ITagDictionaryService tagDictionaryService;
-    private TagDictionaryRowViewModel? pendingMergeSourceEntry;
+    private TagsOverviewRowViewModel? pendingMergeSourceEntry;
 
-    public TagDictionaryViewModel(ITagDictionaryService tagDictionaryService, IMessenger messenger)
+    public TagsOverviewViewModel(ITagDictionaryService tagDictionaryService, IMessenger messenger)
         : base(messenger)
     {
         this.tagDictionaryService = tagDictionaryService ?? throw new ArgumentNullException(nameof(tagDictionaryService));
@@ -37,14 +37,14 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
             OrphanedTagsCategory,
             FrequentTagsCategory,
         };
-        AllEntries = new ObservableCollection<TagDictionaryRowViewModel>();
-        FilteredEntries = new ObservableCollection<TagDictionaryRowViewModel>();
+        AllEntries = new ObservableCollection<TagsOverviewRowViewModel>();
+        FilteredEntries = new ObservableCollection<TagsOverviewRowViewModel>();
         SelectedCategory = AllTagsCategory;
-        StatusText = "Open a project to manage its tag dictionary.";
+        StatusText = "Open a project to manage its tags overview.";
 
         messenger.Register<TagDictionaryChangedMessage>(this, static (recipient, message) =>
         {
-            TagDictionaryViewModel viewModel = (TagDictionaryViewModel)recipient;
+            TagsOverviewViewModel viewModel = (TagsOverviewViewModel)recipient;
 
             if (string.Equals(viewModel.CurrentProjectId, message.ProjectId, StringComparison.OrdinalIgnoreCase))
             {
@@ -58,10 +58,10 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
     public string CurrentProjectId { get; private set; } = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<TagDictionaryRowViewModel> allEntries;
+    private ObservableCollection<TagsOverviewRowViewModel> allEntries;
 
     [ObservableProperty]
-    private ObservableCollection<TagDictionaryRowViewModel> filteredEntries;
+    private ObservableCollection<TagsOverviewRowViewModel> filteredEntries;
 
     [ObservableProperty]
     private string searchText = string.Empty;
@@ -70,7 +70,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
     private string selectedCategory;
 
     [ObservableProperty]
-    private TagDictionaryRowViewModel? selectedEntry;
+    private TagsOverviewRowViewModel? selectedEntry;
 
     [ObservableProperty]
     private bool isEditing;
@@ -80,7 +80,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         if (parameter is string projectId)
         {
             CurrentProjectId = projectId;
-            StatusText = "Loading tag dictionary...";
+            StatusText = "Loading tags overview...";
             _ = LoadEntriesAsync();
         }
     }
@@ -90,19 +90,19 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
     {
         if (string.IsNullOrWhiteSpace(CurrentProjectId))
         {
-            StatusText = "No active project selected for the tag dictionary.";
+            StatusText = "No active project selected for the tags overview.";
             AllEntries.Clear();
             FilteredEntries.Clear();
             return;
         }
 
         IReadOnlyList<TagDictionaryEntry> entries = await tagDictionaryService.GetAllEntriesAsync(CurrentProjectId).ConfigureAwait(false);
-        List<TagDictionaryRowViewModel> rowViewModels = entries
+        List<TagsOverviewRowViewModel> rowViewModels = entries
             .OrderBy(entry => entry.CanonicalName, StringComparer.OrdinalIgnoreCase)
-            .Select(entry => new TagDictionaryRowViewModel(entry))
+            .Select(entry => new TagsOverviewRowViewModel(entry))
             .ToList();
 
-        AllEntries = new ObservableCollection<TagDictionaryRowViewModel>(rowViewModels);
+        AllEntries = new ObservableCollection<TagsOverviewRowViewModel>(rowViewModels);
         ApplyFilters();
         StatusText = string.Format("Loaded {0} tag entr{1}.", AllEntries.Count, AllEntries.Count == 1 ? "y" : "ies");
     }
@@ -114,7 +114,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         SelectedCategory = AllTagsCategory;
         CancelAllEditing();
 
-        TagDictionaryRowViewModel newEntry = new(new TagDictionaryEntry())
+        TagsOverviewRowViewModel newEntry = new(new TagDictionaryEntry())
         {
             IsEditing = true,
             IsNewEntry = true,
@@ -127,7 +127,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         StatusText = "Creating a new tag entry.";
     }
 
-    public void BeginEditing(TagDictionaryRowViewModel? entry)
+    public void BeginEditing(TagsOverviewRowViewModel? entry)
     {
         if (entry is null)
         {
@@ -141,7 +141,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         StatusText = string.Format("Editing {0}.", string.IsNullOrWhiteSpace(entry.CanonicalName) ? "new tag" : entry.CanonicalName);
     }
 
-    public void CancelEditing(TagDictionaryRowViewModel? entry)
+    public void CancelEditing(TagsOverviewRowViewModel? entry)
     {
         if (entry is null)
         {
@@ -164,7 +164,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         StatusText = "Edit cancelled.";
     }
 
-    public async Task SaveEntryAsync(TagDictionaryRowViewModel? entry)
+    public async Task SaveEntryAsync(TagsOverviewRowViewModel? entry)
     {
         if (entry is null)
         {
@@ -197,7 +197,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         StatusText = string.Format("Saved tag entry {0}.", sanitizedCanonicalName);
     }
 
-    public async Task BeginMergeAsync(TagDictionaryRowViewModel? entry)
+    public async Task BeginMergeAsync(TagsOverviewRowViewModel? entry)
     {
         if (entry is null)
         {
@@ -225,7 +225,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
         StatusText = "Tags merged successfully.";
     }
 
-    public async Task DeleteEntryAsync(TagDictionaryRowViewModel? entry, bool removeFromFiles)
+    public async Task DeleteEntryAsync(TagsOverviewRowViewModel? entry, bool removeFromFiles)
     {
         if (entry is null)
         {
@@ -255,7 +255,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
 
     private void CancelAllEditing()
     {
-        foreach (TagDictionaryRowViewModel entry in AllEntries)
+        foreach (TagsOverviewRowViewModel entry in AllEntries)
         {
             entry.IsEditing = false;
             entry.IsNewEntry = false;
@@ -266,7 +266,7 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
 
     private void ApplyFilters()
     {
-        IEnumerable<TagDictionaryRowViewModel> filtered = AllEntries;
+        IEnumerable<TagsOverviewRowViewModel> filtered = AllEntries;
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
@@ -283,6 +283,6 @@ public partial class TagDictionaryViewModel : ScreenViewModelBase, INavigationAw
             _ => filtered,
         };
 
-        FilteredEntries = new ObservableCollection<TagDictionaryRowViewModel>(filtered);
+        FilteredEntries = new ObservableCollection<TagsOverviewRowViewModel>(filtered);
     }
 }

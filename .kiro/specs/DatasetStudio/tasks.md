@@ -22,7 +22,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 - [x] 0. Confirm Avalonia bootstrap decisions before feature work
   - [x] 0.5 Select the exact Avalonia package version and keep all Avalonia package references on the same version
   - [x] 0.6 Enable compiled bindings by default in the app project and use `x:DataType` across views as they are introduced
-  - [x] 0.7 Include `Avalonia.Controls.DataGrid` and its Fluent theme wiring up front so Tag Dictionary work does not require later startup refactors
+  - [x] 0.7 Include `Avalonia.Controls.DataGrid` and its Fluent theme wiring up front so Tags Overview work does not require later startup refactors
   - [x] 0.8 Decide the IBM Plex font loading strategy (bundled assets vs. documented install prerequisite) before writing styles
   - _Requirements: 5.1, 10.2, 10.4, 13.1_
 
@@ -350,8 +350,8 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Note (2026-03-27): Prev/next navigation is fully keyboard-driven and functional, but it currently switches images immediately instead of animating the transition. If we want literal sliding motion from Requirement 3.9, that is now a polish pass rather than a missing workflow.
   - _Requirements: 3.1–3.15, 9.1, 9.5_
 
-- [x] 36. Implement Tag Dictionary screen
-  - [x] 36.1 Create `ViewModels/TagDictionaryViewModel.cs` — inject ITagDictionaryService, IMessenger
+- [x] 36. Implement Tags Overview screen
+  - [x] 36.1 Create `ViewModels/TagsOverviewViewModel.cs` — inject ITagDictionaryService, IMessenger
   - [x] 36.2 Implement observable properties: AllEntries (ObservableCollection<TagDictionaryEntry>), FilteredEntries (filtered view), SearchText (string), SelectedCategory (string), SelectedEntry (TagDictionaryEntry), IsEditing (bool)
   - [x] 36.3 Implement `LoadEntriesCommand` — call ITagDictionaryService.GetAllEntriesAsync, populate AllEntries
   - [x] 36.4 Implement category filters — "All Tags" (all), "Needs Alias" (entries with empty aliases), "Orphaned Tags" (frequency=0), "Frequent Tags" (frequency > threshold)
@@ -361,12 +361,13 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 36.8 Implement `DeleteTagCommand` — call ITagDictionaryService.DeleteTagAsync with option to remove from files, publish TagDictionaryChangedMessage
   - [x] 36.9 Implement `NewTagCommand` — add new entry to dictionary
   - [x] 36.10 Subscribe to TagDictionaryChangedMessage — refresh entries
-  - [x] 36.11 Create `Views/TagDictionaryView.axaml` — two-column layout: 240px left sidebar with category filter ListBox, fluid center with DataGrid
+  - [x] 36.11 Create `Views/TagsOverviewView.axaml` — two-column layout: 240px left sidebar with category filter ListBox, fluid center with DataGrid
   - [x] 36.12 Implement top bar — search/filter TextBox + "New Tag" button
   - [x] 36.13 Implement DataGrid — sortable columns: Tag Name (IBM Plex Mono), Alias, Global Frequency, Actions (Edit/Merge/Delete buttons)
   - [x] 36.14 Implement inline edit mode on double-click row
   - [x] 36.15 Wire HintBar and StatusBar at bottom
   - Note (2026-03-27): Shared DataGrid and control styling were adjusted for the Gruvbox Light palette so tag text and action controls remain readable against the screen background and grid chrome.
+  - Progress note (2026-03-28): The screen naming is now aligned as Tags Overview. The screen view/viewmodel/row-viewmodel and their tracked files now use `TagsOverview*`, the top bar includes an explicit Tags Overview title, headless captures use `tags-overview.png`, and the authoritative docs reference the renamed screen paths while the underlying `TagDictionary*` service/model contracts remain unchanged.
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
 - [x] 37. Screens checkpoint
@@ -422,7 +423,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 - [x] 42. Final integration checkpoint
   - Run all NUnit tests. Verify full navigation flow: ProjectsHub → Project Overview → InspectorMode → back. Verify keyboard shortcuts work across all screens. Verify state persistence round-trip. Ask user if questions arise.
-  - Progress note (2026-03-28): Added a real navigation integration test that exercises Projects Hub → Project Overview → Inspector Mode → back using the actual NavigationService and current viewmodels, while asserting the persisted last-opened project and last-inspected image state updates along the way. Expanded the Avalonia headless suite with routed shortcut proofs for Projects Hub (`Ctrl+N` opens the configuration modal after creating a project), Project Configuration (`Ctrl+S` saves and closes the modal), and Tag Dictionary (`/` focuses search), complementing the existing Project Overview and Inspector shortcut tests. Verified the full repository with `dotnet test DatasetStudio.sln` (76 unit tests, 7 headless tests).
+  - Progress note (2026-03-28): Added a real navigation integration test that exercises Projects Hub → Project Overview → Inspector Mode → back using the actual NavigationService and current viewmodels, while asserting the persisted last-opened project and last-inspected image state updates along the way. Expanded the Avalonia headless suite with routed shortcut proofs for Projects Hub (`Ctrl+N` opens the configuration modal after creating a project), Project Configuration (`Ctrl+S` saves and closes the modal), and Tags Overview (`/` focuses search), complementing the existing Project Overview and Inspector shortcut tests. Verified the full repository with `dotnet test DatasetStudio.sln` (76 unit tests, 7 headless tests).
 
 ## Notes
 

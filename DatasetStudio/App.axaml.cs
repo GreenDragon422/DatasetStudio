@@ -76,7 +76,7 @@ public partial class App : Application
         services.AddTransient<ProjectConfigurationViewModel>();
         services.AddTransient<ProjectOverviewViewModel>();
         services.AddTransient<InspectorModeViewModel>();
-        services.AddTransient<TagDictionaryViewModel>();
+        services.AddTransient<TagsOverviewViewModel>();
     }
 
     private static async Task NavigateToStartupViewAsync(

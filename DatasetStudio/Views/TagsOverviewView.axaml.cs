@@ -7,16 +7,16 @@ using DatasetStudio.ViewModels;
 
 namespace DatasetStudio.Views;
 
-public partial class TagDictionaryView : ScreenViewBase<TagDictionaryViewModel>
+public partial class TagsOverviewView : ScreenViewBase<TagsOverviewViewModel>
 {
-    public TagDictionaryView()
+    public TagsOverviewView()
     {
         InitializeComponent();
     }
 
     protected override IReadOnlyList<ScreenShortcut> BuildScreenShortcuts()
     {
-        TagDictionaryViewModel? viewModel = ViewModel;
+        TagsOverviewViewModel? viewModel = ViewModel;
         if (viewModel is null)
         {
             return Array.Empty<ScreenShortcut>();
@@ -40,12 +40,12 @@ public partial class TagDictionaryView : ScreenViewBase<TagDictionaryViewModel>
     {
         _ = eventArgs;
 
-        if (DataContext is not TagDictionaryViewModel viewModel)
+        if (DataContext is not TagsOverviewViewModel viewModel)
         {
             return;
         }
 
-        if ((sender as Control)?.DataContext is not TagDictionaryRowViewModel rowViewModel)
+        if ((sender as Control)?.DataContext is not TagsOverviewRowViewModel rowViewModel)
         {
             return;
         }
@@ -57,12 +57,12 @@ public partial class TagDictionaryView : ScreenViewBase<TagDictionaryViewModel>
     {
         _ = eventArgs;
 
-        if (DataContext is not TagDictionaryViewModel viewModel)
+        if (DataContext is not TagsOverviewViewModel viewModel)
         {
             return;
         }
 
-        if ((sender as Control)?.DataContext is not TagDictionaryRowViewModel rowViewModel)
+        if ((sender as Control)?.DataContext is not TagsOverviewRowViewModel rowViewModel)
         {
             return;
         }
@@ -80,12 +80,12 @@ public partial class TagDictionaryView : ScreenViewBase<TagDictionaryViewModel>
     {
         _ = eventArgs;
 
-        if (DataContext is not TagDictionaryViewModel viewModel)
+        if (DataContext is not TagsOverviewViewModel viewModel)
         {
             return;
         }
 
-        if ((sender as Control)?.DataContext is not TagDictionaryRowViewModel rowViewModel)
+        if ((sender as Control)?.DataContext is not TagsOverviewRowViewModel rowViewModel)
         {
             return;
         }
@@ -113,7 +113,7 @@ public partial class TagDictionaryView : ScreenViewBase<TagDictionaryViewModel>
 
     private void BeginEditingSelectedEntry()
     {
-        if (ViewModel?.SelectedEntry is not TagDictionaryRowViewModel rowViewModel)
+        if (ViewModel?.SelectedEntry is not TagsOverviewRowViewModel rowViewModel)
         {
             return;
         }
@@ -121,14 +121,14 @@ public partial class TagDictionaryView : ScreenViewBase<TagDictionaryViewModel>
         ViewModel.BeginEditing(rowViewModel);
     }
 
-    private async Task ExecuteRowActionAsync(object? sender, Func<TagDictionaryViewModel, TagDictionaryRowViewModel, Task> action)
+    private async Task ExecuteRowActionAsync(object? sender, Func<TagsOverviewViewModel, TagsOverviewRowViewModel, Task> action)
     {
-        if (DataContext is not TagDictionaryViewModel viewModel)
+        if (DataContext is not TagsOverviewViewModel viewModel)
         {
             return;
         }
 
-        if ((sender as Control)?.DataContext is not TagDictionaryRowViewModel rowViewModel)
+        if ((sender as Control)?.DataContext is not TagsOverviewRowViewModel rowViewModel)
         {
             return;
         }
