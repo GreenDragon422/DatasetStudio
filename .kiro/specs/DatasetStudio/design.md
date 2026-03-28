@@ -236,9 +236,12 @@ public interface ITagFileService
 public interface IAiTaggerService
 {
     Task<IReadOnlyList<string>> GenerateTagsAsync(string imageFilePath, string modelName);
+    bool TryQueueTagGeneration(Project project, string imageFilePath);
     Task<IReadOnlyList<AiModelInfo>> GetAvailableModelsAsync();
+    Task<AiModelInfo?> DownloadModelAsync(string modelId, CancellationToken cancellationToken = default);
+    bool IsModelDownloadInProgress(string modelId);
     bool IsProcessing(string imageFilePath);
-    event EventHandler<TagGenerationCompletedEventArgs> TagGenerationCompleted;
+    event EventHandler<AiTaggingCompletedMessage>? TagGenerationCompleted;
 }
 
 public interface IProjectService
@@ -313,16 +316,26 @@ graph TD
 
 ### Local ONNX Tagging Architecture
 
-The current local tagging path is optimized around WD-style ONNX taggers such as `SmilingWolf/wd-swinv2-tagger-v3`:
+The current local tagging path is optimized around WD-style ONNX taggers such as `SmilingWolf/wd-swinv2-tagger-v3`, and the design should be read in DatasetStudio terms rather than the generic external guidance:
 
-1. `AiTaggerService` resolves the selected model from `ai_models.json`, verifies that the required local files are present, and builds a `TaggerModelConfig`.
-2. `TaggerSession` owns one long-lived `InferenceSession` for the active ONNX model and services a channel-backed job queue.
-3. Incoming image requests are grouped into batches before inference. The model is not reloaded per image, and DatasetStudio does not spawn one process per file.
-4. `ImagePreprocessor` loads images with ImageSharp, flattens alpha against white, pads to square, resizes to the model input size, and packs the batch tensor according to the input layout discovered from `session.InputMetadata`.
-5. `TagPostProcessor` loads the WD `selected_tags.csv` file once per active model, maps output indexes to tag names and categories, applies thresholds, and returns structured `rating`, `general`, and `character` results.
-6. `TagExportService` derives flat training tags from the structured result and persists the sidecar `.txt` file only after inference completes.
+0. **Tag as first-class entity** — Across DatasetStudio, a `Tag` is a standalone domain entity with canonical identity, aliases, category semantics, and global usage information. The image-level ONNX payload should be modeled as one or more `ImageTagAssignment` records that connect an `Image`, a `Tag`, and a `Model`, plus score and acceptance metadata.
+1. **Catalog and install state** — `AiModelCatalogService` resolves `ai_models.json`, while `HuggingFaceCliService` handles explicit model downloads. `AiTaggerService` only tags with already-installed models; it never installs a model implicitly during background work.
+2. **Per-model runtime config** — `AiTaggerService` builds a `TaggerModelConfig` for the selected installed model. For WD-style taggers this requires `model.onnx` plus `selected_tags.csv`, along with DatasetStudio thresholds and batch size settings.
+3. **Single long-lived GPU session** — `TaggerSession` owns one long-lived ONNX Runtime `InferenceSession` for the active model. DatasetStudio uses one batching worker in front of that session instead of one process per image or one model load per request.
+4. **Batch-first execution** — `TryQueueTagGeneration(...)` and `GenerateTagsAsync(...)` both flow into `TaggerSession`. Jobs are grouped into batches before inference, and batch size tuning happens at the `TaggerModelConfig` level instead of through ad hoc parallel process spawning.
+5. **Runtime metadata inspection** — `TaggerSession` reads `session.InputMetadata` and `session.OutputMetadata` at runtime and derives the input layout and output width from the loaded ONNX model. DatasetStudio does not hardcode tensor layout beyond validating that the model is a supported float image tagger.
+6. **Image preprocessing** — `ImagePreprocessor` loads images with ImageSharp, composites transparency against white, pads to square, resizes to the ONNX input size, and packs either NHWC or NCHW tensors depending on the metadata discovered at runtime.
+7. **Structured tag post-processing** — `TagPostProcessor` loads the WD `selected_tags.csv` label file once per active model, maps output indexes to DatasetStudio tag identity data, applies rating/general/character thresholds, and returns an image-scoped assignment collection. Avoid vague names like `...Result`; the shape should read as what it is, for example `ImageTagAssignments` containing `ImageTagAssignment` items.
+8. **Sidecar writing as derived output** — `TagSidecarService` derives flat training tags from the accepted tag assignments in that image-scoped assignment collection, and `AiTaggingCoordinator` writes the `.txt` sidecar only after inference succeeds. Here, a `.txt` sidecar means the companion text file beside an image on disk, for example `image001.png` and `image001.txt`. This is sidecar writing or sidecar persistence, not export to another application.
 
-This keeps structured tags as the primary internal representation while still supporting text sidecars for downstream training workflows.
+Relevant implementation constraints from the external tagging guidance, adapted to DatasetStudio:
+- Prefer one ONNX Runtime GPU session per active model and one batching worker in front of it.
+- Batch many images into one inference call whenever possible.
+- Do not reload the model per image.
+- Do not spawn one inference process per image.
+- Store structured tags internally and derive flat training text only when writing sidecars.
+- Treat WD-style ONNX taggers as the supported local runtime path today. Other catalog entries may be downloadable, but they are not inference-compatible until DatasetStudio gains a non-WD post-processing path.
+- Normalize around standalone tag entities across the whole app. Services that currently emit image-scoped tag records should evolve toward `Tag` plus `ImageTagAssignment` metadata instead of treating raw strings or per-image score objects as the canonical tag shape.
 
 Key routing rules:
 - When a `TextBox` has focus (tag input, filter bar), letter keys are consumed by the TextBox. `Escape` returns focus to the parent container (grid or image viewer).
@@ -506,6 +519,11 @@ public class TagDictionaryEntry
     public int GlobalFrequency { get; set; }    // Usage count across all project images
 }
 
+// Conceptual domain model direction:
+// Tag = standalone entity used across the whole application.
+// ImageTagAssignment = relationship between an image, a tag, and the model/source that proposed it.
+// ImageTagAssignments = collection of image-specific tag assignments, not the tag catalog itself.
+
 public class AiModelInfo
 {
     public string Id { get; set; }
@@ -644,11 +662,11 @@ ProjectA/
 ```
 
 **In-Memory Caches:**
-- Tags Overview — loaded once per project open, refreshed on `TagDictionaryChangedMessage` events. Used for autocomplete in Inspector Mode and batch popups.
+- Tags Overview — loaded once per project open, with a persisted fingerprinted snapshot stored in the project configuration. At runtime the cache is invalidated on `TagDictionaryChangedMessage`, `TagsChangedMessage`, `AiTaggingCompletedMessage`, `ImageDeletedMessage`, and watcher-originated `TagFilesChangedMessage` events so autocomplete and frequency counts stay current without rescanning tag sidecars on every request.
 - Workflow Stage list — parsed from disk on project open, refreshed when `FileSystemWatcher` detects folder structure changes (add/remove/rename subfolders).
 - Image file lists per folder — loaded on folder selection, refreshed on `FileSystemWatcher` file events or after move/delete operations.
 
-All cache invalidation flows through the messenger event system — when an `ImageMovedMessage`, `ImageDeletedMessage`, or `TagsChangedMessage` is published, the relevant caches update reactively.
+All cache invalidation flows through the messenger event system — when an `ImageMovedMessage`, `ImageDeletedMessage`, `TagsChangedMessage`, `AiTaggingCompletedMessage`, or `TagFilesChangedMessage` is published, the relevant caches update reactively.
 
 ### Data Flow: Tag Commit (Inspector Mode)
 

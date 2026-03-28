@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
+using DatasetStudio.Messages;
 using DatasetStudio.Models;
 using DatasetStudio.Services;
 using System;
@@ -143,6 +144,119 @@ public class TagDictionaryServiceTests
     }
 
     [Test]
+    public async Task GetAllEntriesAsync_PersistsTagStatisticsSnapshot()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        TestContext context = await CreateProjectContextAsync(temporaryDirectory.DirectoryPath);
+        Project project = await context.ProjectService.CreateProjectAsync("ProjectOne", context.ProjectRootPath);
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image001", new[] { "cat" });
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image002", new[] { "cat", "dog" });
+
+        IReadOnlyList<TagDictionaryEntry> entries = await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        IReadOnlyList<Project> persistedProjects = await context.ProjectService.LoadProjectsAsync();
+        Project persistedProject = persistedProjects.Single(candidate => string.Equals(candidate.Id, project.Id, StringComparison.OrdinalIgnoreCase));
+        TagDictionaryEntry persistedCatEntry = persistedProject.TagDictionaryEntries.Single(entry => entry.CanonicalName == "cat");
+
+        Assert.That(entries.Count, Is.EqualTo(2));
+        Assert.That(persistedProject.State?.TagStatisticsCacheFingerprint, Is.Not.Null.And.Not.Empty);
+        Assert.That(persistedCatEntry.GlobalFrequency, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetAllEntriesAsync_RefreshesCacheAfterTagsChangedMessage()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        TestContext context = await CreateProjectContextAsync(temporaryDirectory.DirectoryPath);
+        Project project = await context.ProjectService.CreateProjectAsync("ProjectOne", context.ProjectRootPath);
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image001", new[] { "cat" });
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image002", new[] { "cat" });
+
+        await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        await context.TagFileService.WriteTagsAsync(Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.txt"), new[] { "dog" });
+        context.Messenger.Send(new TagsChangedMessage(Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.png"), new[] { "dog" }));
+
+        IReadOnlyList<TagDictionaryEntry> entries = await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        TagDictionaryEntry catEntry = entries.Single(entry => entry.CanonicalName == "cat");
+        TagDictionaryEntry dogEntry = entries.Single(entry => entry.CanonicalName == "dog");
+
+        Assert.That(catEntry.GlobalFrequency, Is.EqualTo(1));
+        Assert.That(dogEntry.GlobalFrequency, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetAllEntriesAsync_RefreshesCacheAfterAiTaggingCompletedMessage()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        TestContext context = await CreateProjectContextAsync(temporaryDirectory.DirectoryPath);
+        Project project = await context.ProjectService.CreateProjectAsync("ProjectOne", context.ProjectRootPath);
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image001", new[] { "cat" });
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image002", new[] { "cat" });
+
+        await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        await context.TagFileService.WriteTagsAsync(Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.txt"), new[] { "dog" });
+
+        ImageTaggingResult taggingResult = new()
+        {
+            ModelId = "SmilingWolf/wd-swinv2-tagger-v3",
+            AcceptedTrainingTags = new[] { "dog" },
+        };
+
+        context.Messenger.Send(new AiTaggingCompletedMessage(Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.png"), taggingResult));
+
+        IReadOnlyList<TagDictionaryEntry> entries = await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        TagDictionaryEntry catEntry = entries.Single(entry => entry.CanonicalName == "cat");
+        TagDictionaryEntry dogEntry = entries.Single(entry => entry.CanonicalName == "dog");
+
+        Assert.That(catEntry.GlobalFrequency, Is.EqualTo(1));
+        Assert.That(dogEntry.GlobalFrequency, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetAllEntriesAsync_RefreshesCacheAfterImageDeletedMessage()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        TestContext context = await CreateProjectContextAsync(temporaryDirectory.DirectoryPath);
+        Project project = await context.ProjectService.CreateProjectAsync("ProjectOne", context.ProjectRootPath);
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image001", new[] { "cat" });
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image002", new[] { "cat" });
+
+        await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        string deletedImagePath = Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.png");
+        string deletedTagPath = Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.txt");
+
+        File.Delete(deletedImagePath);
+        File.Delete(deletedTagPath);
+        context.Messenger.Send(new ImageDeletedMessage(deletedImagePath, Path.Combine(context.ProjectRootPath, "01_Inbox")));
+
+        IReadOnlyList<TagDictionaryEntry> entries = await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        TagDictionaryEntry catEntry = entries.Single(entry => entry.CanonicalName == "cat");
+
+        Assert.That(catEntry.GlobalFrequency, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetAllEntriesAsync_RefreshesCacheAfterTagFilesChangedMessage()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        TestContext context = await CreateProjectContextAsync(temporaryDirectory.DirectoryPath);
+        Project project = await context.ProjectService.CreateProjectAsync("ProjectOne", context.ProjectRootPath);
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image001", new[] { "cat" });
+        await CreateTaggedImageAsync(context.ProjectRootPath, "01_Inbox", "image002", new[] { "cat" });
+
+        await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        string changedTagPath = Path.Combine(context.ProjectRootPath, "01_Inbox", "image002.txt");
+        await context.TagFileService.WriteTagsAsync(changedTagPath, new[] { "dog" });
+        context.Messenger.Send(new TagFilesChangedMessage(changedTagPath));
+
+        IReadOnlyList<TagDictionaryEntry> entries = await context.TagDictionaryService.GetAllEntriesAsync(project.Id);
+        TagDictionaryEntry catEntry = entries.Single(entry => entry.CanonicalName == "cat");
+        TagDictionaryEntry dogEntry = entries.Single(entry => entry.CanonicalName == "dog");
+
+        Assert.That(catEntry.GlobalFrequency, Is.EqualTo(1));
+        Assert.That(dogEntry.GlobalFrequency, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task DeleteTagAsync_WithRemoveFromFilesTrue_RemovesTagFromAllTagFiles()
     {
         using TemporaryDirectory temporaryDirectory = new();
@@ -197,9 +311,10 @@ public class TagDictionaryServiceTests
 
         ProjectService projectService = new(fileSystemService, statePersistenceService);
         TagFileService tagFileService = new();
-        TagDictionaryService tagDictionaryService = new(projectService, tagFileService, new WeakReferenceMessenger());
+        WeakReferenceMessenger messenger = new();
+        TagDictionaryService tagDictionaryService = new(projectService, tagFileService, messenger);
 
-        return new TestContext(projectRootPath, projectService, tagFileService, tagDictionaryService);
+        return new TestContext(projectRootPath, projectService, tagFileService, tagDictionaryService, messenger);
     }
 
     private static async Task CreateTaggedImageAsync(string projectRootPath, string stageFolderName, string imageName, IReadOnlyList<string> tags)
@@ -217,5 +332,6 @@ public class TagDictionaryServiceTests
         string ProjectRootPath,
         ProjectService ProjectService,
         TagFileService TagFileService,
-        TagDictionaryService TagDictionaryService);
+        TagDictionaryService TagDictionaryService,
+        WeakReferenceMessenger Messenger);
 }

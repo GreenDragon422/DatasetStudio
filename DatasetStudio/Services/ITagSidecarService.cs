@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.Services;
 
-public interface ITagExportService
+public interface ITagSidecarService
 {
     IReadOnlyList<string> BuildTrainingTags(ImageTaggingResult taggingResult);
 

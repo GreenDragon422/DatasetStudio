@@ -8,17 +8,17 @@ namespace DatasetStudio.Services;
 public sealed class AiTaggingCoordinator : IDisposable
 {
     private readonly IAiTaggerService aiTaggerService;
-    private readonly ITagExportService tagExportService;
+    private readonly ITagSidecarService tagSidecarService;
     private readonly IMessenger messenger;
     private bool isDisposed;
 
     public AiTaggingCoordinator(
         IAiTaggerService aiTaggerService,
-        ITagExportService tagExportService,
+        ITagSidecarService tagSidecarService,
         IMessenger messenger)
     {
         this.aiTaggerService = aiTaggerService ?? throw new ArgumentNullException(nameof(aiTaggerService));
-        this.tagExportService = tagExportService ?? throw new ArgumentNullException(nameof(tagExportService));
+        this.tagSidecarService = tagSidecarService ?? throw new ArgumentNullException(nameof(tagSidecarService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
 
         this.aiTaggerService.TagGenerationCompleted += OnTagGenerationCompleted;
@@ -44,7 +44,7 @@ public sealed class AiTaggingCoordinator : IDisposable
     {
         try
         {
-            await tagExportService.WriteTrainingSidecarAsync(message.ImagePath, message.Result).ConfigureAwait(false);
+            await tagSidecarService.WriteTrainingSidecarAsync(message.ImagePath, message.Result).ConfigureAwait(false);
             messenger.Send(message);
         }
         catch

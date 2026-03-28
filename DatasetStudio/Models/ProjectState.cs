@@ -9,4 +9,6 @@ public sealed class ProjectState
     public string? SelectedAiModelName { get; set; }
 
     public string? LastInspectedImagePath { get; set; }
+
+    public string? TagStatisticsCacheFingerprint { get; set; }
 }

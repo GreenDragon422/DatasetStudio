@@ -72,7 +72,7 @@ public partial class App : Application
         services.AddSingleton<ImagePreprocessor>();
         services.AddSingleton<TagPostProcessor>();
         services.AddSingleton<ITaggerSession, TaggerSession>();
-        services.AddSingleton<ITagExportService, TagExportService>();
+        services.AddSingleton<ITagSidecarService, TagSidecarService>();
         services.AddSingleton<IAiTaggerService, AiTaggerService>();
         services.AddSingleton<AiTaggingCoordinator>();
         services.AddSingleton<BatchTagOperationService>();

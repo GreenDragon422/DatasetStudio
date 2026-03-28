@@ -606,6 +606,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             return;
         }
 
+        NotifyTagFilesChanged(eventArgs.FullPath);
         QueueProjectWatcherRefresh();
     }
 
@@ -618,6 +619,8 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             return;
         }
 
+        NotifyTagFilesChanged(eventArgs.OldFullPath);
+        NotifyTagFilesChanged(eventArgs.FullPath);
         QueueProjectWatcherRefresh();
     }
 
@@ -653,6 +656,21 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
 
         return pathSegments.Length > 0 && string.IsNullOrWhiteSpace(Path.GetExtension(fullPath));
+    }
+
+    private void NotifyTagFilesChanged(string? fullPath)
+    {
+        if (!ShouldReactToProjectChange(fullPath))
+        {
+            return;
+        }
+
+        if (!string.Equals(Path.GetExtension(fullPath), ".txt", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        messenger.Send(new TagFilesChangedMessage(fullPath!));
     }
 
     private void QueueProjectWatcherRefresh()

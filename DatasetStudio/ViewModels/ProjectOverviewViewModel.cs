@@ -954,12 +954,15 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
     private void OnProjectWatcherChanged(object? sender, FileSystemEventArgs eventArgs)
     {
         _ = sender;
+        NotifyTagFilesChanged(eventArgs.FullPath);
         QueueProjectWatcherRefresh(eventArgs.FullPath);
     }
 
     private void OnProjectWatcherRenamed(object? sender, RenamedEventArgs eventArgs)
     {
         _ = sender;
+        NotifyTagFilesChanged(eventArgs.OldFullPath);
+        NotifyTagFilesChanged(eventArgs.FullPath);
         QueueProjectWatcherRefresh(eventArgs.OldFullPath, eventArgs.FullPath);
     }
 
@@ -1048,6 +1051,21 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
             .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
 
         return pathSegments.Length > 0 && string.IsNullOrWhiteSpace(Path.GetExtension(fullPath));
+    }
+
+    private void NotifyTagFilesChanged(string? fullPath)
+    {
+        if (!ShouldReactToProjectChange(fullPath))
+        {
+            return;
+        }
+
+        if (!string.Equals(Path.GetExtension(fullPath), ".txt", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        messenger.Send(new TagFilesChangedMessage(fullPath!));
     }
 
     private async Task RefreshFromProjectWatcherAsync()

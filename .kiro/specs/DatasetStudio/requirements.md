@@ -243,5 +243,5 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 1. THE Application SHALL generate and cache thumbnail images for the Project_Overview on first load, storing them in a `.datasetstudio-cache/` subfolder within the Project's Root_Folder.
 2. WHEN a cached thumbnail exists and the source image has not been modified (based on file modification timestamp), THE Application SHALL load the thumbnail from cache instead of re-reading and resizing the full image.
 3. WHEN the source image is modified or replaced, THE Application SHALL invalidate and regenerate the cached thumbnail on next access.
-4. THE Application SHALL cache the Tag_Dictionary in memory for the active project to avoid repeated disk reads during autocomplete and frequency lookups.
+4. THE Application SHALL cache the Tag_Dictionary in memory for the active project and persist a fingerprinted snapshot in the project configuration so autocomplete and frequency lookups do not need to rescan every tag sidecar on every load.
 5. THE Application SHALL cache the parsed Workflow_Stage folder list in memory, refreshing it when a `FileSystemWatcher` detects changes to the project's root folder structure.

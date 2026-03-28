@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DatasetStudio.Services;
@@ -24,6 +26,9 @@ public sealed class TagDictionaryService : ITagDictionaryService
     private readonly IProjectService projectService;
     private readonly ITagFileService tagFileService;
     private readonly Dictionary<string, List<TagDictionaryEntry>> dictionaryEntriesCacheByProjectId;
+    private readonly Dictionary<string, string> projectRootPathByProjectId;
+    private readonly IMessenger messenger;
+    private readonly object cacheSync;
 
     public TagDictionaryService(IProjectService projectService, ITagFileService tagFileService, IMessenger messenger)
     {
@@ -35,11 +40,34 @@ public sealed class TagDictionaryService : ITagDictionaryService
             throw new ArgumentNullException(nameof(messenger));
         }
 
+        this.messenger = messenger;
         dictionaryEntriesCacheByProjectId = new Dictionary<string, List<TagDictionaryEntry>>(StringComparer.OrdinalIgnoreCase);
+        projectRootPathByProjectId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        cacheSync = new object();
         messenger.Register<TagDictionaryChangedMessage>(this, static (recipient, message) =>
         {
             TagDictionaryService service = (TagDictionaryService)recipient;
-            service.dictionaryEntriesCacheByProjectId.Remove(message.ProjectId);
+            service.InvalidateCachedProject(message.ProjectId);
+        });
+        messenger.Register<TagsChangedMessage>(this, static (recipient, message) =>
+        {
+            TagDictionaryService service = (TagDictionaryService)recipient;
+            service.InvalidateCachedProjectForImage(message.ImagePath);
+        });
+        messenger.Register<AiTaggingCompletedMessage>(this, static (recipient, message) =>
+        {
+            TagDictionaryService service = (TagDictionaryService)recipient;
+            service.InvalidateCachedProjectForImage(message.ImagePath);
+        });
+        messenger.Register<ImageDeletedMessage>(this, static (recipient, message) =>
+        {
+            TagDictionaryService service = (TagDictionaryService)recipient;
+            service.InvalidateCachedProjectForImage(message.ImagePath);
+        });
+        messenger.Register<TagFilesChangedMessage>(this, static (recipient, message) =>
+        {
+            TagDictionaryService service = (TagDictionaryService)recipient;
+            service.InvalidateCachedProjectForImage(message.FilePath);
         });
     }
 
@@ -238,27 +266,54 @@ public sealed class TagDictionaryService : ITagDictionaryService
 
     public string ResolveAlias(string projectId, string input)
     {
-        if (!dictionaryEntriesCacheByProjectId.TryGetValue(projectId, out List<TagDictionaryEntry>? entries))
+        lock (cacheSync)
         {
-            return input;
-        }
+            if (!dictionaryEntriesCacheByProjectId.TryGetValue(projectId, out List<TagDictionaryEntry>? entries))
+            {
+                return input;
+            }
 
-        return ResolveAliasUsingEntries(entries, input);
+            return ResolveAliasUsingEntries(entries, input);
+        }
     }
 
     private async Task<List<TagDictionaryEntry>> GetCachedEntriesAsync(string projectId)
     {
-        if (dictionaryEntriesCacheByProjectId.TryGetValue(projectId, out List<TagDictionaryEntry>? cachedEntries))
+        lock (cacheSync)
         {
-            return cachedEntries;
+            if (dictionaryEntriesCacheByProjectId.TryGetValue(projectId, out List<TagDictionaryEntry>? cachedEntries))
+            {
+                return cachedEntries;
+            }
         }
 
         Project project = await LoadProjectByIdAsync(projectId);
+        lock (cacheSync)
+        {
+            projectRootPathByProjectId[projectId] = project.RootFolderPath;
+        }
+
+        List<string> tagFilePaths = EnumerateProjectTagFiles(project.RootFolderPath).ToList();
+        string tagFilesFingerprint = BuildTagFilesFingerprint(tagFilePaths);
         List<TagDictionaryEntry> persistedEntries = project.TagDictionaryEntries
             .Select(CloneTagDictionaryEntry)
             .ToList();
 
-        Dictionary<string, int> frequencyByCanonicalName = await BuildFrequencyMapAsync(project.RootFolderPath, persistedEntries);
+        if (string.Equals(project.State?.TagStatisticsCacheFingerprint, tagFilesFingerprint, StringComparison.Ordinal))
+        {
+            List<TagDictionaryEntry> persistedSnapshotEntries = persistedEntries
+                .OrderBy(entry => entry.CanonicalName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            lock (cacheSync)
+            {
+                dictionaryEntriesCacheByProjectId[projectId] = persistedSnapshotEntries;
+            }
+
+            return persistedSnapshotEntries;
+        }
+
+        Dictionary<string, int> frequencyByCanonicalName = await BuildFrequencyMapAsync(tagFilePaths, persistedEntries);
         Dictionary<string, TagDictionaryEntry> entriesByCanonicalName = persistedEntries
             .GroupBy(entry => entry.CanonicalName, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.First().CanonicalName, group => CloneTagDictionaryEntry(group.First()), StringComparer.OrdinalIgnoreCase);
@@ -299,15 +354,20 @@ public sealed class TagDictionaryService : ITagDictionaryService
             .OrderBy(entry => entry.CanonicalName, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        dictionaryEntriesCacheByProjectId[projectId] = entries;
+        await PersistTagStatisticsSnapshotAsync(project, entries, tagFilesFingerprint);
+        lock (cacheSync)
+        {
+            dictionaryEntriesCacheByProjectId[projectId] = entries;
+        }
+
         return entries;
     }
 
-    private async Task<Dictionary<string, int>> BuildFrequencyMapAsync(string projectRootPath, IReadOnlyList<TagDictionaryEntry> persistedEntries)
+    private async Task<Dictionary<string, int>> BuildFrequencyMapAsync(IEnumerable<string> tagFilePaths, IReadOnlyList<TagDictionaryEntry> persistedEntries)
     {
         Dictionary<string, int> frequencyByCanonicalName = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string tagFilePath in EnumerateProjectTagFiles(projectRootPath))
+        foreach (string tagFilePath in tagFilePaths)
         {
             IReadOnlyList<string> tags = await tagFileService.ReadTagsAsync(tagFilePath);
 
@@ -375,6 +435,12 @@ public sealed class TagDictionaryService : ITagDictionaryService
     private async Task PersistEntriesAsync(string projectId, IReadOnlyList<TagDictionaryEntry> entries)
     {
         Project project = await LoadProjectByIdAsync(projectId);
+        lock (cacheSync)
+        {
+            projectRootPathByProjectId[projectId] = project.RootFolderPath;
+        }
+
+        List<string> tagFilePaths = EnumerateProjectTagFiles(project.RootFolderPath).ToList();
         List<TagDictionaryEntry> persistedEntries = entries
             .Select(entry => new TagDictionaryEntry
             {
@@ -393,9 +459,14 @@ public sealed class TagDictionaryService : ITagDictionaryService
         project.TagDictionaryEntries = persistedEntries
             .Select(CloneTagDictionaryEntry)
             .ToList();
+        project.State ??= new ProjectState();
+        project.State.TagStatisticsCacheFingerprint = BuildTagFilesFingerprint(tagFilePaths);
 
         await projectService.SaveProjectAsync(project);
-        dictionaryEntriesCacheByProjectId[projectId] = persistedEntries;
+        lock (cacheSync)
+        {
+            dictionaryEntriesCacheByProjectId[projectId] = persistedEntries;
+        }
     }
 
     private async Task<Project> LoadProjectByIdAsync(string projectId)
@@ -550,6 +621,77 @@ public sealed class TagDictionaryService : ITagDictionaryService
                 .ToList(),
             GlobalFrequency = entry.GlobalFrequency,
         };
+    }
+
+    private async Task PersistTagStatisticsSnapshotAsync(Project project, IReadOnlyList<TagDictionaryEntry> entries, string tagFilesFingerprint)
+    {
+        project.TagDictionaryEntries = entries
+            .Select(CloneTagDictionaryEntry)
+            .ToList();
+        project.State ??= new ProjectState();
+        project.State.TagStatisticsCacheFingerprint = tagFilesFingerprint;
+        await projectService.SaveProjectAsync(project);
+    }
+
+    private void InvalidateCachedProject(string projectId)
+    {
+        lock (cacheSync)
+        {
+            dictionaryEntriesCacheByProjectId.Remove(projectId);
+        }
+    }
+
+    private void InvalidateCachedProjectForImage(string imagePath)
+    {
+        string? projectId = TryResolveCachedProjectIdForImagePath(imagePath);
+
+        if (string.IsNullOrWhiteSpace(projectId))
+        {
+            return;
+        }
+
+        InvalidateCachedProject(projectId);
+        messenger.Send(new TagDictionaryChangedMessage(projectId));
+    }
+
+    private string? TryResolveCachedProjectIdForImagePath(string imagePath)
+    {
+        string normalizedImagePath = Path.GetFullPath(imagePath);
+
+        lock (cacheSync)
+        {
+            return projectRootPathByProjectId
+                .OrderByDescending(entry => entry.Value.Length)
+                .FirstOrDefault(entry => IsPathWithinRoot(normalizedImagePath, entry.Value))
+                .Key;
+        }
+    }
+
+    private static bool IsPathWithinRoot(string filePath, string rootPath)
+    {
+        string normalizedRootPath = Path.GetFullPath(rootPath);
+        normalizedRootPath = Path.TrimEndingDirectorySeparator(normalizedRootPath) + Path.DirectorySeparatorChar;
+        return filePath.StartsWith(normalizedRootPath, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string BuildTagFilesFingerprint(IReadOnlyList<string> tagFilePaths)
+    {
+        StringBuilder fingerprintBuilder = new StringBuilder();
+
+        foreach (string tagFilePath in tagFilePaths)
+        {
+            FileInfo fileInfo = new FileInfo(tagFilePath);
+            fingerprintBuilder
+                .Append(tagFilePath)
+                .Append('|')
+                .Append(fileInfo.Exists ? fileInfo.LastWriteTimeUtc.Ticks : 0L)
+                .Append('|')
+                .Append(fileInfo.Exists ? fileInfo.Length : 0L)
+                .AppendLine();
+        }
+
+        byte[] fingerprintBytes = Encoding.UTF8.GetBytes(fingerprintBuilder.ToString());
+        return Convert.ToHexString(SHA256.HashData(fingerprintBytes));
     }
 
     private static string SanitizeTagName(string value, string parameterName)

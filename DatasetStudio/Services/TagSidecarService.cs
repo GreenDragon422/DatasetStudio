@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.Services;
 
-public sealed class TagExportService : ITagExportService
+public sealed class TagSidecarService : ITagSidecarService
 {
     private readonly ITagFileService tagFileService;
 
-    public TagExportService(ITagFileService tagFileService)
+    public TagSidecarService(ITagFileService tagFileService)
     {
         this.tagFileService = tagFileService ?? throw new ArgumentNullException(nameof(tagFileService));
     }
