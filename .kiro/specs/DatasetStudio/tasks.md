@@ -331,6 +331,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-28): The remaining rename cleanup is complete. The view, viewmodel, helper types, test class, and tracked file names now all use the `ProjectOverview*` naming, and the `.kiro` task/design docs reference the renamed view and viewmodel paths.
   - Progress note (2026-03-28): Project Overview is now the primary entry point to Tags Overview. The top bar includes a dedicated `Tags Overview` action button, and the shared screen shortcut set exposes `Ctrl+T` so taxonomy management is reachable from the normal review workflow without leaving the keyboard-first shell pattern.
   - Progress note (2026-03-28): The Project Overview card-selection affordance now uses a real checkbox overlay anchored to the top-left corner of the thumbnail itself instead of a text chip above the image, which keeps the header compact and makes batch selection read like standard checkbox selection.
+  - Progress note (2026-03-28): Strengthened the Project Overview thumbnail filename treatment by moving it to the darker hint-text token with a larger bold weight, so image names remain readable against the warm card background in both the live shell and headless captures.
   - _Requirements: 2.1–2.22, 9.1, 9.4, 9.5_
 
 - [x] 35. Implement Inspector Mode screen

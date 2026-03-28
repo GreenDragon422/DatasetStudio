@@ -771,9 +771,9 @@
     </Style>
 
     <Style Selector="TextBlock.thumbnail-header-text">
-        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource BrushHintText}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Bold" />
     </Style>
 
     <Style Selector="CheckBox.thumbnail-select-box">
