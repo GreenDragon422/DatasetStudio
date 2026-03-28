@@ -224,6 +224,7 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         SelectedAiModelStatusText = string.Format("Downloading {0}...", selectedModel.DisplayName);
         OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
         OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+        OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
 
         try
         {
@@ -255,6 +256,7 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
             RefreshSelectedAiModelState();
             OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
             OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+            OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
         }
     }
 
@@ -825,13 +827,23 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         }
     }
 
+    public bool ShowDownloadSelectedAiModelAction
+    {
+        get
+        {
+            return !IsSelectedAiModelInstalled
+                && SelectedAiModel is not null
+                && SelectedAiModel.CanDownloadFromHuggingFace;
+        }
+    }
+
     public string DownloadSelectedAiModelButtonText
     {
         get
         {
             return IsDownloadingSelectedAiModel
                 ? "Downloading..."
-                : (IsSelectedAiModelInstalled ? "Installed" : "Download Model");
+                : "Download Model";
         }
     }
 
@@ -1740,6 +1752,7 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
             SelectedAiModelStatusText = "No AI model selected.";
             OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
             OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+            OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
             return;
         }
 
@@ -1750,5 +1763,6 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
             : SelectedAiModel.StatusLabel;
         OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
         OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+        OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
     }
 }

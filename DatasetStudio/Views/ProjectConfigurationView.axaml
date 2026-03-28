@@ -82,10 +82,18 @@
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
 
-                                    <Button Grid.Column="1"
-                                            Content="{Binding DownloadSelectedAiModelButtonText}"
-                                            Command="{Binding DownloadSelectedAiModelCommand}"
-                                            IsEnabled="{Binding CanDownloadSelectedAiModel}" />
+                                    <Grid Grid.Column="1">
+                                        <Button Content="{Binding DownloadSelectedAiModelButtonText}"
+                                                Command="{Binding DownloadSelectedAiModelCommand}"
+                                                IsEnabled="{Binding CanDownloadSelectedAiModel}"
+                                                IsVisible="{Binding ShowDownloadSelectedAiModelAction}" />
+
+                                        <Border Classes="header-control-status-chip installed"
+                                                IsVisible="{Binding IsSelectedAiModelInstalled}">
+                                            <TextBlock Classes="header-control-status-chip-text"
+                                                       Text="Installed" />
+                                        </Border>
+                                    </Grid>
                                 </Grid>
 
                                 <TextBlock Text="{Binding SelectedAiModelStatusText}"

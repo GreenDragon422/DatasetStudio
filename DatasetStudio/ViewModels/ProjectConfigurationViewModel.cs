@@ -197,6 +197,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         SelectedAiModelStatusText = string.Format("Downloading {0}...", selectedModel.DisplayName);
         OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
         OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+        OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
 
         try
         {
@@ -223,6 +224,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
             RefreshSelectedAiModelState();
             OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
             OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+            OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
         }
     }
 
@@ -429,13 +431,25 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         }
     }
 
+    public bool ShowDownloadSelectedAiModelAction
+    {
+        get
+        {
+            AiModelInfo? selectedModel = AvailableAiModels.FirstOrDefault(model =>
+                string.Equals(model.Id, SelectedAiModelName, StringComparison.OrdinalIgnoreCase));
+            return !IsSelectedAiModelInstalled
+                && selectedModel is not null
+                && selectedModel.CanDownloadFromHuggingFace;
+        }
+    }
+
     public string DownloadSelectedAiModelButtonText
     {
         get
         {
             return IsDownloadingSelectedAiModel
                 ? "Downloading..."
-                : (IsSelectedAiModelInstalled ? "Installed" : "Download Model");
+                : "Download Model";
         }
     }
 
@@ -558,6 +572,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
                 : "Selected model is not present in the current catalog.";
             OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
             OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+            OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
             return;
         }
 
@@ -568,5 +583,6 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
             : selectedModel.StatusLabel;
         OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
         OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+        OnPropertyChanged(nameof(ShowDownloadSelectedAiModelAction));
     }
 }

@@ -431,12 +431,14 @@ public class ProjectOverviewViewModelTests
 
         Assert.That(viewModel.CanDownloadSelectedAiModel, Is.True);
         Assert.That(viewModel.DownloadSelectedAiModelButtonText, Is.EqualTo("Download Model"));
+        Assert.That(viewModel.ShowDownloadSelectedAiModelAction, Is.True);
         Assert.That(viewModel.IsSelectedAiModelInstalled, Is.False);
 
         viewModel.SelectedAiModel = viewModel.AiModels[1];
 
         Assert.That(viewModel.CanDownloadSelectedAiModel, Is.False);
-        Assert.That(viewModel.DownloadSelectedAiModelButtonText, Is.EqualTo("Installed"));
+        Assert.That(viewModel.DownloadSelectedAiModelButtonText, Is.EqualTo("Download Model"));
+        Assert.That(viewModel.ShowDownloadSelectedAiModelAction, Is.False);
         Assert.That(viewModel.IsSelectedAiModelInstalled, Is.True);
     }
 
