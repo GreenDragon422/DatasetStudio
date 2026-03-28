@@ -66,6 +66,9 @@ public partial class App : Application
         services.AddSingleton<IThumbnailCacheService, ThumbnailCacheService>();
         services.AddSingleton<ITagDictionaryService, TagDictionaryService>();
         services.AddSingleton<IClipboardService, ClipboardService>();
+        services.AddSingleton<IProcessExecutionService, ProcessExecutionService>();
+        services.AddSingleton<IHuggingFaceCliService, HuggingFaceCliService>();
+        services.AddSingleton<IAiModelCatalogService, AiModelCatalogService>();
         services.AddSingleton<IAiTaggerService, AiTaggerService>();
         services.AddSingleton<AiTaggingCoordinator>();
         services.AddSingleton<BatchTagOperationService>();

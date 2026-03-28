@@ -518,7 +518,16 @@ MasterRootDirectory/
 ├── ProjectB/
 │   ├── .datasetstudio.json
 │   └── ...
-└── ai_models.json                     ← AI model registry (shared)
+└── ai_models.json                     ← Shared AI model catalog override (optional)
+```
+
+```
+%LocalAppData%/DatasetStudio/
+├── huggingface/                       ← HF_HOME for Hugging Face auth/cache state
+├── models/
+│   └── <owner>/<repo>/                ← App-managed downloaded HF model installs
+└── tools/
+    └── hf-cli/                        ← App-managed `hf` CLI bootstrap (when system `hf` is unavailable)
 ```
 
 ### Tag File Format
@@ -729,9 +738,10 @@ sequenceDiagram
 
 | Scenario | Handling |
 |---|---|
-| AI model file not found | Display warning in StatusBar. Disable AI tagger for the session. Allow manual tagging. |
+| AI model catalog missing or malformed | Fall back to empty model list. Display error in StatusBar. |
+| Hugging Face CLI unavailable or bootstrap fails | Display warning in StatusBar. Keep manual tagging available and leave HF-backed models marked as not installed. |
+| Selected HF-backed model download fails | Display warning in StatusBar. Leave model uninstalled and allow the user to retry download later. |
 | AI model inference fails for an image | Log error. Set image status to Untagged (Red). Skip to next image in queue. Display count of failed images in StatusBar. |
-| AI model JSON config malformed | Fall back to empty model list. Display error in StatusBar. |
 
 ### Data Validation Errors
 
@@ -768,6 +778,8 @@ Tests cover the service layer and pure logic only. No UI tests, no ViewModel tes
 |---|---|
 | `TagFileServiceTests` | Read/write tag files (round-trip), comma parsing, prefix prepending, path derivation (.txt from image path), empty file handling, whitespace trimming |
 | `ProjectConfigServiceTests` | Save/load `.datasetstudio.json` round-trip, all fields preserved (stages, prefix tags, AI model, state block), malformed JSON fallback |
+| `AiModelCatalogServiceTests` | Shared `ai_models.json` catalog override, legacy local-model entry compatibility, HF install-state mapping |
+| `HuggingFaceCliServiceTests` | System `hf` usage, managed CLI bootstrap fallback, download argument/environment construction |
 | `StatePersistenceTests` | App state save/load round-trip (window geometry, last project, last master root), project state save/load (active stage, zoom, last inspected image) |
 | `WorkflowStageTests` | Numeric prefix parsing and ordering (`03_Ready`, `01_Inbox`, `02_Review` → sorted correctly), display name stripping, folders without prefixes sorted after numbered ones |
 | `TagDictionaryServiceTests` | Add/remove/rename tags, alias resolution, merge updates all references, frequency counting |

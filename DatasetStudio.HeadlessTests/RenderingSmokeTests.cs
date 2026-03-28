@@ -1242,16 +1242,30 @@ public class RenderingSmokeTests
                     Id = "wd-eva02-large",
                     DisplayName = "WD EVA02 Large",
                     ModelPath = "models/wd-eva02-large.onnx",
+                    IsInstalled = true,
                 },
                 new AiModelInfo
                 {
                     Id = "convnext-v2",
                     DisplayName = "ConvNext V2",
                     ModelPath = "models/convnext-v2.onnx",
+                    IsInstalled = true,
                 },
             };
 
             return Task.FromResult(models);
+        }
+
+        public async Task<AiModelInfo?> DownloadModelAsync(string modelId, CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<AiModelInfo> models = await GetAvailableModelsAsync().ConfigureAwait(false);
+            return models.FirstOrDefault(model => string.Equals(model.Id, modelId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool IsModelDownloadInProgress(string modelId)
+        {
+            _ = modelId;
+            return false;
         }
 
         public bool IsProcessing(string imageFilePath)

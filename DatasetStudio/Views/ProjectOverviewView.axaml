@@ -26,17 +26,30 @@
                                TextWrapping="Wrap" />
                 </StackPanel>
 
-                <ComboBox Grid.Column="1"
-                          Classes="header-control"
-                          Width="220"
-                          ItemsSource="{Binding AiModels}"
-                          SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="models:AiModelInfo">
-                            <TextBlock Text="{Binding DisplayName}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+                <StackPanel Grid.Column="1"
+                            Width="280"
+                            Classes="model-selection-stack">
+                    <ComboBox Classes="header-control"
+                              Width="280"
+                              ItemsSource="{Binding AiModels}"
+                              SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:AiModelInfo">
+                                <TextBlock Text="{Binding DisplayName}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <WrapPanel Classes="action-row compact">
+                        <Button Classes="header-control"
+                                Content="{Binding DownloadSelectedAiModelButtonText}"
+                                Command="{Binding DownloadSelectedAiModelCommand}"
+                                IsEnabled="{Binding CanDownloadSelectedAiModel}" />
+                        <TextBlock Text="{Binding SelectedAiModelStatusText}"
+                                   Classes="mono-caption"
+                                   VerticalAlignment="Center" />
+                    </WrapPanel>
+                </StackPanel>
 
                 <TextBox x:Name="FilterTextBox"
                          Grid.Column="2"

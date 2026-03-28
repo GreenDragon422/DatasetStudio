@@ -236,9 +236,10 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 - [x] 27. Implement AiTaggerService (stub)
   - [x] 27.1 Create `Services/AiTaggerService.cs` implementing IAiTaggerService
-  - [x] 27.2 Implement `GetAvailableModelsAsync` — read `ai_models.json` config file, deserialize to List<AiModelInfo>, handle missing/malformed file gracefully
+  - [x] 27.2 Implement `GetAvailableModelsAsync` — read the shared `ai_models.json` model catalog, support both legacy local-path entries and Hugging Face repository entries, and handle missing/malformed files gracefully
   - [x] 27.3 Implement `GenerateTagsAsync` — stub returning placeholder tags (real AI integration is external). Set IsProcessing=true during execution, fire TagGenerationCompleted event on completion.
   - [x] 27.4 Implement `IsProcessing` — track per-image processing state via ConcurrentDictionary
+  - [x] 27.5 Add `AiModelCatalogService` and `HuggingFaceCliService` — prefer system `hf`, otherwise bootstrap an app-managed official Hugging Face CLI environment under LocalAppData for on-demand model downloads
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
 - [x] 28. Implement batch tag operation helpers
@@ -410,7 +411,9 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 40.2 Wire processing indicator — set ImageEntry.IsAiProcessing=true while processing, bind to spinner overlay in ProjectOverview thumbnails and InspectorMode tag area
   - [x] 40.3 On AiTaggingCompletedMessage — create tag file via ITagFileService, set status to Yellow (AutoTagged), refresh UI
   - [x] 40.4 Wire AI model selection — sync dropdown in ProjectOverview top bar and ProjectConfig modal to IAiTaggerService active model
-  - Progress note (2026-03-27): Project Overview and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Project Overview also now loads the shared AI model registry into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
+  - [x] 40.5 Add AI model install UX — show install state and Download action in ProjectOverview and ProjectConfiguration for HF-backed models
+  - Progress note (2026-03-27): Project Overview and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Project Overview also now loads the shared AI model catalog into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
+  - Progress note (2026-03-28): The AI model flow now resolves entries from a shared `ai_models.json` catalog through `AiModelCatalogService`, preserves compatibility with legacy local model paths, and adds app-managed Hugging Face downloads through the official `hf` CLI when a selected catalog entry points to a Hugging Face repository. Project Configuration and Project Overview now surface per-model install status plus a Download action, and coverage was expanded with new `AiModelCatalogServiceTests` and `HuggingFaceCliServiceTests`. The full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 2.21, 3.13_
 
 - [x] 41. Wire FileSystemWatcher for live updates

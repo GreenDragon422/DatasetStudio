@@ -57,22 +57,33 @@
                               Classes="form-row">
                             <TextBlock Text="AI model"
                                        Classes="form-label" />
-                            <ComboBox Grid.Column="1"
-                                      Classes="field-input"
-                                       ItemsSource="{Binding AvailableAiModels}"
-                                       SelectedValue="{Binding SelectedAiModelName, Mode=TwoWay}"
-                                       SelectedValueBinding="{Binding Id}"
-                                      PlaceholderText="Select an AI model">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="models:AiModelInfo">
-                                        <StackPanel Classes="screen-title-stack">
-                                            <TextBlock Text="{Binding DisplayName}" />
-                                            <TextBlock Text="{Binding ModelPath}"
-                                                       Classes="mono-caption" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
+                            <StackPanel Grid.Column="1"
+                                        Classes="model-selection-stack">
+                                <ComboBox Classes="field-input"
+                                           ItemsSource="{Binding AvailableAiModels}"
+                                           SelectedValue="{Binding SelectedAiModelName, Mode=TwoWay}"
+                                           SelectedValueBinding="{Binding Id}"
+                                           PlaceholderText="Select an AI model">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="models:AiModelInfo">
+                                            <StackPanel Classes="screen-title-stack">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                                <TextBlock Text="{Binding StatusLabel}"
+                                                           Classes="mono-caption" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <WrapPanel Classes="action-row compact">
+                                    <Button Content="{Binding DownloadSelectedAiModelButtonText}"
+                                            Command="{Binding DownloadSelectedAiModelCommand}"
+                                            IsEnabled="{Binding CanDownloadSelectedAiModel}" />
+                                    <TextBlock Text="{Binding SelectedAiModelStatusText}"
+                                               Classes="mono-caption"
+                                               VerticalAlignment="Center" />
+                                </WrapPanel>
+                            </StackPanel>
                         </Grid>
 
                         <StackPanel Grid.Row="3"

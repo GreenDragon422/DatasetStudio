@@ -804,6 +804,10 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <Style Selector="StackPanel.model-selection-stack">
+        <Setter Property="Spacing" Value="6" />
+    </Style>
+
     <Style Selector="StackPanel.section-stack">
         <Setter Property="Spacing" Value="8" />
     </Style>

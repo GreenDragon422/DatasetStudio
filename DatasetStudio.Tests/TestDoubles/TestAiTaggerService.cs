@@ -9,11 +9,13 @@ namespace DatasetStudio.Tests.TestDoubles;
 
 public sealed class TestAiTaggerService : IAiTaggerService
 {
+    private readonly HashSet<string> downloadingModels;
     private readonly Dictionary<string, string> requestedModelsByImagePath;
     private readonly HashSet<string> processingImages;
 
     public TestAiTaggerService()
     {
+        downloadingModels = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         requestedModelsByImagePath = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         processingImages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         AvailableModels = Array.Empty<AiModelInfo>();
@@ -54,6 +56,29 @@ public sealed class TestAiTaggerService : IAiTaggerService
     public Task<IReadOnlyList<AiModelInfo>> GetAvailableModelsAsync()
     {
         return Task.FromResult(AvailableModels);
+    }
+
+    public Task<AiModelInfo?> DownloadModelAsync(string modelId, CancellationToken cancellationToken = default)
+    {
+        downloadingModels.Add(modelId);
+        AiModelInfo? model = AvailableModels.FirstOrDefault(candidate =>
+            string.Equals(candidate.Id, modelId, StringComparison.OrdinalIgnoreCase));
+        if (model is not null)
+        {
+            model.IsInstalled = true;
+            if (string.IsNullOrWhiteSpace(model.ModelPath))
+            {
+                model.ModelPath = Path.Combine("C:\\models", model.Id.Replace('/', '_'));
+            }
+        }
+
+        downloadingModels.Remove(modelId);
+        return Task.FromResult(model);
+    }
+
+    public bool IsModelDownloadInProgress(string modelId)
+    {
+        return downloadingModels.Contains(modelId);
     }
 
     public bool IsProcessing(string imageFilePath)

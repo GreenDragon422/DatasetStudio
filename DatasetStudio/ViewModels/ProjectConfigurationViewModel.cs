@@ -74,6 +74,15 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
     [ObservableProperty]
     private bool isSaving;
 
+    [ObservableProperty]
+    private string selectedAiModelStatusText = "No AI model selected.";
+
+    [ObservableProperty]
+    private bool isSelectedAiModelInstalled;
+
+    [ObservableProperty]
+    private bool isDownloadingSelectedAiModel;
+
     public bool CanSave
     {
         get
@@ -112,6 +121,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
 
         NormalizeStages();
         ValidatePrefixTags();
+        RefreshSelectedAiModelState();
         OnPropertyChanged(nameof(CanSave));
     }
 
@@ -138,7 +148,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
 
         try
         {
-            IReadOnlyList<AiModelInfo> models = await aiTaggerService.GetAvailableModelsAsync().ConfigureAwait(false);
+            IReadOnlyList<AiModelInfo> models = await aiTaggerService.GetAvailableModelsAsync().ConfigureAwait(true);
             AvailableAiModels.Clear();
 
             foreach (AiModelInfo model in models)
@@ -151,6 +161,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
                 SelectedAiModelName = AvailableAiModels[0].Id;
             }
 
+            RefreshSelectedAiModelState();
             StatusText = AvailableAiModels.Count > 0
                 ? string.Format("Loaded {0} AI model{1}.", AvailableAiModels.Count, AvailableAiModels.Count == 1 ? string.Empty : "s")
                 : "No AI models were found.";
@@ -162,6 +173,56 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         finally
         {
             IsLoadingAiModels = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DownloadSelectedAiModelAsync()
+    {
+        AiModelInfo? selectedModel = AvailableAiModels.FirstOrDefault(model =>
+            string.Equals(model.Id, SelectedAiModelName, StringComparison.OrdinalIgnoreCase));
+        if (selectedModel is null)
+        {
+            SelectedAiModelStatusText = "Select a catalog model before downloading.";
+            return;
+        }
+
+        if (!selectedModel.CanDownloadFromHuggingFace)
+        {
+            SelectedAiModelStatusText = "The selected model does not define a Hugging Face download source.";
+            return;
+        }
+
+        IsDownloadingSelectedAiModel = true;
+        SelectedAiModelStatusText = string.Format("Downloading {0}...", selectedModel.DisplayName);
+        OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
+        OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+
+        try
+        {
+            AiModelInfo? downloadedModel = await aiTaggerService.DownloadModelAsync(selectedModel.Id).ConfigureAwait(true);
+            await LoadAiModelsAsync().ConfigureAwait(true);
+            if (downloadedModel is null)
+            {
+                StatusText = string.Format("Model {0} is not in the current AI model catalog.", selectedModel.Id);
+                SelectedAiModelStatusText = "Model catalog entry was not found after download.";
+                return;
+            }
+
+            SelectedAiModelName = downloadedModel.Id;
+            StatusText = string.Format("Downloaded {0}.", downloadedModel.DisplayName);
+        }
+        catch (Exception exception)
+        {
+            StatusText = string.Format("Could not download the selected AI model: {0}", exception.Message);
+            SelectedAiModelStatusText = StatusText;
+        }
+        finally
+        {
+            IsDownloadingSelectedAiModel = false;
+            RefreshSelectedAiModelState();
+            OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
+            OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
         }
     }
 
@@ -329,6 +390,12 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         OnPropertyChanged(nameof(CanSave));
     }
 
+    partial void OnSelectedAiModelNameChanged(string value)
+    {
+        _ = value;
+        RefreshSelectedAiModelState();
+    }
+
     partial void OnPrefixTagsTextChanged(string value)
     {
         _ = value;
@@ -346,6 +413,29 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
     {
         _ = value;
         OnPropertyChanged(nameof(CanSave));
+    }
+
+    public bool CanDownloadSelectedAiModel
+    {
+        get
+        {
+            AiModelInfo? selectedModel = AvailableAiModels.FirstOrDefault(model =>
+                string.Equals(model.Id, SelectedAiModelName, StringComparison.OrdinalIgnoreCase));
+            return !IsLoadingAiModels
+                && !IsDownloadingSelectedAiModel
+                && selectedModel is not null
+                && selectedModel.CanDownloadFromHuggingFace;
+        }
+    }
+
+    public string DownloadSelectedAiModelButtonText
+    {
+        get
+        {
+            return IsDownloadingSelectedAiModel
+                ? "Downloading..."
+                : (IsSelectedAiModelInstalled ? "Reinstall" : "Download");
+        }
     }
 
     private bool ValidateBeforeSave()
@@ -451,5 +541,31 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         return prefixTagsText
             .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .ToList();
+    }
+
+    private void RefreshSelectedAiModelState()
+    {
+        AiModelInfo? selectedModel = AvailableAiModels.FirstOrDefault(model =>
+            string.Equals(model.Id, SelectedAiModelName, StringComparison.OrdinalIgnoreCase));
+        if (selectedModel is null)
+        {
+            IsSelectedAiModelInstalled = false;
+            IsDownloadingSelectedAiModel = !string.IsNullOrWhiteSpace(SelectedAiModelName)
+                && aiTaggerService.IsModelDownloadInProgress(SelectedAiModelName);
+            SelectedAiModelStatusText = string.IsNullOrWhiteSpace(SelectedAiModelName)
+                ? "No AI model selected."
+                : "Selected model is not present in the current catalog.";
+            OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
+            OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
+            return;
+        }
+
+        IsSelectedAiModelInstalled = selectedModel.IsInstalled;
+        IsDownloadingSelectedAiModel = aiTaggerService.IsModelDownloadInProgress(selectedModel.Id);
+        SelectedAiModelStatusText = IsDownloadingSelectedAiModel
+            ? string.Format("Downloading {0}...", selectedModel.DisplayName)
+            : selectedModel.StatusLabel;
+        OnPropertyChanged(nameof(CanDownloadSelectedAiModel));
+        OnPropertyChanged(nameof(DownloadSelectedAiModelButtonText));
     }
 }

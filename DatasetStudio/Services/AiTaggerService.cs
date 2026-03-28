@@ -6,31 +6,29 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DatasetStudio.Services;
 
 public sealed class AiTaggerService : IAiTaggerService
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-    };
-
+    private readonly IAiModelCatalogService aiModelCatalogService;
+    private readonly IHuggingFaceCliService huggingFaceCliService;
     private readonly ConcurrentDictionary<string, byte> processingImages;
+    private readonly ConcurrentDictionary<string, Task<AiModelInfo?>> modelDownloadsById;
     private readonly IMessenger messenger;
-    private readonly IStatePersistenceService statePersistenceService;
 
     public AiTaggerService(
-        IStatePersistenceService statePersistenceService,
+        IAiModelCatalogService aiModelCatalogService,
+        IHuggingFaceCliService huggingFaceCliService,
         IMessenger messenger)
     {
-        this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
+        this.aiModelCatalogService = aiModelCatalogService ?? throw new ArgumentNullException(nameof(aiModelCatalogService));
+        this.huggingFaceCliService = huggingFaceCliService ?? throw new ArgumentNullException(nameof(huggingFaceCliService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         processingImages = new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
+        modelDownloadsById = new ConcurrentDictionary<string, Task<AiModelInfo?>>(StringComparer.OrdinalIgnoreCase);
     }
 
     public event EventHandler<AiTaggingCompletedMessage>? TagGenerationCompleted;
@@ -45,6 +43,16 @@ public sealed class AiTaggerService : IAiTaggerService
         if (string.IsNullOrWhiteSpace(modelName))
         {
             throw new ArgumentException("An AI model name is required.", nameof(modelName));
+        }
+
+        AiModelInfo? model = await aiModelCatalogService.GetModelAsync(modelName).ConfigureAwait(false);
+        if (model is not null && !model.IsInstalled)
+        {
+            AiModelInfo? installedModel = await DownloadModelAsync(model.Id).ConfigureAwait(false);
+            if (installedModel is not null && !installedModel.IsInstalled)
+            {
+                throw new InvalidOperationException(string.Format("Model '{0}' is not installed.", installedModel.DisplayName));
+            }
         }
 
         await Task.Delay(50).ConfigureAwait(false);
@@ -81,22 +89,46 @@ public sealed class AiTaggerService : IAiTaggerService
 
     public async Task<IReadOnlyList<AiModelInfo>> GetAvailableModelsAsync()
     {
-        string? aiModelsPath = await ResolveAiModelsPathAsync();
+        return await aiModelCatalogService.GetAvailableModelsAsync().ConfigureAwait(false);
+    }
 
-        if (string.IsNullOrWhiteSpace(aiModelsPath) || !File.Exists(aiModelsPath))
+    public bool IsModelDownloadInProgress(string modelId)
+    {
+        if (string.IsNullOrWhiteSpace(modelId))
         {
-            return [];
+            return false;
         }
 
+        return modelDownloadsById.ContainsKey(modelId);
+    }
+
+    public Task<AiModelInfo?> DownloadModelAsync(string modelId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(modelId))
+        {
+            throw new ArgumentException("An AI model id is required.", nameof(modelId));
+        }
+
+        Task<AiModelInfo?> downloadTask = modelDownloadsById.GetOrAdd(
+            modelId,
+            static (requestedModelId, state) => state.service.DownloadModelCoreAsync(requestedModelId, state.cancellationToken),
+            (service: this, cancellationToken));
+
+        return AwaitModelDownloadAsync(modelId, downloadTask);
+    }
+
+    private async Task<AiModelInfo?> AwaitModelDownloadAsync(string modelId, Task<AiModelInfo?> downloadTask)
+    {
         try
         {
-            await using FileStream fileStream = File.OpenRead(aiModelsPath);
-            List<AiModelInfo>? models = await JsonSerializer.DeserializeAsync<List<AiModelInfo>>(fileStream, JsonSerializerOptions).ConfigureAwait(false);
-            return models ?? [];
+            return await downloadTask.ConfigureAwait(false);
         }
-        catch (JsonException)
+        finally
         {
-            return [];
+            if (downloadTask.IsCompleted)
+            {
+                modelDownloadsById.TryRemove(modelId, out _);
+            }
         }
     }
 
@@ -123,16 +155,21 @@ public sealed class AiTaggerService : IAiTaggerService
         }
     }
 
-    private async Task<string?> ResolveAiModelsPathAsync()
+    private async Task<AiModelInfo?> DownloadModelCoreAsync(string modelId, CancellationToken cancellationToken)
     {
-        AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
-
-        if (!string.IsNullOrWhiteSpace(appState.LastMasterRootDirectory))
+        AiModelInfo? model = await aiModelCatalogService.GetModelAsync(modelId, cancellationToken).ConfigureAwait(false);
+        if (model is null)
         {
-            return Path.Combine(appState.LastMasterRootDirectory, "ai_models.json");
+            return null;
         }
 
-        return Path.Combine(AppContext.BaseDirectory, "ai_models.json");
+        if (model.IsInstalled || !model.CanDownloadFromHuggingFace)
+        {
+            return model;
+        }
+
+        await huggingFaceCliService.DownloadModelAsync(model, cancellationToken).ConfigureAwait(false);
+        return await aiModelCatalogService.GetModelAsync(modelId, cancellationToken).ConfigureAwait(false);
     }
 
     private static List<string> NormalizeGeneratedTags(Project project, IReadOnlyList<string> sourceTags)
