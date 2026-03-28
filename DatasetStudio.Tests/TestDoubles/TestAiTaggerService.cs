@@ -89,6 +89,10 @@ public sealed class TestAiTaggerService : IAiTaggerService
     public void Complete(string imageFilePath, IReadOnlyList<string> generatedTags)
     {
         processingImages.Remove(imageFilePath);
-        TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, generatedTags));
+        ImageTaggingResult taggingResult = new ImageTaggingResult
+        {
+            AcceptedTrainingTags = generatedTags.ToList(),
+        };
+        TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, taggingResult));
     }
 }

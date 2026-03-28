@@ -1,5 +1,15 @@
+using DatasetStudio.Models;
 using System.Collections.Generic;
 
 namespace DatasetStudio.Messages;
 
-public sealed record AiTaggingCompletedMessage(string ImagePath, IReadOnlyList<string> GeneratedTags);
+public sealed record AiTaggingCompletedMessage(string ImagePath, ImageTaggingResult Result)
+{
+    public IReadOnlyList<string> GeneratedTags
+    {
+        get
+        {
+            return Result.AcceptedTrainingTags;
+        }
+    }
+}

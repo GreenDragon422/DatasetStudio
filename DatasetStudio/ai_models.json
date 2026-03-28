@@ -1,9 +1,25 @@
 [
   { "repositoryId": "fancyfeast/llama-joycaption-beta-one-hf-llava" },
-  { "displayName": "JoyTag", "repositoryId": "fancyfeast/joytag" },
-  { "displayName": "WD EVA02 Large Tagger v3", "repositoryId": "SmilingWolf/wd-eva02-large-tagger-v3" },
-  { "displayName": "WD SwinV2 Tagger v3", "repositoryId": "SmilingWolf/wd-swinv2-tagger-v3" },
-  { "displayName": "WD ConvNeXt Tagger v3", "repositoryId": "SmilingWolf/wd-convnext-tagger-v3" },
+  {
+    "displayName": "JoyTag",
+    "repositoryId": "fancyfeast/joytag",
+    "includePatterns": [ "model.onnx", "top_tags.txt" ]
+  },
+  {
+    "displayName": "WD EVA02 Large Tagger v3",
+    "repositoryId": "SmilingWolf/wd-eva02-large-tagger-v3",
+    "includePatterns": [ "model.onnx", "selected_tags.csv" ]
+  },
+  {
+    "displayName": "WD SwinV2 Tagger v3",
+    "repositoryId": "SmilingWolf/wd-swinv2-tagger-v3",
+    "includePatterns": [ "model.onnx", "selected_tags.csv" ]
+  },
+  {
+    "displayName": "WD ConvNeXt Tagger v3",
+    "repositoryId": "SmilingWolf/wd-convnext-tagger-v3",
+    "includePatterns": [ "model.onnx", "selected_tags.csv" ]
+  },
   { "repositoryId": "microsoft/Florence-2-large-ft" },
   { "repositoryId": "microsoft/Florence-2-large" },
   { "repositoryId": "microsoft/Florence-2-base-ft" },

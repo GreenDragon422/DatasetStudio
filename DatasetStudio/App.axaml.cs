@@ -69,6 +69,10 @@ public partial class App : Application
         services.AddSingleton<IProcessExecutionService, ProcessExecutionService>();
         services.AddSingleton<IHuggingFaceCliService, HuggingFaceCliService>();
         services.AddSingleton<IAiModelCatalogService, AiModelCatalogService>();
+        services.AddSingleton<ImagePreprocessor>();
+        services.AddSingleton<TagPostProcessor>();
+        services.AddSingleton<ITaggerSession, TaggerSession>();
+        services.AddSingleton<ITagExportService, TagExportService>();
         services.AddSingleton<IAiTaggerService, AiTaggerService>();
         services.AddSingleton<AiTaggingCoordinator>();
         services.AddSingleton<BatchTagOperationService>();

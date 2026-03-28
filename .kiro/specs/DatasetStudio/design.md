@@ -311,6 +311,19 @@ graph TD
     J -->|No| L[Ignore and let normal control behavior continue]
 ```
 
+### Local ONNX Tagging Architecture
+
+The current local tagging path is optimized around WD-style ONNX taggers such as `SmilingWolf/wd-swinv2-tagger-v3`:
+
+1. `AiTaggerService` resolves the selected model from `ai_models.json`, verifies that the required local files are present, and builds a `TaggerModelConfig`.
+2. `TaggerSession` owns one long-lived `InferenceSession` for the active ONNX model and services a channel-backed job queue.
+3. Incoming image requests are grouped into batches before inference. The model is not reloaded per image, and DatasetStudio does not spawn one process per file.
+4. `ImagePreprocessor` loads images with ImageSharp, flattens alpha against white, pads to square, resizes to the model input size, and packs the batch tensor according to the input layout discovered from `session.InputMetadata`.
+5. `TagPostProcessor` loads the WD `selected_tags.csv` file once per active model, maps output indexes to tag names and categories, applies thresholds, and returns structured `rating`, `general`, and `character` results.
+6. `TagExportService` derives flat training tags from the structured result and persists the sidecar `.txt` file only after inference completes.
+
+This keeps structured tags as the primary internal representation while still supporting text sidecars for downstream training workflows.
+
 Key routing rules:
 - When a `TextBox` has focus (tag input, filter bar), letter keys are consumed by the TextBox. `Escape` returns focus to the parent container (grid or image viewer).
 - The active screen does not receive arbitrary keypresses. It receives only the shortcuts that it registered through `ScreenViewBase<TViewModel>`, which keeps the work surface narrow and consistent across screens.

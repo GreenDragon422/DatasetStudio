@@ -1217,7 +1217,11 @@ public class RenderingSmokeTests
 
         public Task<IReadOnlyList<string>> GenerateTagsAsync(string imageFilePath, string modelName)
         {
-            TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, new[] { "sample", modelName }));
+            ImageTaggingResult taggingResult = new ImageTaggingResult
+            {
+                AcceptedTrainingTags = new[] { "sample", modelName },
+            };
+            TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, taggingResult));
             return Task.FromResult<IReadOnlyList<string>>(new[] { "sample", modelName });
         }
 
@@ -1229,7 +1233,11 @@ public class RenderingSmokeTests
                 return false;
             }
 
-            TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, new[] { "sample", modelName }));
+            ImageTaggingResult taggingResult = new ImageTaggingResult
+            {
+                AcceptedTrainingTags = new[] { "sample", modelName },
+            };
+            TagGenerationCompleted?.Invoke(this, new AiTaggingCompletedMessage(imageFilePath, taggingResult));
             return true;
         }
 

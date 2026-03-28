@@ -16,8 +16,9 @@ public class AiTaggingCoordinatorTests
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();
         TagFileService tagFileService = new TagFileService();
+        TagExportService tagExportService = new TagExportService(tagFileService);
         TestAiTaggerService aiTaggerService = new TestAiTaggerService();
-        AiTaggingCoordinator coordinator = new AiTaggingCoordinator(aiTaggerService, tagFileService, messenger);
+        AiTaggingCoordinator coordinator = new AiTaggingCoordinator(aiTaggerService, tagExportService, messenger);
 
         string imageFilePath = Path.Combine(Path.GetTempPath(), "DatasetStudioAiCoordinator", "cat.png");
         Directory.CreateDirectory(Path.GetDirectoryName(imageFilePath)!);

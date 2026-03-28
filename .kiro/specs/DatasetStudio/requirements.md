@@ -152,6 +152,8 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 3. WHEN the AI_Tagger completes tag generation for an image, THE Application SHALL create a Tag_File for that image and set the image's status to Yellow (auto-tagged/needs review).
 4. THE AI_Tagger SHALL read the available model catalog from `ai_models.json`, and the user SHALL select the active model via the Project_Configuration modal or the Project_Overview top bar dropdown.
 5. FOR model-catalog entries that specify a Hugging Face repository, THE Application SHALL download the selected model only when the user activates the explicit `Download Model` button beside the AI model selector. Background tagging SHALL NOT trigger model installation automatically.
+6. FOR supported local ONNX taggers, THE AI_Tagger SHALL keep one long-lived ONNX Runtime GPU session per active model, SHALL inspect model metadata at runtime, and SHALL batch multiple images into each inference call instead of reloading the model per image.
+7. FOR WD-style ONNX taggers, THE AI_Tagger SHALL load `selected_tags.csv` once per active model, SHALL store structured `rating`, `general`, and `character` tag results internally, and SHALL derive flat `.txt` training sidecars from the accepted tags after inference.
 
 ### Requirement 8: Workflow Stage Folder Management
 
