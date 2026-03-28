@@ -774,11 +774,274 @@ public class RenderingSmokeTests
                 string imagePath = entry.Key;
                 string imageDirectory = Path.GetDirectoryName(imagePath) ?? project.RootFolderPath;
                 Directory.CreateDirectory(imageDirectory);
-                await File.WriteAllBytesAsync(imagePath, new byte[] { 0x00 }).ConfigureAwait(false);
+                byte[] sampleImageBytes = CreateSampleImageBytes(imagePath, 768);
+                await File.WriteAllBytesAsync(imagePath, sampleImageBytes).ConfigureAwait(false);
 
                 string tagFilePath = Path.ChangeExtension(imagePath, ".txt");
                 string tagContents = string.Join(", ", entry.Value);
                 await File.WriteAllTextAsync(tagFilePath, tagContents).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private static byte[] CreateSampleImageBytes(string imageFilePath, int size)
+    {
+        string imageName = Path.GetFileNameWithoutExtension(imageFilePath);
+
+        using Image<Rgba32> image = new Image<Rgba32>(size, size);
+
+        if (string.Equals(imageName, "cat", StringComparison.OrdinalIgnoreCase))
+        {
+            RenderCatSample(image);
+        }
+        else if (string.Equals(imageName, "dog", StringComparison.OrdinalIgnoreCase))
+        {
+            RenderDogSample(image);
+        }
+        else if (string.Equals(imageName, "fox", StringComparison.OrdinalIgnoreCase))
+        {
+            RenderFoxSample(image);
+        }
+        else if (string.Equals(imageName, "portrait", StringComparison.OrdinalIgnoreCase))
+        {
+            RenderPortraitSample(image);
+        }
+        else
+        {
+            RenderGenericSample(image, imageName);
+        }
+
+        MemoryStream memoryStream = new MemoryStream();
+        image.Save(memoryStream, new PngEncoder());
+        return memoryStream.ToArray();
+    }
+
+    private static void RenderCatSample(Image<Rgba32> image)
+    {
+        int size = image.Width;
+        FillImage(image, new Rgba32(250, 241, 214, 255));
+        FillRect(image, 0, (size * 3) / 4, size, size / 4, new Rgba32(228, 209, 170, 255));
+
+        int headCenterX = size / 2;
+        int headCenterY = (size * 11) / 24;
+        int headRadius = size / 4;
+
+        FillTriangle(image, headCenterX - headRadius, headCenterY - headRadius / 3, headCenterX - headRadius / 3, headCenterY - headRadius - headRadius / 2, headCenterX - headRadius / 10, headCenterY - headRadius / 5, new Rgba32(219, 141, 65, 255));
+        FillTriangle(image, headCenterX + headRadius / 10, headCenterY - headRadius / 5, headCenterX + headRadius / 3, headCenterY - headRadius - headRadius / 2, headCenterX + headRadius, headCenterY - headRadius / 3, new Rgba32(219, 141, 65, 255));
+        FillCircle(image, headCenterX, headCenterY, headRadius, new Rgba32(232, 154, 77, 255));
+
+        FillTriangle(image, headCenterX - headRadius + headRadius / 5, headCenterY - headRadius / 2, headCenterX - headRadius / 3, headCenterY - headRadius - headRadius / 3, headCenterX - headRadius / 16, headCenterY - headRadius / 5, new Rgba32(248, 202, 187, 255));
+        FillTriangle(image, headCenterX + headRadius / 16, headCenterY - headRadius / 5, headCenterX + headRadius / 3, headCenterY - headRadius - headRadius / 3, headCenterX + headRadius - headRadius / 5, headCenterY - headRadius / 2, new Rgba32(248, 202, 187, 255));
+
+        FillCircle(image, headCenterX - headRadius / 2, headCenterY - headRadius / 4, headRadius / 6, new Rgba32(248, 245, 239, 255));
+        FillCircle(image, headCenterX + headRadius / 2, headCenterY - headRadius / 4, headRadius / 6, new Rgba32(248, 245, 239, 255));
+        FillCircle(image, headCenterX - headRadius / 2, headCenterY - headRadius / 4, headRadius / 12, new Rgba32(50, 42, 39, 255));
+        FillCircle(image, headCenterX + headRadius / 2, headCenterY - headRadius / 4, headRadius / 12, new Rgba32(50, 42, 39, 255));
+
+        FillCircle(image, headCenterX, headCenterY + headRadius / 6, headRadius / 4, new Rgba32(245, 229, 205, 255));
+        FillTriangle(image, headCenterX - headRadius / 10, headCenterY + headRadius / 10, headCenterX + headRadius / 10, headCenterY + headRadius / 10, headCenterX, headCenterY + headRadius / 4, new Rgba32(197, 118, 122, 255));
+
+        DrawLine(image, headCenterX - headRadius / 8, headCenterY + headRadius / 4, headCenterX - headRadius / 2, headCenterY + headRadius / 2, new Rgba32(89, 72, 55, 255), 3);
+        DrawLine(image, headCenterX + headRadius / 8, headCenterY + headRadius / 4, headCenterX + headRadius / 2, headCenterY + headRadius / 2, new Rgba32(89, 72, 55, 255), 3);
+        DrawLine(image, headCenterX - headRadius / 6, headCenterY + headRadius / 6, headCenterX - headRadius, headCenterY + headRadius / 7, new Rgba32(89, 72, 55, 255), 3);
+        DrawLine(image, headCenterX - headRadius / 6, headCenterY + headRadius / 5, headCenterX - headRadius, headCenterY + headRadius / 3, new Rgba32(89, 72, 55, 255), 3);
+        DrawLine(image, headCenterX + headRadius / 6, headCenterY + headRadius / 6, headCenterX + headRadius, headCenterY + headRadius / 7, new Rgba32(89, 72, 55, 255), 3);
+        DrawLine(image, headCenterX + headRadius / 6, headCenterY + headRadius / 5, headCenterX + headRadius, headCenterY + headRadius / 3, new Rgba32(89, 72, 55, 255), 3);
+
+        FillRect(image, headCenterX - headRadius / 6, headCenterY - headRadius / 12, headRadius / 8, headRadius / 2, new Rgba32(191, 119, 52, 255));
+        FillRect(image, headCenterX + headRadius / 24, headCenterY - headRadius / 12, headRadius / 8, headRadius / 2, new Rgba32(191, 119, 52, 255));
+    }
+
+    private static void RenderDogSample(Image<Rgba32> image)
+    {
+        int size = image.Width;
+        FillImage(image, new Rgba32(233, 240, 235, 255));
+        FillRect(image, 0, (size * 3) / 4, size, size / 4, new Rgba32(206, 217, 193, 255));
+
+        int headCenterX = size / 2;
+        int headCenterY = (size * 11) / 24;
+        int headRadius = size / 4;
+
+        FillCircle(image, headCenterX - headRadius + headRadius / 5, headCenterY - headRadius / 10, headRadius / 2, new Rgba32(92, 67, 50, 255));
+        FillCircle(image, headCenterX + headRadius - headRadius / 5, headCenterY - headRadius / 10, headRadius / 2, new Rgba32(92, 67, 50, 255));
+        FillCircle(image, headCenterX, headCenterY, headRadius, new Rgba32(207, 171, 124, 255));
+        FillCircle(image, headCenterX, headCenterY + headRadius / 4, headRadius / 3, new Rgba32(242, 225, 199, 255));
+
+        FillCircle(image, headCenterX - headRadius / 2, headCenterY - headRadius / 5, headRadius / 8, new Rgba32(50, 42, 39, 255));
+        FillCircle(image, headCenterX + headRadius / 2, headCenterY - headRadius / 5, headRadius / 8, new Rgba32(50, 42, 39, 255));
+        FillCircle(image, headCenterX, headCenterY + headRadius / 6, headRadius / 10, new Rgba32(45, 37, 34, 255));
+        DrawLine(image, headCenterX, headCenterY + headRadius / 6, headCenterX, headCenterY + headRadius / 3, new Rgba32(45, 37, 34, 255), 3);
+        DrawLine(image, headCenterX, headCenterY + headRadius / 3, headCenterX - headRadius / 8, headCenterY + headRadius / 2, new Rgba32(45, 37, 34, 255), 3);
+        DrawLine(image, headCenterX, headCenterY + headRadius / 3, headCenterX + headRadius / 8, headCenterY + headRadius / 2, new Rgba32(45, 37, 34, 255), 3);
+
+        FillRect(image, headCenterX - headRadius / 6, headCenterY - headRadius / 12, headRadius / 7, headRadius / 2, new Rgba32(181, 135, 87, 255));
+        FillRect(image, headCenterX + headRadius / 30, headCenterY - headRadius / 12, headRadius / 7, headRadius / 2, new Rgba32(181, 135, 87, 255));
+        FillCircle(image, headCenterX, headCenterY + headRadius / 2 + headRadius / 10, headRadius / 9, new Rgba32(214, 114, 108, 255));
+    }
+
+    private static void RenderFoxSample(Image<Rgba32> image)
+    {
+        int size = image.Width;
+        FillImage(image, new Rgba32(234, 245, 241, 255));
+        FillRect(image, 0, (size * 7) / 10, size, size / 3, new Rgba32(192, 223, 214, 255));
+
+        int headCenterX = size / 2;
+        int headCenterY = size / 2;
+        int headRadius = size / 4;
+
+        FillTriangle(image, headCenterX - headRadius, headCenterY - headRadius / 3, headCenterX - headRadius / 3, headCenterY - headRadius - headRadius / 2, headCenterX - headRadius / 10, headCenterY - headRadius / 7, new Rgba32(212, 101, 43, 255));
+        FillTriangle(image, headCenterX + headRadius / 10, headCenterY - headRadius / 7, headCenterX + headRadius / 3, headCenterY - headRadius - headRadius / 2, headCenterX + headRadius, headCenterY - headRadius / 3, new Rgba32(212, 101, 43, 255));
+        FillTriangle(image, headCenterX - headRadius, headCenterY - headRadius / 4, headCenterX + headRadius, headCenterY - headRadius / 4, headCenterX, headCenterY + headRadius, new Rgba32(228, 114, 43, 255));
+        FillTriangle(image, headCenterX - headRadius / 2, headCenterY + headRadius / 12, headCenterX + headRadius / 2, headCenterY + headRadius / 12, headCenterX, headCenterY + headRadius, new Rgba32(248, 240, 233, 255));
+        FillCircle(image, headCenterX - headRadius / 3, headCenterY, headRadius / 10, new Rgba32(39, 36, 34, 255));
+        FillCircle(image, headCenterX + headRadius / 3, headCenterY, headRadius / 10, new Rgba32(39, 36, 34, 255));
+        FillTriangle(image, headCenterX - headRadius / 10, headCenterY + headRadius / 4, headCenterX + headRadius / 10, headCenterY + headRadius / 4, headCenterX, headCenterY + headRadius / 2, new Rgba32(56, 45, 41, 255));
+    }
+
+    private static void RenderPortraitSample(Image<Rgba32> image)
+    {
+        int size = image.Width;
+        FillImage(image, new Rgba32(229, 222, 210, 255));
+        FillRect(image, 0, 0, size, size / 3, new Rgba32(203, 180, 155, 255));
+        FillRect(image, 0, (size * 2) / 3, size, size / 3, new Rgba32(126, 107, 92, 255));
+
+        int headCenterX = size / 2;
+        int headCenterY = size / 2 - size / 14;
+        int headRadius = size / 6;
+
+        FillCircle(image, headCenterX, headCenterY, headRadius, new Rgba32(222, 185, 151, 255));
+        FillRect(image, headCenterX - headRadius, headCenterY + headRadius, headRadius * 2, size / 3, new Rgba32(87, 111, 132, 255));
+        FillRect(image, headCenterX - headRadius / 2, headCenterY + headRadius / 2, headRadius, headRadius / 2, new Rgba32(222, 185, 151, 255));
+        FillRect(image, headCenterX - headRadius - headRadius / 6, headCenterY - headRadius - headRadius / 2, headRadius * 2 + headRadius / 3, headRadius, new Rgba32(71, 53, 45, 255));
+    }
+
+    private static void RenderGenericSample(Image<Rgba32> image, string imageName)
+    {
+        _ = imageName;
+        int size = image.Width;
+        FillImage(image, new Rgba32(240, 234, 214, 255));
+        FillRect(image, size / 8, size / 8, (size * 3) / 4, (size * 3) / 4, new Rgba32(177, 149, 89, 255));
+        FillRect(image, size / 4, size / 4, size / 2, size / 2, new Rgba32(92, 133, 114, 255));
+        DrawLine(image, size / 4, size / 4, (size * 3) / 4, (size * 3) / 4, new Rgba32(52, 48, 45, 255), 6);
+        DrawLine(image, (size * 3) / 4, size / 4, size / 4, (size * 3) / 4, new Rgba32(52, 48, 45, 255), 6);
+    }
+
+    private static void FillImage(Image<Rgba32> image, Rgba32 color)
+    {
+        for (int y = 0; y < image.Height; y++)
+        {
+            for (int x = 0; x < image.Width; x++)
+            {
+                image[x, y] = color;
+            }
+        }
+    }
+
+    private static void FillRect(Image<Rgba32> image, int left, int top, int width, int height, Rgba32 color)
+    {
+        int startX = Math.Max(0, left);
+        int startY = Math.Max(0, top);
+        int endX = Math.Min(image.Width, left + width);
+        int endY = Math.Min(image.Height, top + height);
+
+        for (int y = startY; y < endY; y++)
+        {
+            for (int x = startX; x < endX; x++)
+            {
+                image[x, y] = color;
+            }
+        }
+    }
+
+    private static void FillCircle(Image<Rgba32> image, int centerX, int centerY, int radius, Rgba32 color)
+    {
+        int squaredRadius = radius * radius;
+        int startX = Math.Max(0, centerX - radius);
+        int endX = Math.Min(image.Width - 1, centerX + radius);
+        int startY = Math.Max(0, centerY - radius);
+        int endY = Math.Min(image.Height - 1, centerY + radius);
+
+        for (int y = startY; y <= endY; y++)
+        {
+            for (int x = startX; x <= endX; x++)
+            {
+                int deltaX = x - centerX;
+                int deltaY = y - centerY;
+                if ((deltaX * deltaX) + (deltaY * deltaY) <= squaredRadius)
+                {
+                    image[x, y] = color;
+                }
+            }
+        }
+    }
+
+    private static void FillTriangle(Image<Rgba32> image, int x1, int y1, int x2, int y2, int x3, int y3, Rgba32 color)
+    {
+        int minX = Math.Max(0, Math.Min(x1, Math.Min(x2, x3)));
+        int maxX = Math.Min(image.Width - 1, Math.Max(x1, Math.Max(x2, x3)));
+        int minY = Math.Max(0, Math.Min(y1, Math.Min(y2, y3)));
+        int maxY = Math.Min(image.Height - 1, Math.Max(y1, Math.Max(y2, y3)));
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                bool hasSameSign = HasSameSign(x, y, x1, y1, x2, y2, x3, y3);
+                if (hasSameSign)
+                {
+                    image[x, y] = color;
+                }
+            }
+        }
+    }
+
+    private static bool HasSameSign(int pointX, int pointY, int x1, int y1, int x2, int y2, int x3, int y3)
+    {
+        int d1 = CalculateEdgeSign(pointX, pointY, x1, y1, x2, y2);
+        int d2 = CalculateEdgeSign(pointX, pointY, x2, y2, x3, y3);
+        int d3 = CalculateEdgeSign(pointX, pointY, x3, y3, x1, y1);
+
+        bool hasNegative = d1 < 0 || d2 < 0 || d3 < 0;
+        bool hasPositive = d1 > 0 || d2 > 0 || d3 > 0;
+        return !(hasNegative && hasPositive);
+    }
+
+    private static int CalculateEdgeSign(int pointX, int pointY, int x1, int y1, int x2, int y2)
+    {
+        return (pointX - x2) * (y1 - y2) - (x1 - x2) * (pointY - y2);
+    }
+
+    private static void DrawLine(Image<Rgba32> image, int startX, int startY, int endX, int endY, Rgba32 color, int thickness)
+    {
+        int deltaX = Math.Abs(endX - startX);
+        int deltaY = Math.Abs(endY - startY);
+        int stepX = startX < endX ? 1 : -1;
+        int stepY = startY < endY ? 1 : -1;
+        int error = deltaX - deltaY;
+        int currentX = startX;
+        int currentY = startY;
+        int radius = Math.Max(1, thickness / 2);
+
+        while (true)
+        {
+            FillCircle(image, currentX, currentY, radius, color);
+
+            if (currentX == endX && currentY == endY)
+            {
+                break;
+            }
+
+            int doubledError = error * 2;
+            if (doubledError > -deltaY)
+            {
+                error -= deltaY;
+                currentX += stepX;
+            }
+
+            if (doubledError < deltaX)
+            {
+                error += deltaX;
+                currentY += stepY;
             }
         }
     }
@@ -1002,14 +1265,8 @@ public class RenderingSmokeTests
     {
         public Task<Stream> GetThumbnailAsync(string imageFilePath, int size)
         {
-            Avalonia.Media.Color fillColor = imageFilePath.GetHashCode(StringComparison.OrdinalIgnoreCase) % 2 == 0
-                ? Avalonia.Media.Color.Parse("#D79921")
-                : Avalonia.Media.Color.Parse("#458588");
-
-            using Image<Rgba32> image = new Image<Rgba32>(size, size, new Rgba32(fillColor.R, fillColor.G, fillColor.B, fillColor.A));
-            MemoryStream memoryStream = new MemoryStream();
-            image.Save(memoryStream, new PngEncoder());
-            memoryStream.Position = 0;
+            byte[] thumbnailBytes = CreateSampleImageBytes(imageFilePath, size);
+            MemoryStream memoryStream = new MemoryStream(thumbnailBytes, writable: false);
             return Task.FromResult<Stream>(memoryStream);
         }
 

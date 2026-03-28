@@ -424,6 +424,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 - [x] 42. Final integration checkpoint
   - Run all NUnit tests. Verify full navigation flow: ProjectsHub → Project Overview → InspectorMode → back. Verify keyboard shortcuts work across all screens. Verify state persistence round-trip. Ask user if questions arise.
   - Progress note (2026-03-28): Added a real navigation integration test that exercises Projects Hub → Project Overview → Inspector Mode → back using the actual NavigationService and current viewmodels, while asserting the persisted last-opened project and last-inspected image state updates along the way. Expanded the Avalonia headless suite with routed shortcut proofs for Projects Hub (`Ctrl+N` opens the configuration modal after creating a project), Project Configuration (`Ctrl+S` saves and closes the modal), and Tags Overview (`/` focuses search), complementing the existing Project Overview and Inspector shortcut tests. Verified the full repository with `dotnet test DatasetStudio.sln` (76 unit tests, 7 headless tests).
+  - Progress note (2026-03-28): The headless capture fixture now seeds valid illustrative PNG sample art for the cat and dog dataset images and uses matching generated thumbnails, so the Project Overview and Inspector example screenshots communicate layout and focus behavior with recognizable content instead of blank files or flat-color tiles.
 
 ## Notes
 
