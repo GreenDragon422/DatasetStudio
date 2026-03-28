@@ -98,7 +98,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
         try
         {
             await using FileStream fileStream = File.OpenRead(applicationStateFilePath);
-            AppState? appState = await JsonSerializer.DeserializeAsync<AppState>(fileStream, JsonSerializerOptions);
+            AppState? appState = await JsonSerializer.DeserializeAsync<AppState>(fileStream, JsonSerializerOptions).ConfigureAwait(false);
             return appState ?? new AppState();
         }
         catch (JsonException)
@@ -165,7 +165,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
             throw new ArgumentNullException(nameof(state));
         }
 
-        string? projectConfigurationPath = await ResolveProjectConfigurationPathAsync(projectId);
+        string? projectConfigurationPath = await ResolveProjectConfigurationPathAsync(projectId).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(projectConfigurationPath))
         {
@@ -197,7 +197,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
             projectStateSaveTimer.Change(debounceDelay, Timeout.InfiniteTimeSpan);
         }
 
-        await completionSource.Task;
+        await completionSource.Task.ConfigureAwait(false);
     }
 
     public async Task<ProjectState> LoadProjectStateAsync(string projectId)
@@ -215,7 +215,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
             }
         }
 
-        string? projectConfigurationPath = await ResolveProjectConfigurationPathAsync(projectId);
+        string? projectConfigurationPath = await ResolveProjectConfigurationPathAsync(projectId).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(projectConfigurationPath) || !File.Exists(projectConfigurationPath))
         {
@@ -225,7 +225,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
         try
         {
             await using FileStream fileStream = File.OpenRead(projectConfigurationPath);
-            Project? project = await JsonSerializer.DeserializeAsync<Project>(fileStream, JsonSerializerOptions);
+            Project? project = await JsonSerializer.DeserializeAsync<Project>(fileStream, JsonSerializerOptions).ConfigureAwait(false);
 
             if (project?.State is null)
             {
@@ -462,19 +462,26 @@ public sealed class StatePersistenceService : IStatePersistenceService
 
     private async Task<string?> ResolveProjectConfigurationPathAsync(string projectId)
     {
-        if (projectConfigurationPathsById.TryGetValue(projectId, out string? cachedProjectConfigurationPath) && File.Exists(cachedProjectConfigurationPath))
+        string? cachedProjectConfigurationPath;
+
+        lock (syncLock)
+        {
+            projectConfigurationPathsById.TryGetValue(projectId, out cachedProjectConfigurationPath);
+        }
+
+        if (!string.IsNullOrWhiteSpace(cachedProjectConfigurationPath) && File.Exists(cachedProjectConfigurationPath))
         {
             return cachedProjectConfigurationPath;
         }
 
-        AppState appState = await LoadAppStateAsync();
+        AppState appState = await LoadAppStateAsync().ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(appState.LastMasterRootDirectory))
         {
             return null;
         }
 
-        IReadOnlyList<string> projectFolders = await fileSystemService.DiscoverProjectFoldersAsync(appState.LastMasterRootDirectory);
+        IReadOnlyList<string> projectFolders = await fileSystemService.DiscoverProjectFoldersAsync(appState.LastMasterRootDirectory).ConfigureAwait(false);
 
         foreach (string projectFolder in projectFolders)
         {
@@ -483,11 +490,15 @@ public sealed class StatePersistenceService : IStatePersistenceService
             try
             {
                 await using FileStream fileStream = File.OpenRead(projectConfigurationPath);
-                Project? project = await JsonSerializer.DeserializeAsync<Project>(fileStream, JsonSerializerOptions);
+                Project? project = await JsonSerializer.DeserializeAsync<Project>(fileStream, JsonSerializerOptions).ConfigureAwait(false);
 
                 if (project?.Id == projectId)
                 {
-                    projectConfigurationPathsById[projectId] = projectConfigurationPath;
+                    lock (syncLock)
+                    {
+                        projectConfigurationPathsById[projectId] = projectConfigurationPath;
+                    }
+
                     return projectConfigurationPath;
                 }
             }

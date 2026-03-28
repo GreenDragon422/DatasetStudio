@@ -3,6 +3,7 @@ using DatasetStudio.Services;
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DatasetStudio.Tests;
@@ -32,6 +33,17 @@ public class StatePersistenceServiceTests
             {
                 Directory.Delete(DirectoryPath, true);
             }
+        }
+    }
+
+    private sealed class NonPumpingSynchronizationContext : SynchronizationContext
+    {
+        public override void Post(SendOrPostCallback callback, object? state)
+        {
+        }
+
+        public override void Send(SendOrPostCallback callback, object? state)
+        {
         }
     }
 
@@ -267,5 +279,64 @@ public class StatePersistenceServiceTests
         Assert.That(actualProjectState.ZoomSliderValue, Is.EqualTo(expectedProjectState.ZoomSliderValue));
         Assert.That(actualProjectState.SelectedAiModelName, Is.EqualTo(expectedProjectState.SelectedAiModelName));
         Assert.That(actualProjectState.LastInspectedImagePath, Is.EqualTo(expectedProjectState.LastInspectedImagePath));
+    }
+
+    [Test]
+    public async Task UpdateAppStateImmediatelyAsync_CompletesWhenSynchronouslyWaitedOnNonPumpingSynchronizationContext()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        FileSystemService fileSystemService = new();
+        StatePersistenceService statePersistenceService = new(fileSystemService, temporaryDirectory.DirectoryPath, TimeSpan.FromMilliseconds(20));
+
+        await statePersistenceService.SaveAppStateAsync(new AppState
+        {
+            LastOpenedProjectId = "project-1",
+            LastMasterRootDirectory = new string('a', 1024 * 1024),
+            WindowWidth = 1200,
+            WindowHeight = 800,
+        });
+
+        TaskCompletionSource<AppState> completionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Thread workerThread = new(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(new NonPumpingSynchronizationContext());
+
+            try
+            {
+                AppState updatedState = statePersistenceService.UpdateAppStateImmediatelyAsync(appState =>
+                {
+                    appState.WindowWidth = 1400;
+                    appState.WindowHeight = 900;
+                    appState.WindowX = 100;
+                    appState.WindowY = 80;
+                }).GetAwaiter().GetResult();
+
+                completionSource.SetResult(updatedState);
+            }
+            catch (Exception exception)
+            {
+                completionSource.SetException(exception);
+            }
+        });
+
+        workerThread.IsBackground = true;
+        workerThread.Start();
+
+        Task completedTask = await Task.WhenAny(completionSource.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+
+        Assert.That(completedTask, Is.SameAs(completionSource.Task), "UpdateAppStateImmediatelyAsync should not deadlock when synchronously waited on a non-pumping synchronization context.");
+
+        AppState updatedState = await completionSource.Task;
+        AppState reloadedState = await statePersistenceService.LoadAppStateAsync();
+
+        Assert.That(workerThread.Join(TimeSpan.FromSeconds(1)), Is.True);
+        Assert.That(updatedState.WindowWidth, Is.EqualTo(1400));
+        Assert.That(updatedState.WindowHeight, Is.EqualTo(900));
+        Assert.That(updatedState.WindowX, Is.EqualTo(100));
+        Assert.That(updatedState.WindowY, Is.EqualTo(80));
+        Assert.That(reloadedState.WindowWidth, Is.EqualTo(1400));
+        Assert.That(reloadedState.WindowHeight, Is.EqualTo(900));
+        Assert.That(reloadedState.WindowX, Is.EqualTo(100));
+        Assert.That(reloadedState.WindowY, Is.EqualTo(80));
     }
 }
