@@ -113,9 +113,9 @@
     </Style>
 
     <Style Selector="Border.header-control-status-chip">
-        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="MinHeight" Value="34" />
         <Setter Property="MinWidth" Value="116" />
-        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="Padding" Value="12,8" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
