@@ -127,8 +127,7 @@
                                             DragDrop.AllowDrop="True"
                                             AttachedToVisualTree="OnStageRowAttachedToVisualTree"
                                             DetachedFromVisualTree="OnStageRowDetachedFromVisualTree">
-                                        <Grid RowDefinitions="Auto,Auto"
-                                              ColumnDefinitions="Auto,Auto,*,*"
+                                        <Grid ColumnDefinitions="Auto,Auto,*,*,Auto"
                                               Classes="compact-rows"
                                               ColumnSpacing="10">
                                             <TextBlock Text="⋮⋮"
@@ -154,20 +153,24 @@
                                                      Text="{Binding DisplayName, Mode=TwoWay}"
                                                      Watermark="Inbox" />
 
-                                            <WrapPanel Grid.Row="1"
-                                                       Grid.ColumnSpan="4"
-                                                       HorizontalAlignment="Right"
-                                                       Classes="action-row standard">
-                                                <Button Content="Up"
+                                            <StackPanel Grid.Column="4"
+                                                        Classes="inline-actions">
+                                                <Button Classes="icon-button"
+                                                        Content="↑"
+                                                        ToolTip.Tip="Move stage up"
                                                         Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).MoveStageUpCommand}"
                                                         CommandParameter="{Binding}" />
-                                                <Button Content="Down"
+                                                <Button Classes="icon-button"
+                                                        Content="↓"
+                                                        ToolTip.Tip="Move stage down"
                                                         Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).MoveStageDownCommand}"
                                                         CommandParameter="{Binding}" />
-                                                <Button Content="Delete"
+                                                <Button Classes="icon-button"
+                                                        Content="✕"
+                                                        ToolTip.Tip="Delete stage"
                                                         Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).RemoveStageCommand}"
                                                         CommandParameter="{Binding}" />
-                                            </WrapPanel>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

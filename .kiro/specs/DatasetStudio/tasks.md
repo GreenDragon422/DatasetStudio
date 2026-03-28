@@ -296,6 +296,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 33.8 Create `Views/ProjectConfigurationView.axaml` — centered 600px modal overlay with semi-transparent background wash
   - [x] 33.9 Implement modal form layout — Root folder TextBox + Browse button, AI model ComboBox, Prefix tags TextArea with conditional error border and message, draggable/reorderable stage list with inline editing + delete + "Add Stage" button, Save button
   - Note (2026-03-27): The modal shell and form layout were tightened so the content auto-fits within the overlay width, and stage-row actions now flow onto a second row instead of clipping on narrower popup widths.
+  - Progress note (2026-03-28): The stage editor rows are compact again. Move up, move down, and delete now render as inline icon actions on the same row as the stage fields, reducing vertical space while keeping drag ordering and inline editing intact.
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 8.5_
 
 - [x] 34. Implement Project Overview screen

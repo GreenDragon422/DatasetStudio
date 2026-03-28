@@ -21,26 +21,15 @@
             <StackPanel Orientation="Horizontal"
                         Spacing="10"
                         VerticalAlignment="Center">
-              <Border Background="{StaticResource BrushButtonFace}"
-                      BorderBrush="{StaticResource BrushSurfaceElevated}"
-                      BorderThickness="{StaticResource BorderThicknessThin}"
-                      CornerRadius="6"
-                      MinWidth="34"
-                      MinHeight="26"
-                      Padding="10,4"
+              <Border Classes="shortcut-keycap"
                       VerticalAlignment="Center">
-                <TextBlock FontFamily="{StaticResource FontFamilyMono}"
-                           FontSize="{StaticResource FontSizeMeta}"
-                           FontWeight="Medium"
-                           Foreground="{StaticResource BrushTextStrong}"
+                <TextBlock Classes="shortcut-keycap-text"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            VerticalAlignment="Center"
                            Text="{Binding KeyText}" />
               </Border>
-              <TextBlock FontSize="{StaticResource FontSizeBody}"
-                         FontWeight="Medium"
-                         Foreground="{StaticResource BrushTextStrong}"
+              <TextBlock Classes="shortcut-description"
                          VerticalAlignment="Center"
                          Text="{Binding Description}" />
             </StackPanel>
