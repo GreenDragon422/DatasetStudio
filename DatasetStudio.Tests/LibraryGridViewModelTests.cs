@@ -86,6 +86,77 @@ public class LibraryGridViewModelTests
     }
 
     [Test]
+    public async Task ItemsPerRow_RebuildsProjectOverviewRowsFromFilteredImages()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            new TestNavigationService(),
+            new TestAiTaggerService(),
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string reviewFolderPath = Path.Combine(projectRootPath, "02_Review");
+        string imageOnePath = Path.Combine(reviewFolderPath, "cat.png");
+        string imageTwoPath = Path.Combine(reviewFolderPath, "dog.png");
+        string imageThreePath = Path.Combine(reviewFolderPath, "fox.png");
+        string imageFourPath = Path.Combine(reviewFolderPath, "owl.png");
+        string imageFivePath = Path.Combine(reviewFolderPath, "bear.png");
+
+        fileSystemService.SetImageFiles(reviewFolderPath, new[] { imageOnePath, imageTwoPath, imageThreePath, imageFourPath, imageFivePath });
+        tagFileService.SetTags(imageOnePath, new[] { "cat" });
+        tagFileService.SetTags(imageTwoPath, new[] { "dog" });
+        tagFileService.SetTags(imageThreePath, new[] { "fox" });
+        tagFileService.SetTags(imageFourPath, new[] { "owl" });
+        tagFileService.SetTags(imageFivePath, new[] { "bear" });
+
+        Project project = new Project
+        {
+            Id = "project-row-layout",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 2, FolderName = "02_Review", DisplayName = "Review" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "02_Review",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+        viewModel.OnNavigatedTo(project);
+
+        await WaitForConditionAsync(() => viewModel.Images.Count == 5).ConfigureAwait(false);
+
+        viewModel.ItemsPerRow = 2;
+
+        Assert.That(viewModel.ImageRows.Count, Is.EqualTo(3));
+        Assert.That(viewModel.ImageRows[0].Images.Select(image => image.FileName), Is.EqualTo(new[] { "cat.png", "dog.png" }));
+        Assert.That(viewModel.ImageRows[1].Images.Select(image => image.FileName), Is.EqualTo(new[] { "fox.png", "owl.png" }));
+        Assert.That(viewModel.ImageRows[2].Images.Select(image => image.FileName), Is.EqualTo(new[] { "bear.png" }));
+
+        viewModel.FilterText = "o";
+
+        Assert.That(viewModel.Images.Select(image => image.FileName), Is.EqualTo(new[] { "dog.png", "fox.png", "owl.png" }));
+        Assert.That(viewModel.ImageRows.Count, Is.EqualTo(2));
+        Assert.That(viewModel.ImageRows[0].Images.Select(image => image.FileName), Is.EqualTo(new[] { "dog.png", "fox.png" }));
+        Assert.That(viewModel.ImageRows[1].Images.Select(image => image.FileName), Is.EqualTo(new[] { "owl.png" }));
+    }
+
+    [Test]
     public async Task ToggleSelectionCommand_UpdatesSelectionAndPublishesMessage()
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();

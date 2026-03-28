@@ -21,7 +21,7 @@
                 <StackPanel Classes="screen-title-stack">
                     <TextBlock Text="{Binding ProjectName}"
                                Classes="heading-medium" />
-                    <TextBlock Text="Review Workspace · choose a workflow stage, review staged images, filter by tags, and prepare batch tag edits."
+                    <TextBlock Text="Project Overview · choose a workflow stage, review staged images, filter by tags, and prepare batch tag edits."
                                Classes="mono screen-subtitle"
                                TextWrapping="Wrap" />
                 </StackPanel>
@@ -92,90 +92,99 @@
                   Classes="standard-rows">
                 <Border Classes="surface-card pad-16">
                     <Grid>
-                        <TextBlock Text="Folder is empty. Drag images here to stage."
+                        <TextBlock Text="Folder is empty. Use stage actions to move images here."
                                    Classes="heading-medium"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    IsVisible="{Binding !HasImages}" />
 
-                        <ScrollViewer x:Name="ImagesScrollViewer"
-                                      IsVisible="{Binding HasImages}"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Images}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:LibraryGridImageViewModel">
-                                        <Border Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
-                                                Classes="surface-card wrap-tile pad-8">
-                                            <Grid RowDefinitions="Auto,*,Auto">
-                                                <Grid ColumnDefinitions="Auto,*"
-                                                      ColumnSpacing="8">
-                                                    <CheckBox Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ToggleSelectionCommand}"
-                                                              CommandParameter="{Binding}"
-                                                              IsChecked="{Binding IsSelected, Mode=OneWay}" />
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding FileName}"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               VerticalAlignment="Center" />
-                                                </Grid>
+                        <ListBox x:Name="ImageRowsListBox"
+                                 Classes="plain-list virtualized-row-list"
+                                 IsVisible="{Binding HasImages}"
+                                 ItemsSource="{Binding ImageRows}"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LibraryGridImageRowViewModel">
+                                    <ItemsControl ItemsSource="{Binding Images}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Classes="thumbnail-row" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:LibraryGridImageViewModel">
+                                                <Border MinWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                        Classes="surface-card thumbnail-tile pad-8">
+                                                    <Grid RowDefinitions="Auto,*,Auto">
+                                                        <Grid ColumnDefinitions="Auto,*"
+                                                              Classes="thumbnail-header-row">
+                                                            <CheckBox Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ToggleSelectionCommand}"
+                                                                      CommandParameter="{Binding}"
+                                                                      IsChecked="{Binding IsSelected, Mode=OneWay}" />
+                                                            <TextBlock Grid.Column="1"
+                                                                       Text="{Binding FileName}"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       VerticalAlignment="Center" />
+                                                        </Grid>
 
-                                                <Button Grid.Row="1"
-                                                        Classes="chromeless"
-                                                        Margin="0,8,0,8"
-                                                        Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).FocusImageCommand}"
-                                                        CommandParameter="{Binding}"
-                                                        DoubleTapped="OnThumbnailDoubleTapped">
-                                                    <Grid Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
-                                                          Height="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}">
-                                                        <Border Classes="thumbnail-placeholder" />
-                                                        <Image Source="{Binding Thumbnail}"
-                                                               Stretch="UniformToFill"
-                                                               IsVisible="{Binding HasThumbnail}" />
-                                                        <TextBlock Text="{Binding FileName}"
+                                                        <Button Grid.Row="1"
+                                                                Classes="chromeless thumbnail-button"
+                                                                Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).FocusImageCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                DoubleTapped="OnThumbnailDoubleTapped">
+                                                            <Grid Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                                  Height="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}">
+                                                                <Border Classes="thumbnail-placeholder" />
+                                                                <Image Source="{Binding Thumbnail}"
+                                                                       Stretch="UniformToFill"
+                                                                       IsVisible="{Binding HasThumbnail}" />
+                                                                <TextBlock Text="{Binding FileName}"
+                                                                           Classes="thumbnail-fallback-caption"
+                                                                           TextWrapping="Wrap"
+                                                                           TextAlignment="Center"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           IsVisible="{Binding !HasThumbnail}" />
+                                                                <Border Classes="processing-overlay compact"
+                                                                        IsVisible="{Binding IsAiProcessing}">
+                                                                    <StackPanel Classes="processing-stack">
+                                                                        <ProgressBar Classes="processing-indicator"
+                                                                                     IsIndeterminate="True"
+                                                                                     Width="84" />
+                                                                        <TextBlock Text="AI tagging"
+                                                                                   Classes="processing-caption" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <Border Classes="active-focus-frame"
+                                                                        IsVisible="{Binding IsFocused}" />
+                                                                <controls:StatusDot HorizontalAlignment="Right"
+                                                                                    VerticalAlignment="Bottom"
+                                                                                    Margin="0,0,6,6"
+                                                                                    Status="{Binding Status}" />
+                                                            </Grid>
+                                                        </Button>
+
+                                                        <TextBlock Grid.Row="2"
+                                                                   Text="{Binding TagsPreview}"
+                                                                   Classes="mono meta-text"
+                                                                   MaxWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                                   MaxLines="2"
                                                                    TextWrapping="Wrap"
-                                                                   TextAlignment="Center"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="12"
-                                                                   IsVisible="{Binding !HasThumbnail}" />
-                                                        <Border Classes="processing-overlay compact"
-                                                                IsVisible="{Binding IsAiProcessing}">
-                                                            <StackPanel Spacing="8"
-                                                                        HorizontalAlignment="Center"
-                                                                        VerticalAlignment="Center">
-                                                                <ProgressBar Classes="processing-indicator"
-                                                                             IsIndeterminate="True"
-                                                                             Width="84" />
-                                                                <TextBlock Text="AI tagging"
-                                                                           Classes="processing-caption" />
-                                                            </StackPanel>
-                                                        </Border>
-                                                        <Border Classes="active-focus-frame"
-                                                                IsVisible="{Binding IsFocused}" />
-                                                        <controls:StatusDot HorizontalAlignment="Right"
-                                                                            VerticalAlignment="Bottom"
-                                                                            Margin="0,0,6,6"
-                                                                            Status="{Binding Status}" />
+                                                                   TextTrimming="CharacterEllipsis" />
                                                     </Grid>
-                                                </Button>
-
-                                                <TextBlock Grid.Row="2"
-                                                           Text="{Binding TagsPreview}"
-                                                           Classes="mono meta-text"
-                                                           MaxWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
-                                                           TextWrapping="Wrap"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </Grid>
                 </Border>
 

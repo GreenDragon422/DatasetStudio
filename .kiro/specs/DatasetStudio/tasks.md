@@ -86,8 +86,8 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 7.1 Create `Services/NavigationService.cs` — implements INavigationService, resolves ViewModels from DI, sets MainWindowViewModel.CurrentView, maintains back stack for GoBack()
   - _Requirements: 1.7, 2.18, 3.15_
 
-- [ ] 8. Create DI container and App startup
-  - [ ] 8.1 Create `App.axaml.cs` — build IServiceProvider, register all service interfaces → implementations, register all ViewModels, configure ViewModel-to-View resolution for the navigation host, resolve MainWindowViewModel on startup
+- [x] 8. Create DI container and App startup
+  - [x] 8.1 Create `App.axaml.cs` — build IServiceProvider, register all service interfaces → implementations, register all ViewModels, configure ViewModel-to-View resolution for the navigation host, resolve MainWindowViewModel on startup
   - [x] 8.2 Create `Program.cs` entry point with Avalonia AppBuilder configuration
   - _Requirements: 12.1, 13.2_
 
@@ -105,7 +105,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 10.6 Create `Controls/BatchPopup.axaml` — Popup with TextBox + ListBox for autocomplete tag selection, parameterized for add vs. remove mode via Mode property
   - _Requirements: 2.5, 2.23, 3.5, 9.2, 9.3, 10.3, 10.5_
 
-- [ ] 11. Foundation checkpoint
+- [x] 11. Foundation checkpoint
   - Verify solution builds. Verify all interfaces, models, messages, controls, and MainWindow shell compile. Verify design resources load. Ask user if questions arise.
 
 
@@ -294,7 +294,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Note (2026-03-27): The modal shell and form layout were tightened so the content auto-fits within the overlay width, and stage-row actions now flow onto a second row instead of clipping on narrower popup widths.
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 8.5_
 
-- [ ] 34. Implement Library Grid screen
+- [x] 34. Implement Project Overview screen
   - [x] 34.1 Create `ViewModels/LibraryGridViewModel.cs` — inject IFileSystemService, ITagFileService, ITagDictionaryService, IThumbnailCacheService, IClipboardService, INavigationService, IMessenger
   - [x] 34.2 Implement observable properties: Stages (ObservableCollection), ActiveStage (WorkflowStage), Images (ObservableCollection<ImageEntry>), SelectedImages (ObservableCollection), FocusedImageIndex (int), FilterText (string), ZoomValue (int, default 160), IsBatchAddOpen (bool), IsBatchRemoveOpen (bool), ProjectName (string), AiModels (ObservableCollection), SelectedAiModel (AiModelInfo)
   - [x] 34.3 Implement `LoadStagesCommand` — parse workflow stages from disk using WorkflowStageParser, populate sidebar
@@ -310,20 +310,20 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 34.13 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
   - [x] 34.14 Implement `OpenInspectorCommand` — double-click navigates to InspectorMode with selected image
   - [x] 34.15 Implement quick filter logic — filter Images collection by tag content matching FilterText
-  - [ ] 34.16 Implement drag-and-drop — drag thumbnail to sidebar folder moves image, flash target folder in Accent green, set drag opacity 50%
   - [x] 34.17 Subscribe to messenger events — ImageMovedMessage (refresh folder counts), ImageDeletedMessage (remove from grid), TagsChangedMessage (update status dots), AiTaggingCompletedMessage (update status to Yellow)
   - [x] 34.18 Create `Views/LibraryGridView.axaml` — three-column layout: 240px left sidebar, fluid center, 64px top bar
   - [x] 34.19 Implement top bar — ProjectName TextBlock (18px IBM Plex Sans 600), AI model ComboBox, QuickFilterBar TextBox (IBM Plex Mono)
   - [x] 34.20 Implement left sidebar — WorkflowStageList shared control bound to Stages/ActiveStage
-  - [ ] 34.21 Implement center grid — virtualization-friendly image grid (prefer `ItemsRepeater` or an equivalent virtualizing layout over a fully materialized WrapPanel for large folders), min cell size bound to ZoomValue, each item: 1:1 square crop thumbnail, StatusDot bottom-right, hover checkbox top-left, ActiveFocusFrame on focused item
+  - [x] 34.21 Implement center grid — virtualization-friendly image grid (prefer `ItemsRepeater` or an equivalent virtualizing layout over a fully materialized WrapPanel for large folders), min cell size bound to ZoomValue, each item: 1:1 square crop thumbnail, StatusDot bottom-right, hover checkbox top-left, ActiveFocusFrame on focused item
   - [x] 34.22 Implement ZoomSlider — Slider bottom-right, range 100-400, bound to ZoomValue
   - [x] 34.23 Implement BatchAddPopup and BatchRemovePopup overlays using shared BatchPopup control
-  - [x] 34.24 Implement empty folder placeholder — centered text "Folder is empty. Drag images here to stage."
-  - [ ] 34.25 Implement AI processing indicator — spinning icon overlay with reduced opacity on processing thumbnails
+  - [x] 34.24 Implement empty folder placeholder — centered text "Folder is empty. Use stage actions to move images here."
+  - [x] 34.25 Implement AI processing indicator — spinning icon overlay with reduced opacity on processing thumbnails
   - [x] 34.26 Wire HintBar and StatusBar at bottom
   - [x] 34.27 Implement Escape key handling — dismiss popup → unfocus TextBox → no-op (in priority order)
-  - Progress note (2026-03-27): Review Workspace now supports keyboard-driven batch add/remove popups anchored from the filter bar, selection-scoped or folder-wide batch tag operations, selected-image move/delete behavior, focused-image clipboard copy/paste, and popup-priority Escape handling. This slice is unit-tested for batch scope, move behavior, and clipboard normalization.
-  - _Requirements: 2.1–2.24, 9.1, 9.4, 9.5_
+  - Progress note (2026-03-27): Project Overview now supports keyboard-driven batch add/remove popups anchored from the filter bar, selection-scoped or folder-wide batch tag operations, selected-image move/delete behavior, focused-image clipboard copy/paste, and popup-priority Escape handling. This slice is unit-tested for batch scope, move behavior, and clipboard normalization.
+  - Progress note (2026-03-28): The center pane now uses a virtualized row list instead of a fully materialized thumbnail WrapPanel. `LibraryGridView` calculates an items-per-row estimate from the viewport width and zoom value, `LibraryGridViewModel` groups filtered images into row viewmodels for a virtualized `ListBox`, keyboard navigation scrolls the target row into view, and the headless smoke suite now captures the batch popups, AI-processing overlay, and Inspector suggestion-popup states.
+  - _Requirements: 2.1–2.22, 9.1, 9.4, 9.5_
 
 - [x] 35. Implement Inspector Mode screen
   - [x] 35.1 Create `ViewModels/InspectorModeViewModel.cs` — inject ITagFileService, ITagDictionaryService, IFileSystemService, IClipboardService, INavigationService, IMessenger
@@ -368,17 +368,18 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Note (2026-03-27): Shared DataGrid and control styling were adjusted for the Gruvbox Light palette so tag text and action controls remain readable against the screen background and grid chrome.
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 37. Screens checkpoint
+- [x] 37. Screens checkpoint
   - Verify all five screens render and navigate correctly. Verify data binding works end-to-end. Ask user if questions arise.
   - Progress note (2026-03-27): Shared shell visuals were retuned for readability: buttons now use a neutral default-action treatment instead of the older orange fill, Fluent accent/selection colors were shifted away from blue, low-contrast item text was strengthened, the app icon was refreshed, and updated headless captures were regenerated for review. The checkpoint remains open until the remaining screen work is complete.
   - Progress note (2026-03-27): The shared palette was realigned to the authoritative Gruvbox-light base colors with the user-selected calmer desktop primary `#B57614`, while keeping the olive accent `#98971A`. Derived surface, button, and selection shades were retuned from those anchors and headless screen captures were regenerated for review.
   - Progress note (2026-03-27): Remaining view-local styling in `ProjectsHubView.axaml` and `ProjectConfigurationView.axaml` was moved into the shared theme so screen XAML stays structural. Shared classes like `project-card-frame`, `form-section`, `prefix-tags-frame`, and `stage-row` are now themed centrally in `Resources/Styles.axaml`.
-  - Progress note (2026-03-27): Shared theme selectors were strengthened for category-list and form-label text, the shell icon asset was replaced with the accepted abstract block mark, and the Library Grid screen copy now explains the stage-review/batch-tagging workflow more clearly under the user-facing name "Review Workspace".
+  - Progress note (2026-03-27): Shared theme selectors were strengthened for category-list and form-label text, the shell icon asset was replaced with the accepted abstract block mark, and the Project Overview screen copy now explains the stage-review/batch-tagging workflow more clearly under its user-facing name.
   - Progress note (2026-03-27): The shared visual contract was tightened again so future screens can reuse generic chrome instead of restyling controls inline. `Resources/Styles.axaml` now owns reusable shells and helper classes like `screen-header-bar`, `plain-list`, `chromeless`, `chromeless-input`, `shell-bar-text`, `thumbnail-placeholder`, `list-row-shell`, `suggestion-row`, and `meta-text`, while current views were stripped back to layout, bindings, and screen-specific structure.
-  - Progress note (2026-03-27): Inspector Mode is now implemented and reachable from Review Workspace via double-click or Enter on the focused image. The screen loads the current stage/image from `ProjectState.LastInspectedImagePath`, supports keyboard-first tag commit/remove/copy/paste/move/delete flows, and is covered by unit tests plus headless rendering smoke.
+  - Progress note (2026-03-27): Inspector Mode is now implemented and reachable from Project Overview via double-click or Enter on the focused image. The screen loads the current stage/image from `ProjectState.LastInspectedImagePath`, supports keyboard-first tag commit/remove/copy/paste/move/delete flows, and is covered by unit tests plus headless rendering smoke.
   - Progress note (2026-03-27): Shared chrome was consolidated further so new screens can compose theme variants instead of reintroducing inline spacing and control-state styling. `Resources/Styles.axaml` now owns `screen-root`, card padding variants, wrap-tile/list-item spacing, action-row shells, dialog action rows, edge-nav buttons, ComboBox item hover/selection states, and themed Slider track selectors; current screen XAML was updated to consume those shared classes.
   - Progress note (2026-03-27): Reusable controls were tightened to keep visual behavior in XAML and shared theme selectors instead of code-behind self-`DataContext` patterns. `WorkflowStageList`, `BatchPopup`, `TagPill`, and `StatusDot` now bind through their XAML roots, while `plain-list` row states and the new `mono-caption` text treatment are centralized for reuse across screens.
   - Progress note (2026-03-27): Another theme sweep consolidated recurring screen/header/form/footer structure into shared classes like `screen-header-layout`, `screen-title-stack`, `stage-sidebar-layout`, `form-row`, `info-bar-layout`, `flow-actions`, `inline-glyph`, and `trailing-meta`. Current screens now compose those generic building blocks instead of re-styling the same layout chrome in each view, and the remaining base control leaks were narrowed with shared `ComboBox`, `CheckBox`, `ScrollViewer`, and `ScrollBar` theming.
+  - Progress note (2026-03-28): All five screens now render and navigate correctly under the shared shell. The screens checkpoint includes the virtualized Project Overview layout, popup/overlay headless coverage for batch add/remove and AI processing, and Inspector suggestion-popup rendering alongside the end-to-end navigation verification.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)
@@ -389,7 +390,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 38.3 Implement TextBox focus detection — the shared screen base now detects editable text focus, keeps ordinary typing with the `TextBox`, and injects the common `Esc` unfocus/leave-field behavior
   - [x] 38.4 Implement Escape priority chain — dismiss open popup → unfocus TextBox → navigate back (InspectorMode only)
   - [x] 38.5 Implement HintBar reactive updates — the shared screen base now formats registered shortcuts into `HintText` and refreshes them as focus/state changes, while `MainWindowViewModel` mirrors the active main or modal screen
-  - Progress note (2026-03-27): Keyboard routing is now fully standardized around `ScreenViewBase<TViewModel>` + `ScreenViewModelBase`. `MainWindow` tunnels key input to the active rendered screen so `/` and `Ctrl+Shift+C`/`V` still reach the screen contract even when focus sits inside child controls, the shared base preserves editable text behavior and `Esc` leave-field handling, Library Grid popups win the first `Esc` rung, and Inspector Mode only navigates back after the text field has been unfocused. Headless tests verify slash focus routing, global copy routing, and the Inspector Escape priority chain.
+  - Progress note (2026-03-27): Keyboard routing is now fully standardized around `ScreenViewBase<TViewModel>` + `ScreenViewModelBase`. `MainWindow` tunnels key input to the active rendered screen so `/` and `Ctrl+Shift+C`/`V` still reach the screen contract even when focus sits inside child controls, the shared base preserves editable text behavior and `Esc` leave-field handling, Project Overview popups win the first `Esc` rung, and Inspector Mode only navigates back after the text field has been unfocused. Headless tests verify slash focus routing, global copy routing, and the Inspector Escape priority chain.
   - _Requirements: 9.1, 9.2, 9.4, 9.5, 2.8, 2.24, 3.6, 3.15_
 
 - [x] 39. Wire state persistence into ViewModel lifecycle
@@ -398,7 +399,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 39.3 On state change — debounced save: hook into property change events on relevant ViewModels, trigger IStatePersistenceService save after 500ms debounce
   - [x] 39.4 On app shutdown — flush any pending state saves
   - [x] 39.5 Verify every configurable property is persisted — zoom, active stage, window size/position, last project, master root path, selected AI model, last inspected image
-  - Progress note (2026-03-27): App startup now restores `AppState`, reapplies saved window geometry, and jumps straight back into the last opened project when it still exists. Projects Hub persists the master root and last opened project id, Review Workspace and Inspector Mode reload the latest `ProjectState` on open and save stage/zoom/model/focused-image changes through the debounced persistence service, and shutdown now flushes any queued writes. Coverage was expanded with app-state, project-state, and flush tests, bringing the suite to 65 unit tests plus 4 headless tests.
+  - Progress note (2026-03-27): App startup now restores `AppState`, reapplies saved window geometry, and jumps straight back into the last opened project when it still exists. Projects Hub persists the master root and last opened project id, Project Overview and Inspector Mode reload the latest `ProjectState` on open and save stage/zoom/model/focused-image changes through the debounced persistence service, and shutdown now flushes any queued writes. Coverage was expanded with app-state, project-state, and flush tests, bringing the suite to 65 unit tests plus 4 headless tests.
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
 - [x] 40. Wire AI tagger background processing
@@ -406,7 +407,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 40.2 Wire processing indicator — set ImageEntry.IsAiProcessing=true while processing, bind to spinner overlay in LibraryGrid thumbnails and InspectorMode tag area
   - [x] 40.3 On AiTaggingCompletedMessage — create tag file via ITagFileService, set status to Yellow (AutoTagged), refresh UI
   - [x] 40.4 Wire AI model selection — sync dropdown in LibraryGrid top bar and ProjectConfig modal to IAiTaggerService active model
-  - Progress note (2026-03-27): Review Workspace and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Library Grid also now loads the shared AI model registry into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
+  - Progress note (2026-03-27): Project Overview and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Project Overview also now loads the shared AI model registry into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 2.21, 3.13_
 
 - [x] 41. Wire FileSystemWatcher for live updates
@@ -415,12 +416,12 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 41.3 On file change in active folder (image add/remove) — refresh image list in LibraryGrid
   - [x] 41.4 On source image modification — invalidate thumbnail cache via IThumbnailCacheService.InvalidateAsync
   - [x] 41.5 On project close/switch — dispose previous FileSystemWatcher
-  - Progress note (2026-03-28): Review Workspace and Inspector Mode now attach debounced project-root watchers while active, refresh stage and image state on folder/image/tag/config changes, and detach those watchers again through the shared screen activation lifecycle when navigation moves away. Review Workspace also invalidates changed image thumbnails before reloading. Coverage was expanded with screen activation tests plus watcher-driven stage/image refresh tests in both viewmodel suites, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
+  - Progress note (2026-03-28): Project Overview and Inspector Mode now attach debounced project-root watchers while active, refresh stage and image state on folder/image/tag/config changes, and detach those watchers again through the shared screen activation lifecycle when navigation moves away. Project Overview also invalidates changed image thumbnails before reloading. Coverage was expanded with screen activation tests plus watcher-driven stage/image refresh tests in both viewmodel suites, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 15.3, 15.5_
 
 - [x] 42. Final integration checkpoint
-  - Run all NUnit tests. Verify full navigation flow: ProjectsHub → LibraryGrid → InspectorMode → back. Verify keyboard shortcuts work across all screens. Verify state persistence round-trip. Ask user if questions arise.
-  - Progress note (2026-03-28): Added a real navigation integration test that exercises Projects Hub → Review Workspace → Inspector Mode → back using the actual NavigationService and current viewmodels, while asserting the persisted last-opened project and last-inspected image state updates along the way. Expanded the Avalonia headless suite with routed shortcut proofs for Projects Hub (`Ctrl+N` opens the configuration modal after creating a project), Project Configuration (`Ctrl+S` saves and closes the modal), and Tag Dictionary (`/` focuses search), complementing the existing Review Workspace and Inspector shortcut tests. Verified the full repository with `dotnet test DatasetStudio.sln` (75 unit tests, 7 headless tests).
+  - Run all NUnit tests. Verify full navigation flow: ProjectsHub → Project Overview → InspectorMode → back. Verify keyboard shortcuts work across all screens. Verify state persistence round-trip. Ask user if questions arise.
+  - Progress note (2026-03-28): Added a real navigation integration test that exercises Projects Hub → Project Overview → Inspector Mode → back using the actual NavigationService and current viewmodels, while asserting the persisted last-opened project and last-inspected image state updates along the way. Expanded the Avalonia headless suite with routed shortcut proofs for Projects Hub (`Ctrl+N` opens the configuration modal after creating a project), Project Configuration (`Ctrl+S` saves and closes the modal), and Tag Dictionary (`/` focuses search), complementing the existing Project Overview and Inspector shortcut tests. Verified the full repository with `dotnet test DatasetStudio.sln` (76 unit tests, 7 headless tests).
 
 ## Notes
 

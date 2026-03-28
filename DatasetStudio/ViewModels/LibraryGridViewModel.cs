@@ -66,12 +66,13 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         pendingThumbnailInvalidationPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         Stages = new ObservableCollection<LibraryGridStageViewModel>();
         Images = new ObservableCollection<LibraryGridImageViewModel>();
+        ImageRows = new ObservableCollection<LibraryGridImageRowViewModel>();
         SelectedImages = new ObservableCollection<LibraryGridImageViewModel>();
         AiModels = new ObservableCollection<AiModelInfo>();
         BatchAddSuggestions = new ObservableCollection<BatchTagSuggestionViewModel>();
         BatchRemoveSuggestions = new ObservableCollection<BatchTagSuggestionViewModel>();
         ZoomValue = 160;
-        StatusText = "Open a project to load the library grid.";
+        StatusText = "Open a project to load Project Overview.";
 
         messenger.Register<LibraryGridViewModel, TagsChangedMessage>(this, static (recipient, message) =>
         {
@@ -105,6 +106,9 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     private ObservableCollection<LibraryGridImageViewModel> images;
 
     [ObservableProperty]
+    private ObservableCollection<LibraryGridImageRowViewModel> imageRows;
+
+    [ObservableProperty]
     private ObservableCollection<LibraryGridImageViewModel> selectedImages;
 
     [ObservableProperty]
@@ -115,6 +119,9 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
     [ObservableProperty]
     private int zoomValue;
+
+    [ObservableProperty]
+    private int itemsPerRow = 1;
 
     [ObservableProperty]
     private bool isBatchAddOpen;
@@ -156,7 +163,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     {
         if (parameter is not Project project)
         {
-            StatusText = "Library Grid requires a project navigation parameter.";
+            StatusText = "Project Overview requires a project navigation parameter.";
             return;
         }
 
@@ -695,6 +702,12 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
     }
 
+    partial void OnItemsPerRowChanged(int value)
+    {
+        _ = value;
+        RebuildImageRows();
+    }
+
     partial void OnSelectedAiModelChanged(AiModelInfo? value)
     {
         if (currentProject is null)
@@ -1012,6 +1025,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         Images = new ObservableCollection<LibraryGridImageViewModel>(filteredImages);
         HasImages = Images.Count > 0;
+        RebuildImageRows();
 
         if (Images.Count == 0)
         {
@@ -1073,6 +1087,24 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
 
         ApplyImageFilter();
+    }
+
+    private void RebuildImageRows()
+    {
+        int effectiveItemsPerRow = ItemsPerRow;
+        if (effectiveItemsPerRow < 1)
+        {
+            effectiveItemsPerRow = 1;
+        }
+
+        List<LibraryGridImageRowViewModel> rows = new List<LibraryGridImageRowViewModel>();
+        for (int index = 0; index < Images.Count; index += effectiveItemsPerRow)
+        {
+            IEnumerable<LibraryGridImageViewModel> rowImages = Images.Skip(index).Take(effectiveItemsPerRow);
+            rows.Add(new LibraryGridImageRowViewModel(rowImages));
+        }
+
+        ImageRows = new ObservableCollection<LibraryGridImageRowViewModel>(rows);
     }
 
     private async Task LoadAiModelChoicesAsync(Project project)

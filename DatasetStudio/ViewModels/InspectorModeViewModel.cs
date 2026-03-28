@@ -57,7 +57,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         ImageList = new ObservableCollection<ImageEntry>();
         AppliedTags = new ObservableCollection<string>();
         AutoSuggestTags = new ObservableCollection<string>();
-        StatusText = "Open an image from Review Workspace to inspect it.";
+        StatusText = "Open an image from Project Overview to inspect it.";
 
         messenger.Register<InspectorModeViewModel, AiTaggingCompletedMessage>(this, static (recipient, message) =>
         {

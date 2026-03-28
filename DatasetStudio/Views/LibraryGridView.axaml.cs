@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System;
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -10,9 +13,14 @@ namespace DatasetStudio.Views;
 
 public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
 {
+    private LibraryGridViewModel? observedViewModel;
+
     public LibraryGridView()
     {
         InitializeComponent();
+        DataContextChanged += OnLibraryGridDataContextChanged;
+        DetachedFromVisualTree += OnLibraryGridDetachedFromVisualTree;
+        ImageRowsListBox.SizeChanged += OnImageRowsListBoxSizeChanged;
     }
 
     protected override IReadOnlyList<ScreenShortcut> BuildScreenShortcuts()
@@ -301,13 +309,18 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
             return 1;
         }
 
-        double usableWidth = ImagesScrollViewer.Bounds.Width;
+        if (ViewModel.ItemsPerRow > 0)
+        {
+            return ViewModel.ItemsPerRow;
+        }
+
+        double usableWidth = ImageRowsListBox.Bounds.Width;
         if (usableWidth <= 0)
         {
             return 1;
         }
 
-        double estimatedTileWidth = ViewModel.ZoomValue + 24;
+        double estimatedTileWidth = ViewModel.ZoomValue + 32;
         if (estimatedTileWidth <= 0)
         {
             return 1;
@@ -323,6 +336,28 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
     }
 
     private void BringFocusedImageIntoView()
+    {
+        if (ViewModel is null || !HasFocusedImage())
+        {
+            return;
+        }
+
+        int itemsPerRow = ViewModel.ItemsPerRow;
+        if (itemsPerRow < 1)
+        {
+            itemsPerRow = 1;
+        }
+
+        int targetRowIndex = ViewModel.FocusedImageIndex / itemsPerRow;
+        if (targetRowIndex >= 0 && targetRowIndex < ViewModel.ImageRows.Count)
+        {
+            ImageRowsListBox.ScrollIntoView(ViewModel.ImageRows[targetRowIndex]);
+        }
+
+        Dispatcher.UIThread.Post(BringRealizedFocusedImageIntoView, DispatcherPriority.Background);
+    }
+
+    private void BringRealizedFocusedImageIntoView()
     {
         if (ViewModel is null || !HasFocusedImage())
         {
@@ -345,6 +380,102 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
             control.BringIntoView();
             return;
         }
+    }
+
+    private void OnLibraryGridDataContextChanged(object? sender, EventArgs eventArgs)
+    {
+        _ = sender;
+        _ = eventArgs;
+        AttachObservedViewModel(ViewModel);
+        Dispatcher.UIThread.Post(UpdateItemsPerRowEstimate, DispatcherPriority.Loaded);
+    }
+
+    private void OnLibraryGridDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs eventArgs)
+    {
+        _ = sender;
+        _ = eventArgs;
+        AttachObservedViewModel(null);
+    }
+
+    private void OnObservedViewModelPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+    {
+        _ = sender;
+
+        if (eventArgs.PropertyName == nameof(LibraryGridViewModel.ZoomValue)
+            || eventArgs.PropertyName == nameof(LibraryGridViewModel.HasImages))
+        {
+            Dispatcher.UIThread.Post(UpdateItemsPerRowEstimate, DispatcherPriority.Loaded);
+        }
+    }
+
+    private void AttachObservedViewModel(LibraryGridViewModel? viewModel)
+    {
+        if (ReferenceEquals(observedViewModel, viewModel))
+        {
+            return;
+        }
+
+        if (observedViewModel is not null)
+        {
+            observedViewModel.PropertyChanged -= OnObservedViewModelPropertyChanged;
+        }
+
+        observedViewModel = viewModel;
+        if (observedViewModel is not null)
+        {
+            observedViewModel.PropertyChanged += OnObservedViewModelPropertyChanged;
+        }
+    }
+
+    private void OnImageRowsListBoxSizeChanged(object? sender, SizeChangedEventArgs eventArgs)
+    {
+        _ = sender;
+        _ = eventArgs;
+        UpdateItemsPerRowEstimate();
+    }
+
+    private void UpdateItemsPerRowEstimate()
+    {
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        int itemsPerRow = CalculateItemsPerRow();
+        if (itemsPerRow == ViewModel.ItemsPerRow)
+        {
+            return;
+        }
+
+        ViewModel.ItemsPerRow = itemsPerRow;
+    }
+
+    private int CalculateItemsPerRow()
+    {
+        if (ViewModel is null)
+        {
+            return 1;
+        }
+
+        double usableWidth = ImageRowsListBox.Bounds.Width;
+        if (usableWidth <= 0)
+        {
+            return 1;
+        }
+
+        double estimatedTileWidth = ViewModel.ZoomValue + 32;
+        if (estimatedTileWidth <= 0)
+        {
+            return 1;
+        }
+
+        int itemsPerRow = (int)(usableWidth / estimatedTileWidth);
+        if (itemsPerRow < 1)
+        {
+            return 1;
+        }
+
+        return itemsPerRow;
     }
 
     private void OnThumbnailDoubleTapped(object? sender, RoutedEventArgs eventArgs)

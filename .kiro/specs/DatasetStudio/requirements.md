@@ -22,16 +22,16 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 - **Alias**: An alternative name for a tag in the Tag_Dictionary that automatically resolves to the canonical tag name
 - **Status_Dot**: A colored indicator on each image thumbnail showing tagging state: Red (untagged), Yellow (auto-tagged/needs review), Green (ready for training)
 - **AI_Tagger**: A background process that automatically generates initial tags for untagged images using a configurable AI model (e.g., WD14 ViT v2, DeepDanbooru, CLIP Interrogator)
-- **Quick_Filter_Bar**: A text input in the Library Grid top bar for live-filtering displayed images by tag content
+- **Quick_Filter_Bar**: A text input in the Project Overview top bar for live-filtering displayed images by tag content
 - **Status_Bar**: A persistent display-only bar at the bottom of every screen showing feedback messages and contextual status information
 - **Hint_Bar**: A persistent bar displaying available keyboard shortcuts for the current screen context
 - **Projects_Hub**: The entry-point screen displaying a grid of all dataset projects with progress metrics
-- **Library_Grid**: The screen showing a dense image grid with folder tree sidebar for mass selection, drag-and-drop staging, and batch tag operations
+- **Project_Overview**: The screen showing a dense image grid with workflow-stage sidebar for mass selection, stage navigation, and batch tag operations
 - **Inspector_Mode**: The screen showing a single large image preview with a persistent tag editor sidebar for sequential precision tagging
 - **Project_Configuration**: A modal overlay for configuring project-level settings including root folder, AI model, prefix tags, and workflow stages
-- **Zoom_Slider**: A slider control in the Library Grid that adjusts thumbnail size from 100px to 400px
-- **Batch_Add_Popup**: A floating autocomplete popup triggered by typing `+` in Library Grid for appending a tag to all images in the active folder or current selection
-- **Batch_Remove_Popup**: A floating popup triggered by typing `-` in Library Grid showing existing folder tags with frequencies for removal
+- **Zoom_Slider**: A slider control in the Project Overview that adjusts thumbnail size from 100px to 400px
+- **Batch_Add_Popup**: A floating autocomplete popup triggered by typing `+` in Project Overview for appending a tag to all images in the active folder or current selection
+- **Batch_Remove_Popup**: A floating popup triggered by typing `-` in Project Overview showing existing folder tags with frequencies for removal
 - **IMessenger**: The CommunityToolkit.Mvvm messaging interface used for decoupled, screen-agnostic event communication between ViewModels via typed message objects
 - **Recycle_Bin**: The operating system's recycle bin (trash), used as the destination when deleting images and their associated Tag_Files
 
@@ -49,38 +49,36 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 4. WHEN the user selects a Master_Root_Directory via the directory picker in the top bar, THE Projects_Hub SHALL perform a background scan and automatically create Project cards for each discovered subfolder, using the subfolder name as the project name.
 5. WHEN no projects exist, THE Projects_Hub SHALL display centered placeholder text "No datasets found. Create your first project or point to a master folder." with a dashed border.
 6. WHEN the user hovers over a Project card, THE Projects_Hub SHALL display a 1px solid Primary-colored border on that card.
-7. WHEN the user clicks a Project card, THE Application SHALL navigate to the Library_Grid for that Project.
+7. WHEN the user clicks a Project card, THE Application SHALL navigate to the Project_Overview for that Project.
 
-### Requirement 2: Library Grid Screen
+### Requirement 2: Project Overview Screen
 
 **User Story:** As a dataset curator, I want a dense image grid with workflow folder navigation and batch tag operations, so that I can efficiently review, organize, and tag large volumes of images using keyboard shortcuts.
 
 #### Acceptance Criteria
 
-1. THE Library_Grid SHALL display a three-column layout: a 240px left sidebar containing the folder tree, a fluid center area containing the image grid, and a 64px top bar.
-2. THE Library_Grid SHALL display the Workflow_Stage folders as a vertically stacked list in the left sidebar, showing pure folder names with numeric prefixes stripped, and an image count for each folder.
-3. WHEN the user clicks a Workflow_Stage folder in the sidebar, THE Library_Grid SHALL update the center grid to display images from that folder.
-4. THE Library_Grid SHALL display images in an auto-fill grid with a minimum cell size of 160px, cropping images to 1:1 square aspect ratio.
-5. THE Library_Grid SHALL display a Status_Dot in the bottom-right corner of each thumbnail: Red for untagged, Yellow for auto-tagged/needs review, Green for ready.
-6. WHEN the user hovers over a thumbnail, THE Library_Grid SHALL display a checkbox in the top-left corner of that thumbnail.
-7. THE Library_Grid SHALL display the Project name in the top-left of the top bar, an AI model selection dropdown, and a Quick_Filter_Bar input.
-8. WHEN the user presses the `/` key, THE Library_Grid SHALL immediately focus the Quick_Filter_Bar for tag-based filtering.
-9. WHEN the user presses arrow keys, THE Library_Grid SHALL navigate spatial focus between thumbnails in the grid. THE currently focused thumbnail SHALL be highlighted with a 2px solid frame using the Warning color (`#D79921`) to clearly indicate the active item.
-10. WHEN the user presses the `x` key, THE Library_Grid SHALL toggle selection of the currently focused thumbnail.
-11. WHEN the user types `+`, THE Library_Grid SHALL open the Batch_Add_Popup with autocomplete, appending the selected tag to all images in the active folder or current selection while skipping duplicates.
-12. WHEN the user types `-`, THE Library_Grid SHALL open the Batch_Remove_Popup displaying existing tags in the folder with their frequencies, removing the selected tag from all images in the active folder or current selection.
-13. WHEN the user presses `[` or `]`, THE Library_Grid SHALL move the currently selected image(s) to the previous or next Workflow_Stage folder in the sequence.
-14. WHEN the user presses `Alt+[` or `Alt+]`, THE Library_Grid SHALL navigate the active folder view to the previous or next Workflow_Stage without moving any images.
-15. WHEN the user presses the `Delete` key, THE Library_Grid SHALL send the currently selected image(s) and their associated Tag_Files to the operating system's recycle bin, then auto-advance focus to the next image in the grid.
-16. WHEN the user drags a thumbnail onto a Workflow_Stage folder in the sidebar, THE Library_Grid SHALL move that image to the target folder and briefly flash the folder item in Accent green.
-17. WHEN an image is being dragged, THE Library_Grid SHALL reduce the thumbnail opacity to 50%.
-18. WHEN the user double-clicks a thumbnail, THE Application SHALL transition to Inspector_Mode for that image.
-19. WHEN the user presses `Ctrl+Shift+C`, THE Library_Grid SHALL copy the full tag set of the focused image to the clipboard. WHEN the user presses `Ctrl+Shift+V`, THE Library_Grid SHALL paste the clipboard tag set onto the focused image.
-20. THE Library_Grid SHALL display a Zoom_Slider in the bottom-right of the grid area, controlling thumbnail size from 100px to 400px.
-21. WHILE the AI_Tagger is processing an untagged image, THE Library_Grid SHALL display a spinning processing icon over that thumbnail with reduced opacity.
-22. WHEN a folder contains no images, THE Library_Grid SHALL display centered text "Folder is empty. Drag images here to stage."
-23. THE Library_Grid SHALL display a Hint_Bar at the bottom of the screen showing available keyboard shortcuts for the current context.
-24. WHEN the user presses the `Escape` key while a Batch_Add_Popup or Batch_Remove_Popup is open, THE Library_Grid SHALL dismiss the popup. WHEN no popup is open and a TextBox has focus, `Escape` SHALL return focus to the grid.
+1. THE Project_Overview SHALL display a three-column layout: a 240px left sidebar containing the folder tree, a fluid center area containing the image grid, and a 64px top bar.
+2. THE Project_Overview SHALL display the Workflow_Stage folders as a vertically stacked list in the left sidebar, showing pure folder names with numeric prefixes stripped, and an image count for each folder.
+3. WHEN the user clicks a Workflow_Stage folder in the sidebar, THE Project_Overview SHALL update the center grid to display images from that folder.
+4. THE Project_Overview SHALL display images in an auto-fill grid with a minimum cell size of 160px, cropping images to 1:1 square aspect ratio.
+5. THE Project_Overview SHALL display a Status_Dot in the bottom-right corner of each thumbnail: Red for untagged, Yellow for auto-tagged/needs review, Green for ready.
+6. WHEN the user hovers over a thumbnail, THE Project_Overview SHALL display a checkbox in the top-left corner of that thumbnail.
+7. THE Project_Overview SHALL display the Project name in the top-left of the top bar, an AI model selection dropdown, and a Quick_Filter_Bar input.
+8. WHEN the user presses the `/` key, THE Project_Overview SHALL immediately focus the Quick_Filter_Bar for tag-based filtering.
+9. WHEN the user presses arrow keys, THE Project_Overview SHALL navigate spatial focus between thumbnails in the grid. THE currently focused thumbnail SHALL be highlighted with a 2px solid frame using the Warning color (`#D79921`) to clearly indicate the active item.
+10. WHEN the user presses the `x` key, THE Project_Overview SHALL toggle selection of the currently focused thumbnail.
+11. WHEN the user types `+`, THE Project_Overview SHALL open the Batch_Add_Popup with autocomplete, appending the selected tag to all images in the active folder or current selection while skipping duplicates.
+12. WHEN the user types `-`, THE Project_Overview SHALL open the Batch_Remove_Popup displaying existing tags in the folder with their frequencies, removing the selected tag from all images in the active folder or current selection.
+13. WHEN the user presses `[` or `]`, THE Project_Overview SHALL move the currently selected image(s) to the previous or next Workflow_Stage folder in the sequence.
+14. WHEN the user presses `Alt+[` or `Alt+]`, THE Project_Overview SHALL navigate the active folder view to the previous or next Workflow_Stage without moving any images.
+15. WHEN the user presses the `Delete` key, THE Project_Overview SHALL send the currently selected image(s) and their associated Tag_Files to the operating system's recycle bin, then auto-advance focus to the next image in the grid.
+16. WHEN the user double-clicks a thumbnail, THE Application SHALL transition to Inspector_Mode for that image.
+17. WHEN the user presses `Ctrl+Shift+C`, THE Project_Overview SHALL copy the full tag set of the focused image to the clipboard. WHEN the user presses `Ctrl+Shift+V`, THE Project_Overview SHALL paste the clipboard tag set onto the focused image.
+18. THE Project_Overview SHALL display a Zoom_Slider in the bottom-right of the grid area, controlling thumbnail size from 100px to 400px.
+19. WHILE the AI_Tagger is processing an untagged image, THE Project_Overview SHALL display a spinning processing icon over that thumbnail with reduced opacity.
+20. WHEN a folder contains no images, THE Project_Overview SHALL display centered text "Folder is empty. Use stage actions to move images here."
+21. THE Project_Overview SHALL display a Hint_Bar at the bottom of the screen showing available keyboard shortcuts for the current context.
+22. WHEN the user presses the `Escape` key while a Batch_Add_Popup or Batch_Remove_Popup is open, THE Project_Overview SHALL dismiss the popup. WHEN no popup is open and a TextBox has focus, `Escape` SHALL return focus to the grid.
 
 ### Requirement 3: Inspector Mode Screen
 
@@ -88,7 +86,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 
 #### Acceptance Criteria
 
-1. THE Inspector_Mode SHALL display a three-column layout: a 240px left sidebar with Workflow_Stage folders (shared component from Library_Grid), a fluid center pane with the large image preview, and a 320px right sidebar with the tag inspector panel.
+1. THE Inspector_Mode SHALL display a three-column layout: a 240px left sidebar with Workflow_Stage folders (shared component from Project_Overview), a fluid center pane with the large image preview, and a 320px right sidebar with the tag inspector panel.
 2. THE Inspector_Mode SHALL scale the image to fit the center pane while preserving aspect ratio. THE current image SHALL be framed with a 2px solid border using the Warning color (`#D79921`) to indicate it is the active item.
 3. THE Inspector_Mode SHALL display a read-only Prefix_Tags block at the top of the right sidebar, showing the project's fixed prefix tags in monospace font.
 4. THE Inspector_Mode SHALL display a 32px-height tag input field with persistent focus and an auto-suggest dropdown sourced from the project's Tag_Dictionary.
@@ -102,7 +100,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 12. WHEN the user presses `Ctrl+Shift+C`, THE Inspector_Mode SHALL copy the full tag set to the clipboard. WHEN the user presses `Ctrl+Shift+V`, THE Inspector_Mode SHALL paste the clipboard tag set onto the current image.
 13. WHILE the AI_Tagger is generating initial tags for the current image, THE Inspector_Mode SHALL display a spinning indicator over the tag list area.
 14. THE Inspector_Mode SHALL display a Hint_Bar showing available keyboard shortcuts at the bottom of the screen.
-15. WHEN the user presses the `Escape` key, THE Inspector_Mode SHALL navigate back to the Library_Grid.
+15. WHEN the user presses the `Escape` key, THE Inspector_Mode SHALL navigate back to the Project_Overview.
 
 ### Requirement 4: Project Configuration Modal
 
@@ -150,19 +148,19 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 #### Acceptance Criteria
 
 1. WHEN an image in a Project has no associated Tag_File, THE AI_Tagger SHALL automatically queue that image for background tag generation using the configured AI model.
-2. WHILE the AI_Tagger is processing an image, THE Application SHALL display a visual processing indicator on that image's thumbnail in the Library_Grid and in the Inspector_Mode tag area.
+2. WHILE the AI_Tagger is processing an image, THE Application SHALL display a visual processing indicator on that image's thumbnail in the Project_Overview and in the Inspector_Mode tag area.
 3. WHEN the AI_Tagger completes tag generation for an image, THE Application SHALL create a Tag_File for that image and set the image's status to Yellow (auto-tagged/needs review).
-4. THE AI_Tagger SHALL read the available model list from a JSON configuration file, and the user SHALL select the active model via the Project_Configuration modal or the Library_Grid top bar dropdown.
+4. THE AI_Tagger SHALL read the available model list from a JSON configuration file, and the user SHALL select the active model via the Project_Configuration modal or the Project_Overview top bar dropdown.
 
 ### Requirement 8: Workflow Stage Folder Management
 
-**User Story:** As a dataset curator, I want workflow stages represented as physical subfolders that I can move images between using keyboard shortcuts or drag-and-drop, so that I can track each image's progress through my curation pipeline.
+**User Story:** As a dataset curator, I want workflow stages represented as physical subfolders that I can move images between using keyboard shortcuts or commands, so that I can track each image's progress through my curation pipeline.
 
 #### Acceptance Criteria
 
 1. THE Application SHALL represent each Workflow_Stage as a physical subfolder within the Project's Root_Folder on disk.
 2. THE Application SHALL determine the sequential order of Workflow_Stages dynamically by parsing the numeric prefix from each subfolder name (e.g., `01_Inbox` → order 1, `02_Review` → order 2). The Application SHALL NOT hardcode folder order; it SHALL always derive ordering from the on-disk numeric prefixes so that stages can be reordered, added, or removed in the future without code changes.
-3. WHEN the user moves an image between Workflow_Stages (via keyboard shortcut, drag-and-drop, or command), THE Application SHALL physically move the image file and its associated Tag_File to the target Workflow_Stage subfolder on disk.
+3. WHEN the user moves an image between Workflow_Stages (via keyboard shortcut or command), THE Application SHALL physically move the image file and its associated Tag_File to the target Workflow_Stage subfolder on disk.
 4. THE Application SHALL display Workflow_Stage folder names in the sidebar with numeric prefixes stripped from the display.
 5. WHEN a new Project is created with defined Workflow_Stages, THE Application SHALL create the corresponding subfolders on disk if they do not already exist.
 
@@ -176,7 +174,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 2. THE Application SHALL display a Hint_Bar at the bottom of each screen showing the available keyboard shortcuts for the current context.
 3. THE Application SHALL display a Status_Bar at the bottom of each screen for feedback messages and contextual status information (display only, no input).
 4. WHEN the user presses `/` on any screen with a filter bar, THE Application SHALL immediately focus the filter input.
-5. THE Application SHALL support `Ctrl+Shift+C` and `Ctrl+Shift+V` for copying and pasting full tag sets between images on both Library_Grid and Inspector_Mode screens.
+5. THE Application SHALL support `Ctrl+Shift+C` and `Ctrl+Shift+V` for copying and pasting full tag sets between images on both Project_Overview and Inspector_Mode screens.
 
 ### Requirement 10: Design System and Visual Identity
 
@@ -188,7 +186,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 2. THE Application SHALL use IBM Plex Sans for headings (600 weight, 18-24px), body text (400 weight, 13px), and buttons (500 weight, 12px, uppercase, 0.5px tracking). THE Application SHALL use IBM Plex Mono for tags, metadata, and code inputs (500 weight, 12px).
 3. THE Application SHALL use hard 2px border radiuses, sharp 1px borders, and 1px solid Primary-colored borders for active states instead of background color changes. THE Application SHALL use a 2px solid Warning-colored (`#D79921`) border to indicate the currently focused/active item in grids and image views.
 4. THE Application SHALL define XAML ResourceDictionaries containing all design tokens including colors, fonts, spacing (4px, 8px, 16px, 24px), and border styles for consistent reuse across all screens.
-5. THE Application SHALL define an active focus frame style as a 2px solid Warning `#D79921` border applied to the currently focused or active item (thumbnail in Library_Grid, image preview in Inspector_Mode) to provide clear visual identification of the active element.
+5. THE Application SHALL define an active focus frame style as a 2px solid Warning `#D79921` border applied to the currently focused or active item (thumbnail in Project_Overview, image preview in Inspector_Mode) to provide clear visual identification of the active element.
 
 ### Requirement 11: State Persistence
 
@@ -239,7 +237,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 
 #### Acceptance Criteria
 
-1. THE Application SHALL generate and cache thumbnail images for the Library_Grid on first load, storing them in a `.datasetstudio-cache/` subfolder within the Project's Root_Folder.
+1. THE Application SHALL generate and cache thumbnail images for the Project_Overview on first load, storing them in a `.datasetstudio-cache/` subfolder within the Project's Root_Folder.
 2. WHEN a cached thumbnail exists and the source image has not been modified (based on file modification timestamp), THE Application SHALL load the thumbnail from cache instead of re-reading and resizing the full image.
 3. WHEN the source image is modified or replaced, THE Application SHALL invalidate and regenerate the cached thumbnail on next access.
 4. THE Application SHALL cache the Tag_Dictionary in memory for the active project to avoid repeated disk reads during autocomplete and frequency lookups.

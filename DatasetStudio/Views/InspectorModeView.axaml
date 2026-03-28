@@ -71,18 +71,16 @@
                         </Viewbox>
 
                         <Button Content="Prev"
-                                Classes="edge-nav"
+                                Classes="edge-nav inset"
                                 Command="{Binding NavigatePreviousCommand}"
                                 HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Margin="8" />
+                                VerticalAlignment="Center" />
 
                         <Button Content="Next"
-                                Classes="edge-nav"
+                                Classes="edge-nav inset"
                                 Command="{Binding NavigateNextCommand}"
                                 HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Margin="8" />
+                                VerticalAlignment="Center" />
                     </Grid>
 
                     <TextBlock Grid.Row="1"
@@ -158,7 +156,7 @@
                         <Border IsVisible="{Binding IsBusy}"
                                 Classes="processing-overlay compact"
                                 VerticalAlignment="Stretch">
-                            <StackPanel Spacing="8"
+                            <StackPanel Classes="processing-stack"
                                         VerticalAlignment="Center">
                                 <ProgressBar Classes="processing-indicator"
                                              IsIndeterminate="True" />

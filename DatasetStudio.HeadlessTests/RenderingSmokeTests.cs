@@ -37,14 +37,22 @@ public class RenderingSmokeTests
         await CaptureProjectsHubAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureProjectConfigurationAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureTagDictionaryAsync(scenario, outputFolder).ConfigureAwait(true);
-        await CaptureLibraryGridAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureProjectOverviewAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureProjectOverviewBatchAddPopupAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureProjectOverviewBatchRemovePopupAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureProjectOverviewAiProcessingAsync(scenario, outputFolder).ConfigureAwait(true);
         await CaptureInspectorModeAsync(scenario, outputFolder).ConfigureAwait(true);
+        await CaptureInspectorSuggestionsAsync(scenario, outputFolder).ConfigureAwait(true);
 
         Assert.That(File.Exists(Path.Combine(outputFolder, "projects-hub.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "project-configuration.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "tag-dictionary.png")), Is.True);
-        Assert.That(File.Exists(Path.Combine(outputFolder, "library-grid.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview-batch-add.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview-batch-remove.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "project-overview-ai-processing.png")), Is.True);
         Assert.That(File.Exists(Path.Combine(outputFolder, "inspector-mode.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputFolder, "inspector-suggestions.png")), Is.True);
     }
 
     [AvaloniaTest]
@@ -364,7 +372,7 @@ public class RenderingSmokeTests
         await CaptureWindowAsync(window, outputFolder, "tag-dictionary.png", 350).ConfigureAwait(true);
     }
 
-    private static async Task CaptureLibraryGridAsync(CaptureScenario scenario, string outputFolder)
+    private static async Task CaptureProjectOverviewAsync(CaptureScenario scenario, string outputFolder)
     {
         LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
             scenario.FileSystemService,
@@ -380,7 +388,83 @@ public class RenderingSmokeTests
         libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
         MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
-        await CaptureWindowAsync(window, outputFolder, "library-grid.png", 500).ConfigureAwait(true);
+        await CaptureWindowAsync(window, outputFolder, "project-overview.png", 500).ConfigureAwait(true);
+    }
+
+    private static async Task CaptureProjectOverviewBatchAddPopupAsync(CaptureScenario scenario, string outputFolder)
+    {
+        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+            scenario.FileSystemService,
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.ThumbnailCacheService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            scenario.AiTaggerService,
+            new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
+            scenario.Messenger,
+            scenario.StatePersistenceService);
+        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        libraryGridViewModel.OpenBatchAddCommand.Execute(null);
+        await WaitForConditionAsync(() => libraryGridViewModel.IsBatchAddOpen).ConfigureAwait(true);
+        Assert.That(libraryGridViewModel.IsBatchAddOpen, Is.True);
+        await CaptureOpenWindowAsync(window, outputFolder, "project-overview-batch-add.png").ConfigureAwait(true);
+    }
+
+    private static async Task CaptureProjectOverviewBatchRemovePopupAsync(CaptureScenario scenario, string outputFolder)
+    {
+        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+            scenario.FileSystemService,
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.ThumbnailCacheService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            scenario.AiTaggerService,
+            new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
+            scenario.Messenger,
+            scenario.StatePersistenceService);
+        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        libraryGridViewModel.OpenBatchRemoveCommand.Execute(null);
+        await WaitForConditionAsync(() => libraryGridViewModel.IsBatchRemoveOpen).ConfigureAwait(true);
+        Assert.That(libraryGridViewModel.IsBatchRemoveOpen, Is.True);
+        await CaptureOpenWindowAsync(window, outputFolder, "project-overview-batch-remove.png").ConfigureAwait(true);
+    }
+
+    private static async Task CaptureProjectOverviewAiProcessingAsync(CaptureScenario scenario, string outputFolder)
+    {
+        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+            scenario.FileSystemService,
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.ThumbnailCacheService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            scenario.AiTaggerService,
+            new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
+            scenario.Messenger,
+            scenario.StatePersistenceService);
+        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        Assert.That(libraryGridViewModel.Images.Count, Is.GreaterThan(0));
+        libraryGridViewModel.Images[0].IsAiProcessing = true;
+        Assert.That(libraryGridViewModel.Images[0].IsAiProcessing, Is.True);
+        await Task.Delay(75).ConfigureAwait(true);
+        await CaptureOpenWindowAsync(window, outputFolder, "project-overview-ai-processing.png").ConfigureAwait(true);
     }
 
     private static async Task CaptureInspectorModeAsync(CaptureScenario scenario, string outputFolder)
@@ -404,19 +488,55 @@ public class RenderingSmokeTests
         await CaptureWindowAsync(window, outputFolder, "inspector-mode.png", 500).ConfigureAwait(true);
     }
 
+    private static async Task CaptureInspectorSuggestionsAsync(CaptureScenario scenario, string outputFolder)
+    {
+        string preferredImagePath = Path.Combine(scenario.PrimaryProject.RootFolderPath, "02_Review", "cat.png");
+        scenario.PrimaryProject.State.ActiveStageFolderName = "02_Review";
+        scenario.PrimaryProject.State.LastInspectedImagePath = preferredImagePath;
+
+        InspectorModeViewModel inspectorModeViewModel = new InspectorModeViewModel(
+            scenario.TagFileService,
+            scenario.TagDictionaryService,
+            scenario.FileSystemService,
+            scenario.ClipboardService,
+            scenario.NavigationService,
+            scenario.AiTaggerService,
+            scenario.Messenger,
+            scenario.StatePersistenceService);
+        inspectorModeViewModel.OnNavigatedTo(scenario.PrimaryProject);
+
+        MainWindow window = scenario.CreateMainWindow(inspectorModeViewModel);
+        window.Show();
+        await Task.Delay(500).ConfigureAwait(true);
+
+        await WaitForConditionAsync(() => inspectorModeViewModel.CurrentImage is not null).ConfigureAwait(true);
+
+        inspectorModeViewModel.TagInputText = "d";
+        await WaitForConditionAsync(() => inspectorModeViewModel.IsSuggestOpen).ConfigureAwait(true);
+        Assert.That(inspectorModeViewModel.IsSuggestOpen, Is.True);
+        Assert.That(inspectorModeViewModel.AutoSuggestTags, Is.Not.Empty);
+        await CaptureOpenWindowAsync(window, outputFolder, "inspector-suggestions.png").ConfigureAwait(true);
+    }
+
     private static async Task CaptureWindowAsync(Window window, string outputFolder, string fileName, int delayMs)
     {
         window.Show();
         await Task.Delay(delayMs).ConfigureAwait(true);
 
+        await CaptureOpenWindowAsync(window, outputFolder, fileName).ConfigureAwait(true);
+
+        window.Close();
+        await Task.Delay(50).ConfigureAwait(true);
+    }
+
+    private static Task CaptureOpenWindowAsync(Window window, string outputFolder, string fileName)
+    {
         WriteableBitmap? bitmap = window.CaptureRenderedFrame();
         Assert.That(bitmap, Is.Not.Null, $"Expected a rendered frame for {fileName}.");
 
         string outputPath = TestOutputHelper.GetOutputPath(outputFolder, fileName);
         bitmap!.Save(outputPath);
-
-        window.Close();
-        await Task.Delay(50).ConfigureAwait(true);
+        return Task.CompletedTask;
     }
 
     private sealed class CaptureScenario : IDisposable

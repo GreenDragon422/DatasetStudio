@@ -8,7 +8,7 @@ The files under `.kiro/specs/DatasetStudio/` are the authoritative source for Da
 
 DatasetStudio is a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curating and tagging image datasets used in AI training. The application follows the MVVM (Model-View-ViewModel) pattern native to Avalonia, with a service layer handling file system operations, AI model integration, and tag parsing. The visual identity uses the Gruvbox Light palette with IBM Plex Sans/Mono typography and a retro-utilitarian aesthetic with hard 2px border radiuses.
 
-The application consists of five screens: Projects Hub (entry point), Library Grid (batch operations), Inspector Mode (sequential tagging), Project Configuration (modal settings), and Global Tag Dictionary (taxonomy management). All screens share a persistent Hint Bar for keyboard shortcuts. Data is stored entirely on the local file system — projects map to physical folders, tags live in Booru-style `.txt` sidecar files, and configuration is persisted as JSON.
+The application consists of five screens: Projects Hub (entry point), Project Overview (batch operations), Inspector Mode (sequential tagging), Project Configuration (modal settings), and Global Tag Dictionary (taxonomy management). All screens share a persistent Hint Bar for keyboard shortcuts. Data is stored entirely on the local file system — projects map to physical folders, tags live in Booru-style `.txt` sidecar files, and configuration is persisted as JSON.
 
 ## Architecture
 
@@ -199,7 +199,7 @@ TagDictionaryView
 | `StatusBar` | 24px-height bar at the bottom of every screen for displaying feedback messages and contextual status information. Display only, no input. |
 | `TagPill` | Inline control: `Border` containing tag text (IBM Plex Mono) + `x` remove button. Background `#EBDBB2`, border `1px solid #D5C4A1`. |
 | `StatusDot` | 12px circle overlay on thumbnails. Color bound to `ImageEntry.TagStatus` enum (Red/Yellow/Green). |
-| `ActiveFocusFrame` | 2px solid Warning `#D79921` border applied to the currently focused/active item. Used on thumbnails in Library Grid and image preview in Inspector Mode. Bound to `IsFocused` or `IsActive` property on the ViewModel item. |
+| `ActiveFocusFrame` | 2px solid Warning `#D79921` border applied to the currently focused/active item. Used on thumbnails in Project Overview and image preview in Inspector Mode. Bound to `IsFocused` or `IsActive` property on the ViewModel item. |
 | `BatchPopup` | Popup with TextBox + ListBox for autocomplete tag selection. Shared template, parameterized for add vs. remove mode. |
 
 ### Service Interfaces
@@ -314,8 +314,8 @@ graph TD
 Key routing rules:
 - When a `TextBox` has focus (tag input, filter bar), letter keys are consumed by the TextBox. `Escape` returns focus to the parent container (grid or image viewer).
 - The active screen does not receive arbitrary keypresses. It receives only the shortcuts that it registered through `ScreenViewBase<TViewModel>`, which keeps the work surface narrow and consistent across screens.
-- `Escape` dismisses any open popup (batch add/remove). If no popup is open in Inspector Mode, `Escape` navigates back to Library Grid.
-- In Library Grid, when no TextBox is focused: arrow keys navigate the grid, `x` toggles selection, `+`/`-` open batch popups, `[`/`]` move images, `Delete` recycles images.
+- `Escape` dismisses any open popup (batch add/remove). If no popup is open in Inspector Mode, `Escape` navigates back to Project Overview.
+- In Project Overview, when no TextBox is focused: arrow keys navigate the grid, `x` toggles selection, `+`/`-` open batch popups, `[`/`]` move images, `Delete` recycles images.
 - In Inspector Mode, any letter key auto-focuses the tag input (requirement 3.6). Arrow keys navigate images. `[`/`]` move the current image between stages. `Delete` recycles the current image.
 - The `HintBar` content updates reactively based on `CurrentScreen` and `IsTextInputFocused` state.
 
@@ -333,7 +333,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 **HintBar default:** `↑↓: Navigate  Enter: Open  N: New Project`
 
-#### Library Grid — Grid Focused (no TextBox, no popup)
+#### Project Overview — Grid Focused (no TextBox, no popup)
 
 | Key | Action | HintBar Label |
 |---|---|---|
@@ -354,7 +354,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 **HintBar default:** `←↑↓→: Navigate  X: Select  +: Add  -: Remove  []: Move  Del: Delete  /: Filter  Enter: Inspect`
 
-#### Library Grid — Batch Add Popup Open
+#### Project Overview — Batch Add Popup Open
 
 | Key | Action | HintBar Label |
 |---|---|---|
@@ -365,7 +365,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 **HintBar:** `↑↓: Navigate  Enter: Apply Tag  Esc: Cancel`
 
-#### Library Grid — Batch Remove Popup Open
+#### Project Overview — Batch Remove Popup Open
 
 | Key | Action | HintBar Label |
 |---|---|---|
@@ -375,7 +375,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 **HintBar:** `↑↓: Navigate  Enter: Remove Tag  Esc: Cancel`
 
-#### Library Grid — Quick Filter Focused
+#### Project Overview — Quick Filter Focused
 
 | Key | Action | HintBar Label |
 |---|---|---|
@@ -391,7 +391,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 | Type text | Enter tag text (auto-suggest active) | _(implicit)_ |
 | `Enter` | Commit tag, auto-advance to next untagged | `Enter: Commit Tag` |
 | `↑` `↓` | Navigate auto-suggest dropdown | `↑↓: Suggestions` |
-| `Escape` | Navigate back to Library Grid | `Esc: Back to Grid` |
+| `Escape` | Navigate back to Project Overview | `Esc: Back to Overview` |
 
 **HintBar:** `Enter: Commit & Next  ↑↓: Suggestions  Esc: Back to Grid`
 
@@ -407,7 +407,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 | `Ctrl+Shift+C` | Copy tag set | `Ctrl+Shift+C: Copy Tags` |
 | `Ctrl+Shift+V` | Paste tag set | `Ctrl+Shift+V: Paste Tags` |
 | Any letter | Auto-focus tag input | _(implicit)_ |
-| `Escape` | Navigate back to Library Grid | `Esc: Back to Grid` |
+| `Escape` | Navigate back to Project Overview | `Esc: Back to Overview` |
 
 **HintBar:** `←→: Navigate  []: Move Stage  Del: Delete  Type: Tag  Esc: Back to Grid`
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.PixelFormats;
@@ -30,13 +31,13 @@ public static class TestOutputHelper
         {
             if (entry is FileInfo fileInfo)
             {
-                fileInfo.Delete();
+                DeleteFileWithRetry(fileInfo.FullName);
                 continue;
             }
 
             if (entry is DirectoryInfo subDirectory)
             {
-                subDirectory.Delete(recursive: true);
+                DeleteDirectoryWithRetry(subDirectory.FullName);
             }
         }
     }
@@ -53,7 +54,7 @@ public static class TestOutputHelper
 
         if (clearExisting && Directory.Exists(outputFolder))
         {
-            Directory.Delete(outputFolder, recursive: true);
+            DeleteDirectoryWithRetry(outputFolder);
         }
 
         Directory.CreateDirectory(outputFolder);
@@ -103,6 +104,50 @@ public static class TestOutputHelper
     {
         Directory.CreateDirectory(TestOutputFolder);
         return TestOutputFolder;
+    }
+
+    private static void DeleteFileWithRetry(string filePath)
+    {
+        ExecuteWithRetry(() =>
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        });
+    }
+
+    private static void DeleteDirectoryWithRetry(string directoryPath)
+    {
+        ExecuteWithRetry(() =>
+        {
+            if (Directory.Exists(directoryPath))
+            {
+                Directory.Delete(directoryPath, recursive: true);
+            }
+        });
+    }
+
+    private static void ExecuteWithRetry(Action action)
+    {
+        const int MaxAttempts = 8;
+
+        for (int attempt = 1; attempt <= MaxAttempts; attempt++)
+        {
+            try
+            {
+                action();
+                return;
+            }
+            catch (IOException) when (attempt < MaxAttempts)
+            {
+                Thread.Sleep(50 * attempt);
+            }
+            catch (UnauthorizedAccessException) when (attempt < MaxAttempts)
+            {
+                Thread.Sleep(50 * attempt);
+            }
+        }
     }
 
     public static void CreateAnimatedGif(IEnumerable<string> frameFiles, string outputPath, int frameDelayMs = 200, ushort repeatCount = 0)

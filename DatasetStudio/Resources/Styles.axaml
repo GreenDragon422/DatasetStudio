@@ -463,6 +463,10 @@
         <Setter Property="Margin" Value="0,0,16,16" />
     </Style>
 
+    <Style Selector="Border.surface-card.thumbnail-tile">
+        <Setter Property="Margin" Value="0,0,12,12" />
+    </Style>
+
     <Style Selector="Border.surface-card.list-item-card">
         <Setter Property="Margin" Value="0,0,0,8" />
     </Style>
@@ -664,6 +668,14 @@
         <Setter Property="Padding" Value="14,10" />
     </Style>
 
+    <Style Selector="Button.edge-nav.inset">
+        <Setter Property="Margin" Value="8" />
+    </Style>
+
+    <Style Selector="Button.thumbnail-button">
+        <Setter Property="Margin" Value="0,8,0,8" />
+    </Style>
+
     <Style Selector="ListBox.stage-editor-list">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -709,6 +721,10 @@
     <Style Selector="ListBox.plain-list ListBoxItem:selected Border.suggestion-row">
         <Setter Property="Background" Value="{StaticResource BrushSelection}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+    </Style>
+
+    <Style Selector="ListBox.plain-list.virtualized-row-list ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     </Style>
 
     <Style Selector="ListBox.sidebar-nav-list">
@@ -806,6 +822,16 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <Style Selector="StackPanel.processing-stack">
+        <Setter Property="Spacing" Value="8" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="StackPanel.thumbnail-row">
+        <Setter Property="Orientation" Value="Horizontal" />
+    </Style>
+
     <Style Selector="StackPanel.inline-metrics">
         <Setter Property="Orientation" Value="Horizontal" />
         <Setter Property="Spacing" Value="12" />
@@ -817,5 +843,13 @@
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Spacing" Value="12" />
+    </Style>
+
+    <Style Selector="Grid.thumbnail-header-row">
+        <Setter Property="ColumnSpacing" Value="8" />
+    </Style>
+
+    <Style Selector="TextBlock.thumbnail-fallback-caption">
+        <Setter Property="Margin" Value="12" />
     </Style>
 </Styles>
