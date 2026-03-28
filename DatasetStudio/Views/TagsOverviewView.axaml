@@ -32,21 +32,8 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1"
-              ColumnDefinitions="240,*"
-              Classes="content-columns">
-            <Border Classes="surface-card pad-12">
-                <StackPanel Classes="section-stack">
-                    <TextBlock Text="Categories"
-                               Classes="heading-medium" />
-                    <ListBox ItemsSource="{Binding Categories}"
-                             Classes="sidebar-nav-list"
-                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Column="1"
-                    Classes="surface-card pad-8">
+        <Border Grid.Row="1"
+                Classes="surface-card pad-8">
                 <DataGrid ItemsSource="{Binding FilteredEntries}"
                           SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
                           AutoGenerateColumns="False"
@@ -73,6 +60,10 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
+                        <DataGridTextColumn Header="Frequency"
+                                            Binding="{Binding GlobalFrequency}"
+                                            Width="Auto"/>
+
                         <DataGridTemplateColumn Header="Alias"
                                                 Width="3*">
                             <DataGridTemplateColumn.CellTemplate>
@@ -92,10 +83,6 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-
-                        <DataGridTextColumn Header="Global Frequency"
-                                            Binding="{Binding GlobalFrequency}"
-                                            Width="*"/>
 
                         <DataGridTemplateColumn Header="Actions"
                                                 Width="2*">
@@ -123,7 +110,6 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-            </Border>
-        </Grid>
+        </Border>
     </Grid>
 </UserControl>

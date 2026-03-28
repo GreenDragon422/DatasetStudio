@@ -14,12 +14,6 @@ namespace DatasetStudio.ViewModels;
 
 public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAware
 {
-    private const int FrequentTagThreshold = 5;
-    private const string AllTagsCategory = "All Tags";
-    private const string NeedsAliasCategory = "Needs Alias";
-    private const string OrphanedTagsCategory = "Orphaned Tags";
-    private const string FrequentTagsCategory = "Frequent Tags";
-
     private readonly IMessenger messenger;
     private readonly ITagDictionaryService tagDictionaryService;
     private TagsOverviewRowViewModel? pendingMergeSourceEntry;
@@ -30,16 +24,8 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
         this.tagDictionaryService = tagDictionaryService ?? throw new ArgumentNullException(nameof(tagDictionaryService));
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
 
-        Categories = new ObservableCollection<string>
-        {
-            AllTagsCategory,
-            NeedsAliasCategory,
-            OrphanedTagsCategory,
-            FrequentTagsCategory,
-        };
         AllEntries = new ObservableCollection<TagsOverviewRowViewModel>();
         FilteredEntries = new ObservableCollection<TagsOverviewRowViewModel>();
-        SelectedCategory = AllTagsCategory;
         StatusText = "Open a project to manage its tags overview.";
 
         messenger.Register<TagDictionaryChangedMessage>(this, static (recipient, message) =>
@@ -53,8 +39,6 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
         });
     }
 
-    public ObservableCollection<string> Categories { get; }
-
     public string CurrentProjectId { get; private set; } = string.Empty;
 
     [ObservableProperty]
@@ -65,9 +49,6 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
 
     [ObservableProperty]
     private string searchText = string.Empty;
-
-    [ObservableProperty]
-    private string selectedCategory;
 
     [ObservableProperty]
     private TagsOverviewRowViewModel? selectedEntry;
@@ -111,7 +92,6 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
     private void NewTag()
     {
         SearchText = string.Empty;
-        SelectedCategory = AllTagsCategory;
         CancelAllEditing();
 
         TagsOverviewRowViewModel newEntry = new(new TagDictionaryEntry())
@@ -247,12 +227,6 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
         ApplyFilters();
     }
 
-    partial void OnSelectedCategoryChanged(string value)
-    {
-        _ = value;
-        ApplyFilters();
-    }
-
     private void CancelAllEditing()
     {
         foreach (TagsOverviewRowViewModel entry in AllEntries)
@@ -274,14 +248,6 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
                 entry.CanonicalName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
                 || entry.DisplayAliases.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
-
-        filtered = SelectedCategory switch
-        {
-            NeedsAliasCategory => filtered.Where(entry => entry.Aliases.Count == 0),
-            OrphanedTagsCategory => filtered.Where(entry => entry.GlobalFrequency == 0),
-            FrequentTagsCategory => filtered.Where(entry => entry.GlobalFrequency > FrequentTagThreshold),
-            _ => filtered,
-        };
 
         FilteredEntries = new ObservableCollection<TagsOverviewRowViewModel>(filtered);
     }

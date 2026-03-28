@@ -177,15 +177,12 @@ InspectorModeView
 ```
 TagsOverviewView
 ├── TopBar (search/filter bar + "New Tag" button)
-├── TwoColumnLayout
-│   ├── LeftSidebar (240px)
-│   │   └── CategoryFilterList (All Tags, Needs Alias, Orphaned, Frequent)
-│   └── CenterPane (fluid)
-│       └── TagDataGrid (DataGrid with sortable columns)
-│           ├── Column: Tag Name (IBM Plex Mono)
-│           ├── Column: Alias
-│           ├── Column: Global Frequency
-│           └── Column: Actions (Edit, Merge, Delete)
+├── CenterPane (fluid)
+│   └── TagDataGrid (DataGrid with sortable columns)
+│       ├── Column: Tag Name (IBM Plex Mono)
+│       ├── Column: Frequency
+│       ├── Column: Alias
+│       └── Column: Actions (Edit, Merge, Delete)
 ├── HintBar
 └── StatusBar
 ```

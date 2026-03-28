@@ -122,9 +122,9 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 
 #### Acceptance Criteria
 
-1. THE Tags_Overview screen SHALL display a two-column layout: a 240px left sidebar with category filters (All Tags, Needs Alias, Orphaned Tags, Frequent Tags) and a fluid center pane with a sortable DataGrid.
+1. THE Tags_Overview screen SHALL display a single-pane layout with a top-anchored search/filter bar and a fluid sortable DataGrid as the main overview surface.
 2. THE Tags_Overview SHALL display a top-anchored search/filter bar for finding tags across all datasets.
-3. THE Tags_Overview DataGrid SHALL display sortable columns for Tag Name, Alias, Global Frequency, and Actions (Edit, Merge, Delete).
+3. THE Tags_Overview DataGrid SHALL display sortable columns for Tag Name, Frequency, Alias, and Actions (Edit, Merge, Delete).
 4. WHEN the user double-clicks a DataGrid row, THE Tags_Overview SHALL enter inline edit mode for that row, allowing renaming of the tag and configuration of aliases.
 5. WHEN the user triggers a Merge action on a tag, THE Tags_Overview SHALL merge the selected tag into a target tag, updating all references across all projects.
 6. WHEN the user triggers a Delete action on a tag, THE Tags_Overview SHALL remove the tag from the dictionary and offer to remove the tag from all associated Tag_Files.

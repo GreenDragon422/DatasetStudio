@@ -360,22 +360,23 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 - [x] 36. Implement Tags Overview screen
   - [x] 36.1 Create `ViewModels/TagsOverviewViewModel.cs` — inject ITagDictionaryService, IMessenger
-  - [x] 36.2 Implement observable properties: AllEntries (ObservableCollection<TagDictionaryEntry>), FilteredEntries (filtered view), SearchText (string), SelectedCategory (string), SelectedEntry (TagDictionaryEntry), IsEditing (bool)
+  - [x] 36.2 Implement observable properties: AllEntries (ObservableCollection<TagDictionaryEntry>), FilteredEntries (filtered view), SearchText (string), SelectedEntry (TagDictionaryEntry), IsEditing (bool)
   - [x] 36.3 Implement `LoadEntriesCommand` — call ITagDictionaryService.GetAllEntriesAsync, populate AllEntries
-  - [x] 36.4 Implement category filters — "All Tags" (all), "Needs Alias" (entries with empty aliases), "Orphaned Tags" (frequency=0), "Frequent Tags" (frequency > threshold)
+  - [x] 36.4 Implement search-driven overview filtering — use the grid plus search text as the primary browsing surface, without category buckets
   - [x] 36.5 Implement search filter — filter entries by SearchText substring match on canonical name and aliases
   - [x] 36.6 Implement `EditEntryCommand` — double-click enters inline edit mode, allow rename and alias configuration
   - [x] 36.7 Implement `MergeTagCommand` — prompt for target tag, call ITagDictionaryService.MergeTagsAsync, publish TagDictionaryChangedMessage
   - [x] 36.8 Implement `DeleteTagCommand` — call ITagDictionaryService.DeleteTagAsync with option to remove from files, publish TagDictionaryChangedMessage
   - [x] 36.9 Implement `NewTagCommand` — add new entry to dictionary
   - [x] 36.10 Subscribe to TagDictionaryChangedMessage — refresh entries
-  - [x] 36.11 Create `Views/TagsOverviewView.axaml` — two-column layout: 240px left sidebar with category filter ListBox, fluid center with DataGrid
+  - [x] 36.11 Create `Views/TagsOverviewView.axaml` — single-pane layout with search controls in the header and the tag DataGrid as the main overview surface
   - [x] 36.12 Implement top bar — search/filter TextBox + "New Tag" button
-  - [x] 36.13 Implement DataGrid — sortable columns: Tag Name (IBM Plex Mono), Alias, Global Frequency, Actions (Edit/Merge/Delete buttons)
+  - [x] 36.13 Implement DataGrid — sortable columns: Tag Name (IBM Plex Mono), Frequency, Alias, Actions (Edit/Merge/Delete buttons)
   - [x] 36.14 Implement inline edit mode on double-click row
   - [x] 36.15 Wire HintBar and StatusBar at bottom
   - Note (2026-03-27): Shared DataGrid and control styling were adjusted for the Gruvbox Light palette so tag text and action controls remain readable against the screen background and grid chrome.
   - Progress note (2026-03-28): The screen naming is now aligned as Tags Overview. The screen view/viewmodel/row-viewmodel and their tracked files now use `TagsOverview*`, the top bar includes an explicit Tags Overview title, headless captures use `tags-overview.png`, and the authoritative docs reference the renamed screen paths while the underlying `TagDictionary*` service/model contracts remain unchanged.
+  - Progress note (2026-03-28): Simplified Tags Overview to a single searchable grid by removing the category sidebar entirely. Frequency now appears directly beside the tag name as a normal data column, and the screen relies on table sorting plus search instead of separate buckets like Needs Alias, Orphaned Tags, or Frequent Tags.
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
 - [x] 37. Screens checkpoint
