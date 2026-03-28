@@ -66,6 +66,14 @@
                                                SelectedValue="{Binding SelectedAiModelName, Mode=TwoWay}"
                                                SelectedValueBinding="{Binding Id}"
                                                PlaceholderText="Select an AI model">
+                                        <ComboBox.SelectionBoxItemTemplate>
+                                            <DataTemplate x:DataType="models:AiModelInfo">
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           FontSize="14"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource BrushTextStrong}" />
+                                            </DataTemplate>
+                                        </ComboBox.SelectionBoxItemTemplate>
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate x:DataType="models:AiModelInfo">
                                                 <StackPanel Classes="screen-title-stack">
