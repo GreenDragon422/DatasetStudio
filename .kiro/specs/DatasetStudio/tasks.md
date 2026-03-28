@@ -410,6 +410,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 39.4 On app shutdown — flush any pending state saves
   - [x] 39.5 Verify every configurable property is persisted — zoom, active stage, window size/position, last project, master root path, selected AI model, last inspected image
   - Progress note (2026-03-27): App startup now restores `AppState`, reapplies saved window geometry, and jumps straight back into the last opened project when it still exists. Projects Hub persists the master root and last opened project id, Project Overview and Inspector Mode reload the latest `ProjectState` on open and save stage/zoom/model/focused-image changes through the debounced persistence service, and shutdown now flushes any queued writes. Coverage was expanded with app-state, project-state, and flush tests, bringing the suite to 65 unit tests plus 4 headless tests.
+  - Progress note (2026-03-28): AppState mutation now flows through a shared `IStatePersistenceService.UpdateAppStateAsync(...)` contract instead of viewmodels and `App` performing ad hoc `LoadAppStateAsync` → mutate → `SaveAppStateAsync` cycles. This removes viewmodel-specific persistence helpers like `PersistMasterRootPathAsync`, keeps session-state update rules behind the persistence boundary, and adds regression coverage for update-based AppState persistence.
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
 - [x] 40. Wire AI tagger background processing

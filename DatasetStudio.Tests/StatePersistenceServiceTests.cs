@@ -63,6 +63,39 @@ public class StatePersistenceServiceTests
     }
 
     [Test]
+    public async Task UpdateAppStateAsync_MutatesExistingStateThroughPersistenceService()
+    {
+        using TemporaryDirectory temporaryDirectory = new();
+        FileSystemService fileSystemService = new();
+        StatePersistenceService statePersistenceService = new(fileSystemService, temporaryDirectory.DirectoryPath, TimeSpan.FromMilliseconds(20));
+
+        await statePersistenceService.SaveAppStateAsync(new AppState
+        {
+            LastOpenedProjectId = "project-1",
+            LastMasterRootDirectory = Path.Combine(temporaryDirectory.DirectoryPath, "datasets"),
+            WindowWidth = 1200,
+            WindowHeight = 800,
+        });
+
+        AppState updatedState = await statePersistenceService.UpdateAppStateAsync(appState =>
+        {
+            appState.LastMasterRootDirectory = Path.Combine(temporaryDirectory.DirectoryPath, "datasets-2");
+            appState.LastOpenedProjectId = null;
+        });
+
+        AppState reloadedState = await statePersistenceService.LoadAppStateAsync();
+
+        Assert.That(updatedState.LastOpenedProjectId, Is.Null);
+        Assert.That(updatedState.LastMasterRootDirectory, Does.EndWith("datasets-2"));
+        Assert.That(updatedState.WindowWidth, Is.EqualTo(1200));
+        Assert.That(updatedState.WindowHeight, Is.EqualTo(800));
+        Assert.That(reloadedState.LastOpenedProjectId, Is.Null);
+        Assert.That(reloadedState.LastMasterRootDirectory, Does.EndWith("datasets-2"));
+        Assert.That(reloadedState.WindowWidth, Is.EqualTo(1200));
+        Assert.That(reloadedState.WindowHeight, Is.EqualTo(800));
+    }
+
+    [Test]
     public async Task SaveAndLoadProjectStateAsync_PreservesProjectStateBlock()
     {
         using TemporaryDirectory temporaryDirectory = new();

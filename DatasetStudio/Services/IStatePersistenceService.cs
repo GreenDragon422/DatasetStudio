@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using DatasetStudio.Models;
 
@@ -8,6 +9,8 @@ public interface IStatePersistenceService
     Task SaveAppStateAsync(AppState state);
 
     Task<AppState> LoadAppStateAsync();
+
+    Task<AppState> UpdateAppStateAsync(Action<AppState> updateAction);
 
     Task SaveProjectStateAsync(string projectId, ProjectState state);
 

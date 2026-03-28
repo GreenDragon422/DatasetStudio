@@ -31,6 +31,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
     private readonly Dictionary<string, Timer> projectStateSaveTimersById;
     private readonly Dictionary<string, List<TaskCompletionSource<bool>>> pendingProjectStateSaveCompletionsById;
     private readonly List<TaskCompletionSource<bool>> pendingApplicationStateSaveCompletions;
+    private readonly SemaphoreSlim applicationStateUpdateSemaphore;
 
     private Timer? applicationStateSaveTimer;
     private AppState? pendingApplicationState;
@@ -50,6 +51,7 @@ public sealed class StatePersistenceService : IStatePersistenceService
         projectStateSaveTimersById = new Dictionary<string, Timer>(StringComparer.OrdinalIgnoreCase);
         pendingProjectStateSaveCompletionsById = new Dictionary<string, List<TaskCompletionSource<bool>>>(StringComparer.OrdinalIgnoreCase);
         pendingApplicationStateSaveCompletions = new List<TaskCompletionSource<bool>>();
+        applicationStateUpdateSemaphore = new SemaphoreSlim(1, 1);
     }
 
     public Task SaveAppStateAsync(AppState state)
@@ -102,6 +104,28 @@ public sealed class StatePersistenceService : IStatePersistenceService
         catch (JsonException)
         {
             return new AppState();
+        }
+    }
+
+    public async Task<AppState> UpdateAppStateAsync(Action<AppState> updateAction)
+    {
+        if (updateAction is null)
+        {
+            throw new ArgumentNullException(nameof(updateAction));
+        }
+
+        await applicationStateUpdateSemaphore.WaitAsync().ConfigureAwait(false);
+
+        try
+        {
+            AppState appState = await LoadAppStateAsync().ConfigureAwait(false);
+            updateAction(appState);
+            await SaveAppStateAsync(appState).ConfigureAwait(false);
+            return CloneAppState(appState);
+        }
+        finally
+        {
+            applicationStateUpdateSemaphore.Release();
         }
     }
 

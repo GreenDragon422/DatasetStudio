@@ -175,7 +175,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
 
         navigationService.NavigateTo<ProjectOverviewViewModel>(projectCard.Project);
         messenger.Send(new ProjectOpenedMessage(projectCard.ProjectId));
-        _ = PersistLastOpenedProjectAsync(projectCard.Project);
+        _ = UpdateOpenedProjectSessionAsync(projectCard.Project);
         StatusText = string.Format("Project selected: {0}", projectCard.Name);
     }
 
@@ -367,7 +367,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
 
         if (string.IsNullOrWhiteSpace(value) || Directory.Exists(value))
         {
-            _ = PersistMasterRootPathAsync(value);
+            _ = UpdateMasterRootSessionAsync(value);
         }
     }
 
@@ -397,21 +397,21 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
         masterRootWatcher = fileSystemWatcher;
     }
 
-    private async Task PersistMasterRootPathAsync(string masterRootFolderPath)
+    private async Task UpdateMasterRootSessionAsync(string masterRootFolderPath)
     {
         try
         {
-            AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
             string? normalizedMasterRootFolderPath = string.IsNullOrWhiteSpace(masterRootFolderPath) ? null : masterRootFolderPath;
-            bool rootChanged = !string.Equals(appState.LastMasterRootDirectory, normalizedMasterRootFolderPath, StringComparison.OrdinalIgnoreCase);
-
-            appState.LastMasterRootDirectory = normalizedMasterRootFolderPath;
-            if (rootChanged)
+            await statePersistenceService.UpdateAppStateAsync(appState =>
             {
-                appState.LastOpenedProjectId = null;
-            }
+                bool rootChanged = !string.Equals(appState.LastMasterRootDirectory, normalizedMasterRootFolderPath, StringComparison.OrdinalIgnoreCase);
+                appState.LastMasterRootDirectory = normalizedMasterRootFolderPath;
 
-            await statePersistenceService.SaveAppStateAsync(appState).ConfigureAwait(false);
+                if (rootChanged)
+                {
+                    appState.LastOpenedProjectId = null;
+                }
+            }).ConfigureAwait(false);
         }
         catch (Exception exception)
         {
@@ -419,14 +419,15 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
         }
     }
 
-    private async Task PersistLastOpenedProjectAsync(Project project)
+    private async Task UpdateOpenedProjectSessionAsync(Project project)
     {
         try
         {
-            AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
-            appState.LastOpenedProjectId = project.Id;
-            appState.LastMasterRootDirectory = Path.GetDirectoryName(project.RootFolderPath);
-            await statePersistenceService.SaveAppStateAsync(appState).ConfigureAwait(false);
+            await statePersistenceService.UpdateAppStateAsync(appState =>
+            {
+                appState.LastOpenedProjectId = project.Id;
+                appState.LastMasterRootDirectory = Path.GetDirectoryName(project.RootFolderPath);
+            }).ConfigureAwait(false);
         }
         catch (Exception exception)
         {

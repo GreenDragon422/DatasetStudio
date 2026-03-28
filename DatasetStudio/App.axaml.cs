@@ -166,14 +166,15 @@ public partial class App : Application
         {
             try
             {
-                AppState appState = statePersistenceService.LoadAppStateAsync().GetAwaiter().GetResult();
-                appState.WindowWidth = mainWindow.Width;
-                appState.WindowHeight = mainWindow.Height;
-                appState.WindowX = mainWindow.Position.X;
-                appState.WindowY = mainWindow.Position.Y;
-                Task saveTask = statePersistenceService.SaveAppStateAsync(appState);
+                Task<AppState> updateTask = statePersistenceService.UpdateAppStateAsync(appState =>
+                {
+                    appState.WindowWidth = mainWindow.Width;
+                    appState.WindowHeight = mainWindow.Height;
+                    appState.WindowX = mainWindow.Position.X;
+                    appState.WindowY = mainWindow.Position.Y;
+                });
                 statePersistenceService.FlushPendingSavesAsync().GetAwaiter().GetResult();
-                saveTask.GetAwaiter().GetResult();
+                updateTask.GetAwaiter().GetResult();
             }
             catch
             {
@@ -183,11 +184,12 @@ public partial class App : Application
 
     private static async Task QueueWindowGeometrySaveAsync(MainWindow mainWindow, IStatePersistenceService statePersistenceService)
     {
-        AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(true);
-        appState.WindowWidth = mainWindow.Width;
-        appState.WindowHeight = mainWindow.Height;
-        appState.WindowX = mainWindow.Position.X;
-        appState.WindowY = mainWindow.Position.Y;
-        await statePersistenceService.SaveAppStateAsync(appState).ConfigureAwait(true);
+        await statePersistenceService.UpdateAppStateAsync(appState =>
+        {
+            appState.WindowWidth = mainWindow.Width;
+            appState.WindowHeight = mainWindow.Height;
+            appState.WindowX = mainWindow.Position.X;
+            appState.WindowY = mainWindow.Position.Y;
+        }).ConfigureAwait(true);
     }
 }

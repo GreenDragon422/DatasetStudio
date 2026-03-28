@@ -39,6 +39,17 @@ public class ProjectServiceTests
             return Task.FromResult(AppState);
         }
 
+        public Task<AppState> UpdateAppStateAsync(Action<AppState> updateAction)
+        {
+            if (updateAction is null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
+
+            updateAction(AppState);
+            return Task.FromResult(AppState);
+        }
+
         public Task<ProjectState> LoadProjectStateAsync(string projectId)
         {
             return Task.FromResult(new ProjectState());

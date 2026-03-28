@@ -33,6 +33,20 @@ public sealed class TestStatePersistenceService : IStatePersistenceService
         return Task.FromResult(CloneAppState(appState));
     }
 
+    public Task<AppState> UpdateAppStateAsync(Action<AppState> updateAction)
+    {
+        if (updateAction is null)
+        {
+            throw new ArgumentNullException(nameof(updateAction));
+        }
+
+        AppState updatedState = CloneAppState(appState);
+        updateAction(updatedState);
+        appState = CloneAppState(updatedState);
+        AppSaveCount++;
+        return Task.FromResult(CloneAppState(appState));
+    }
+
     public Task SaveProjectStateAsync(string projectId, ProjectState state)
     {
         projectStatesById[projectId] = CloneProjectState(state);
