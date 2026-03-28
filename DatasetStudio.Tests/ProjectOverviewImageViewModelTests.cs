@@ -7,20 +7,20 @@ namespace DatasetStudio.Tests;
 public class ProjectOverviewImageViewModelTests
 {
     [Test]
-    public void SelectionChipText_FollowsSelectionState()
+    public void TagsPreview_ReflectsUpdatedTags()
     {
         ProjectOverviewImageViewModel viewModel = new ProjectOverviewImageViewModel(
             "C:\\images\\cat.png",
             "cat.png",
             "C:\\images\\cat.txt",
-            Array.Empty<string>(),
+            new[] { "cat" },
             TagStatus.Ready,
             null);
 
-        Assert.That(viewModel.SelectionChipText, Is.EqualTo("Select"));
+        Assert.That(viewModel.TagsPreview, Is.EqualTo("cat"));
 
-        viewModel.IsSelected = true;
+        viewModel.Tags = new[] { "cat", "orange", "studio" };
 
-        Assert.That(viewModel.SelectionChipText, Is.EqualTo("Selected"));
+        Assert.That(viewModel.TagsPreview, Is.EqualTo("cat, orange, studio"));
     }
 }

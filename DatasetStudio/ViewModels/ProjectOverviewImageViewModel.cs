@@ -64,24 +64,10 @@ public partial class ProjectOverviewImageViewModel : ObservableObject, IDisposab
         }
     }
 
-    public string SelectionChipText
-    {
-        get
-        {
-            return IsSelected ? "Selected" : "Select";
-        }
-    }
-
     partial void OnTagsChanged(IReadOnlyList<string> value)
     {
         _ = value;
         OnPropertyChanged(nameof(TagsPreview));
-    }
-
-    partial void OnIsSelectedChanged(bool value)
-    {
-        _ = value;
-        OnPropertyChanged(nameof(SelectionChipText));
     }
 
     partial void OnThumbnailChanged(Bitmap? value)
