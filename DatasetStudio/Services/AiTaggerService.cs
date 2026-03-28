@@ -48,11 +48,14 @@ public sealed class AiTaggerService : IAiTaggerService
         AiModelInfo? model = await aiModelCatalogService.GetModelAsync(modelName).ConfigureAwait(false);
         if (model is not null && !model.IsInstalled)
         {
-            AiModelInfo? installedModel = await DownloadModelAsync(model.Id).ConfigureAwait(false);
-            if (installedModel is not null && !installedModel.IsInstalled)
-            {
-                throw new InvalidOperationException(string.Format("Model '{0}' is not installed.", installedModel.DisplayName));
-            }
+            string installationMessage = model.CanDownloadFromHuggingFace
+                ? string.Format(
+                    "Model '{0}' is not installed. Use the Download Model button next to the AI model selector before tagging.",
+                    model.DisplayName)
+                : string.Format(
+                    "Model '{0}' is not installed or its configured local path is unavailable.",
+                    model.DisplayName);
+            throw new InvalidOperationException(installationMessage);
         }
 
         await Task.Delay(50).ConfigureAwait(false);

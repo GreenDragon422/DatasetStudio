@@ -359,6 +359,88 @@ public class ProjectOverviewViewModelTests
     }
 
     [Test]
+    public async Task OnNavigatedTo_UninstalledHuggingFaceModel_ExposesExplicitDownloadState()
+    {
+        StrongReferenceMessenger messenger = new StrongReferenceMessenger();
+        TestFileSystemService fileSystemService = new TestFileSystemService();
+        TestTagFileService tagFileService = new TestTagFileService();
+        TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
+        TestAiTaggerService aiTaggerService = new TestAiTaggerService
+        {
+            AvailableModels = new[]
+            {
+                new AiModelInfo
+                {
+                    Id = "wd14-vit",
+                    DisplayName = "WD14 ViT",
+                    RepositoryId = "SmilingWolf/wd-vit-large-tagger-v3",
+                    IsInstalled = false,
+                },
+                new AiModelInfo
+                {
+                    Id = "wd14-vit-installed",
+                    DisplayName = "WD14 ViT Installed",
+                    RepositoryId = "SmilingWolf/wd-eva02-large-tagger-v3",
+                    IsInstalled = true,
+                    ModelPath = Path.Combine("C:\\models", "wd14-vit-installed"),
+                },
+            },
+        };
+        BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
+        TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
+            fileSystemService,
+            tagFileService,
+            tagDictionaryService,
+            new TestThumbnailCacheService(),
+            new TestClipboardService(),
+            new TestNavigationService(),
+            aiTaggerService,
+            batchTagOperationService,
+            messenger,
+            statePersistenceService);
+
+        string projectRootPath = Path.Combine("C:\\datasets", "animals");
+        string inboxFolderPath = Path.Combine(projectRootPath, "01_Inbox");
+        fileSystemService.SetImageFiles(inboxFolderPath, Array.Empty<string>());
+
+        Project project = new Project
+        {
+            Id = "project-ai-download-state",
+            Name = "Animals",
+            RootFolderPath = projectRootPath,
+            AiModelName = "wd14-vit",
+            Stages = new List<WorkflowStage>
+            {
+                new WorkflowStage { Order = 1, FolderName = "01_Inbox", DisplayName = "Inbox" },
+            },
+            State = new ProjectState
+            {
+                ActiveStageFolderName = "01_Inbox",
+                SelectedAiModelName = "wd14-vit",
+            },
+        };
+
+        statePersistenceService.SetProjectState(project.Id, project.State);
+
+        viewModel.OnNavigatedTo(project);
+
+        await WaitForConditionAsync(() =>
+            viewModel.AiModels.Count == 2
+            && viewModel.SelectedAiModel is not null).ConfigureAwait(false);
+
+        Assert.That(viewModel.CanDownloadSelectedAiModel, Is.True);
+        Assert.That(viewModel.DownloadSelectedAiModelButtonText, Is.EqualTo("Download Model"));
+        Assert.That(viewModel.IsSelectedAiModelInstalled, Is.False);
+
+        viewModel.SelectedAiModel = viewModel.AiModels[1];
+
+        Assert.That(viewModel.CanDownloadSelectedAiModel, Is.False);
+        Assert.That(viewModel.DownloadSelectedAiModelButtonText, Is.EqualTo("Installed"));
+        Assert.That(viewModel.IsSelectedAiModelInstalled, Is.True);
+    }
+
+    [Test]
     public async Task SelectedAiModelChange_QueuesVisibleMissingTagFilesWithNewModel()
     {
         StrongReferenceMessenger messenger = new StrongReferenceMessenger();

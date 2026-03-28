@@ -808,7 +808,8 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         {
             return !IsDownloadingSelectedAiModel
                 && SelectedAiModel is not null
-                && SelectedAiModel.CanDownloadFromHuggingFace;
+                && SelectedAiModel.CanDownloadFromHuggingFace
+                && !SelectedAiModel.IsInstalled;
         }
     }
 
@@ -818,7 +819,7 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         {
             return IsDownloadingSelectedAiModel
                 ? "Downloading..."
-                : (IsSelectedAiModelInstalled ? "Reinstall" : "Download");
+                : (IsSelectedAiModelInstalled ? "Installed" : "Download Model");
         }
     }
 

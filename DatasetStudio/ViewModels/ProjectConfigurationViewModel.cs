@@ -424,7 +424,8 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
             return !IsLoadingAiModels
                 && !IsDownloadingSelectedAiModel
                 && selectedModel is not null
-                && selectedModel.CanDownloadFromHuggingFace;
+                && selectedModel.CanDownloadFromHuggingFace
+                && !selectedModel.IsInstalled;
         }
     }
 
@@ -434,7 +435,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         {
             return IsDownloadingSelectedAiModel
                 ? "Downloading..."
-                : (IsSelectedAiModelInstalled ? "Reinstall" : "Download");
+                : (IsSelectedAiModelInstalled ? "Installed" : "Download Model");
         }
     }
 

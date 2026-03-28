@@ -27,28 +27,30 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1"
-                            Width="280"
+                            Width="420"
                             Classes="model-selection-stack">
-                    <ComboBox Classes="header-control"
-                              Width="280"
-                              ItemsSource="{Binding AiModels}"
-                              SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="models:AiModelInfo">
-                                <TextBlock Text="{Binding DisplayName}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8">
+                        <ComboBox Classes="header-control"
+                                  ItemsSource="{Binding AiModels}"
+                                  SelectedItem="{Binding SelectedAiModel, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:AiModelInfo">
+                                    <TextBlock Text="{Binding DisplayName}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
-                    <WrapPanel Classes="action-row compact">
-                        <Button Classes="header-control"
+                        <Button Grid.Column="1"
+                                Classes="header-control"
                                 Content="{Binding DownloadSelectedAiModelButtonText}"
                                 Command="{Binding DownloadSelectedAiModelCommand}"
                                 IsEnabled="{Binding CanDownloadSelectedAiModel}" />
-                        <TextBlock Text="{Binding SelectedAiModelStatusText}"
-                                   Classes="mono-caption"
-                                   VerticalAlignment="Center" />
-                    </WrapPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding SelectedAiModelStatusText}"
+                               Classes="mono-caption"
+                               TextWrapping="Wrap" />
                 </StackPanel>
 
                 <TextBox x:Name="FilterTextBox"

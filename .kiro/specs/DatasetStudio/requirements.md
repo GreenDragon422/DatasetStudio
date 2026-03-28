@@ -110,7 +110,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 
 1. THE Project_Configuration SHALL display as a centered 600px-wide modal overlay with a semi-transparent background wash.
 2. THE Project_Configuration SHALL provide a Root_Folder selector with a text input and a browse button for mapping the project to a directory on disk.
-3. THE Project_Configuration SHALL provide an AI model dropdown for selecting the background tagging model from the shared `ai_models.json` catalog, and SHALL expose an on-demand download action for Hugging Face-backed models that are not yet installed.
+3. THE Project_Configuration SHALL provide an AI model dropdown for selecting the background tagging model from the shared `ai_models.json` catalog, and SHALL expose a `Download Model` button beside the selector for Hugging Face-backed models that are not yet installed.
 4. THE Project_Configuration SHALL provide a Prefix_Tags editor textarea for defining fixed keyword prefixes prepended to all tag files, with comma-separated format.
 5. IF the Prefix_Tags editor contains invalid characters, THEN THE Project_Configuration SHALL display a Red error border on the textarea and show a descriptive error message below the field.
 6. THE Project_Configuration SHALL provide a Workflow Stages builder displaying a draggable, reorderable list of stage folder names with inline editing, delete buttons, and an "Add Stage" button.
@@ -151,7 +151,7 @@ DatasetStudio is a high-density, keyboard-first desktop application (Avalonia/XA
 2. WHILE the AI_Tagger is processing an image, THE Application SHALL display a visual processing indicator on that image's thumbnail in the Project_Overview and in the Inspector_Mode tag area.
 3. WHEN the AI_Tagger completes tag generation for an image, THE Application SHALL create a Tag_File for that image and set the image's status to Yellow (auto-tagged/needs review).
 4. THE AI_Tagger SHALL read the available model catalog from `ai_models.json`, and the user SHALL select the active model via the Project_Configuration modal or the Project_Overview top bar dropdown.
-5. FOR model-catalog entries that specify a Hugging Face repository, THE Application SHALL download the selected model on demand via the official `hf` CLI into app-managed local storage before using it for background tagging.
+5. FOR model-catalog entries that specify a Hugging Face repository, THE Application SHALL download the selected model only when the user activates the explicit `Download Model` button beside the AI model selector. Background tagging SHALL NOT trigger model installation automatically.
 
 ### Requirement 8: Workflow Stage Folder Management
 

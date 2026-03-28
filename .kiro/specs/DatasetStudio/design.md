@@ -435,6 +435,8 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 
 **HintBar:** `Tab: Next Field  Enter: Save  Esc: Cancel`
 
+AI model selectors in Project Configuration and Project Overview use an explicit companion `Download Model` button placed beside the selector. Hugging Face-backed models are installed only through that button; background tagging never performs model installation implicitly.
+
 ### HintBar Implementation Rule
 
 Each screen ViewModel MUST inherit `ScreenViewModelBase`, which provides the shell-facing `HintText` property. Concrete screens SHOULD NOT hard-code keyboard hint strings in constructors. Instead, each screen registers its allowed shortcuts through `ScreenViewBase<TViewModel>`, and the base screen computes the context-sensitive HintBar text (including text-input-focused states such as `Esc Leave Field`) and writes it into the active `ScreenViewModelBase.HintText`. The HintBar control continues to bind to that property and renders it in IBM Plex Mono 12px on a 24px-height bar.

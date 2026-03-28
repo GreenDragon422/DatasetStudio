@@ -40,7 +40,7 @@ public sealed class AiModelInfo
 
             if (CanDownloadFromHuggingFace)
             {
-                return string.Format("Download from Hugging Face · {0}", RepositoryId);
+                return string.Format("Not installed · Download from Hugging Face · {0}", RepositoryId);
             }
 
             if (!string.IsNullOrWhiteSpace(ModelPath))
