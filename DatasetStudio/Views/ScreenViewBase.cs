@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using DatasetStudio.ViewModels;
 
@@ -281,7 +282,14 @@ public abstract class ScreenViewBase<TViewModel> : UserControl, IScreenView
     {
         _ = sender;
         _ = eventArgs;
-        RefreshShortcutHint();
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            RefreshShortcutHint();
+            return;
+        }
+
+        Dispatcher.UIThread.Post(RefreshShortcutHint);
     }
 
     private void OnScreenAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs eventArgs)

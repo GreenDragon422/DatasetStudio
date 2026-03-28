@@ -30,6 +30,8 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
             if (BindingPlugins.DataValidators.Count > 0)
             {
                 BindingPlugins.DataValidators.RemoveAt(0);
@@ -38,6 +40,13 @@ public partial class App : Application
             ServiceCollection services = new();
             ConfigureServices(services);
             Services = services.BuildServiceProvider();
+            desktop.Exit += (_, _) =>
+            {
+                if (Services is IDisposable disposableServices)
+                {
+                    disposableServices.Dispose();
+                }
+            };
             Services.GetRequiredService<AiTaggingCoordinator>();
 
             NavigationService navigationService = Services.GetRequiredService<NavigationService>();
@@ -166,15 +175,13 @@ public partial class App : Application
         {
             try
             {
-                Task<AppState> updateTask = statePersistenceService.UpdateAppStateAsync(appState =>
+                statePersistenceService.UpdateAppStateImmediatelyAsync(appState =>
                 {
                     appState.WindowWidth = mainWindow.Width;
                     appState.WindowHeight = mainWindow.Height;
                     appState.WindowX = mainWindow.Position.X;
                     appState.WindowY = mainWindow.Position.Y;
-                });
-                statePersistenceService.FlushPendingSavesAsync().GetAwaiter().GetResult();
-                updateTask.GetAwaiter().GetResult();
+                }).GetAwaiter().GetResult();
             }
             catch
             {

@@ -126,7 +126,7 @@ public class InspectorModeViewModelTests
 
         IReadOnlyList<string> persistedTags = await testProjectContext.TagFileService.ReadTagsAsync(testProjectContext.TagFileService.GetTagFilePath(testProjectContext.CatImagePath)).ConfigureAwait(false);
         Assert.That(persistedTags, Is.EqualTo(new[] { "feline", "backlit" }));
-        Assert.That(viewModel.AppliedTags, Is.EqualTo(new[] { "feline", "backlit" }));
+        Assert.That(viewModel.AppliedTags.Select(tag => tag.Tag), Is.EqualTo(new[] { "feline", "backlit" }));
     }
 
     [Test]

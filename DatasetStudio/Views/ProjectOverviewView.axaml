@@ -126,7 +126,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:ProjectOverviewImageViewModel">
-                                                <Border MinWidth="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}"
+                                                <Border MinWidth="{Binding #Root.ViewModel.ZoomValue}"
                                                         Classes="surface-card thumbnail-tile pad-8">
                                                     <Grid RowDefinitions="Auto,*,Auto">
                                                         <TextBlock Text="{Binding FileName}"
@@ -136,11 +136,10 @@
 
                                                         <Button Grid.Row="1"
                                                                 Classes="chromeless thumbnail-button"
-                                                                Command="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).FocusImageCommand}"
-                                                                CommandParameter="{Binding}"
+                                                                Command="{Binding FocusCommand}"
                                                                 DoubleTapped="OnThumbnailDoubleTapped">
-                                                            <Grid Width="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}"
-                                                                  Height="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}">
+                                                            <Grid Width="{Binding #Root.ViewModel.ZoomValue}"
+                                                                  Height="{Binding #Root.ViewModel.ZoomValue}">
                                                                 <Border Classes="thumbnail-placeholder" />
                                                                 <Image Source="{Binding Thumbnail}"
                                                                        Stretch="UniformToFill"
@@ -154,8 +153,7 @@
                                                                            IsVisible="{Binding !HasThumbnail}" />
                                                                 <CheckBox Classes="thumbnail-select-box"
                                                                           IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                                                          Command="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ToggleSelectionCommand}"
-                                                                          CommandParameter="{Binding}"
+                                                                          Command="{Binding ToggleSelectionCommand}"
                                                                           ToolTip.Tip="Toggle batch selection for this image"
                                                                           HorizontalAlignment="Left"
                                                                           VerticalAlignment="Top"
@@ -183,7 +181,7 @@
                                                         <TextBlock Grid.Row="2"
                                                                    Text="{Binding TagsPreview}"
                                                                    Classes="mono meta-text"
-                                                                   MaxWidth="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}"
+                                                                   MaxWidth="{Binding #Root.ViewModel.ZoomValue}"
                                                                    MaxLines="2"
                                                                    TextWrapping="Wrap"
                                                                    TextTrimming="CharacterEllipsis" />

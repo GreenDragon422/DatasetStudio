@@ -129,6 +129,30 @@ public sealed class StatePersistenceService : IStatePersistenceService
         }
     }
 
+    public async Task<AppState> UpdateAppStateImmediatelyAsync(Action<AppState> updateAction)
+    {
+        if (updateAction is null)
+        {
+            throw new ArgumentNullException(nameof(updateAction));
+        }
+
+        await applicationStateUpdateSemaphore.WaitAsync().ConfigureAwait(false);
+
+        try
+        {
+            AppState appState = await LoadAppStateAsync().ConfigureAwait(false);
+            updateAction(appState);
+            Task saveTask = SaveAppStateAsync(appState);
+            await FlushPendingSavesAsync().ConfigureAwait(false);
+            await saveTask.ConfigureAwait(false);
+            return CloneAppState(appState);
+        }
+        finally
+        {
+            applicationStateUpdateSemaphore.Release();
+        }
+    }
+
     public async Task SaveProjectStateAsync(string projectId, ProjectState state)
     {
         if (string.IsNullOrWhiteSpace(projectId))

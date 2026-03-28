@@ -211,7 +211,7 @@ public class ProjectOverviewViewModelTests
 
         await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
 
-        viewModel.ToggleSelectionCommand.Execute(viewModel.Images[0]);
+        viewModel.Images[0].ToggleSelectionCommand.Execute(null);
 
         Assert.That(viewModel.SelectedImages.Count, Is.EqualTo(1));
         Assert.That(viewModel.Images[0].IsSelected, Is.True);
@@ -967,7 +967,7 @@ public class ProjectOverviewViewModelTests
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 2).ConfigureAwait(false);
 
-        viewModel.ToggleSelectionCommand.Execute(viewModel.Images[0]);
+        viewModel.Images[0].ToggleSelectionCommand.Execute(null);
         viewModel.OpenBatchRemoveCommand.Execute(null);
         await WaitForConditionAsync(() => viewModel.IsBatchRemoveOpen).ConfigureAwait(false);
         viewModel.BatchRemoveQueryText = "cat";
@@ -1027,7 +1027,7 @@ public class ProjectOverviewViewModelTests
         viewModel.OnNavigatedTo(project);
         await WaitForConditionAsync(() => viewModel.Images.Count == 1).ConfigureAwait(false);
 
-        viewModel.ToggleSelectionCommand.Execute(viewModel.Images[0]);
+        viewModel.Images[0].ToggleSelectionCommand.Execute(null);
         await viewModel.MoveImageCommand.ExecuteAsync(1).ConfigureAwait(false);
 
         Assert.That(fileSystemService.MovedFiles, Does.Contain((catImagePath, trainFolderPath)));

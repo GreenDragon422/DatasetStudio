@@ -1,4 +1,5 @@
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -260,8 +261,7 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         }
     }
 
-    [RelayCommand]
-    private void FocusImage(ProjectOverviewImageViewModel? image)
+    private void FocusImage(ProjectOverviewImageViewModel image)
     {
         SetFocusedImage(image, updateStatusText: true);
     }
@@ -297,14 +297,8 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
         StatusText = string.Format("Opening Tags Overview for {0}.", currentProject.Name);
     }
 
-    [RelayCommand]
-    private void ToggleSelection(ProjectOverviewImageViewModel? image)
+    private void ToggleSelection(ProjectOverviewImageViewModel image)
     {
-        if (image is null)
-        {
-            return;
-        }
-
         image.IsSelected = !image.IsSelected;
 
         if (image.IsSelected)
@@ -421,7 +415,9 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
                 tagFilePath,
                 combinedTags,
                 status,
-                thumbnail);
+                thumbnail,
+                FocusImage,
+                ToggleSelection);
             imageViewModel.IsAiProcessing = aiTaggerService.IsProcessing(imageFilePath);
 
             imageViewModels.Add(imageViewModel);
@@ -1096,7 +1092,10 @@ public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigation
                 return;
             }
 
-            await RefreshFromProjectWatcherAsync().ConfigureAwait(false);
+            Dispatcher.UIThread.Post(() =>
+            {
+                _ = RefreshFromProjectWatcherAsync();
+            });
         });
     }
 

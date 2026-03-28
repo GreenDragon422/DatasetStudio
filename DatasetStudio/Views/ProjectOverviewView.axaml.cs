@@ -223,7 +223,8 @@ public partial class ProjectOverviewView : ScreenViewBase<ProjectOverviewViewMod
             return;
         }
 
-        ViewModel.ToggleSelectionCommand.Execute(ViewModel.Images[ViewModel.FocusedImageIndex]);
+        ProjectOverviewImageViewModel focusedImage = ViewModel.Images[ViewModel.FocusedImageIndex];
+        focusedImage.ToggleSelectionCommand.Execute(null);
     }
 
     private void NavigateGrid(int offset)

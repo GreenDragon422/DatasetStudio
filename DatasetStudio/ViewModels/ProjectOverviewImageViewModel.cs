@@ -1,5 +1,6 @@
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DatasetStudio.Models;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,9 @@ public partial class ProjectOverviewImageViewModel : ObservableObject, IDisposab
         string tagFilePath,
         IReadOnlyList<string> tags,
         TagStatus status,
-        Bitmap? thumbnail)
+        Bitmap? thumbnail,
+        Action<ProjectOverviewImageViewModel>? focusImageAction = null,
+        Action<ProjectOverviewImageViewModel>? toggleSelectionAction = null)
     {
         FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
         FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
@@ -22,6 +25,20 @@ public partial class ProjectOverviewImageViewModel : ObservableObject, IDisposab
         Tags = tags ?? throw new ArgumentNullException(nameof(tags));
         Status = status;
         Thumbnail = thumbnail;
+        FocusCommand = new RelayCommand(() =>
+        {
+            if (focusImageAction is not null)
+            {
+                focusImageAction(this);
+            }
+        });
+        ToggleSelectionCommand = new RelayCommand(() =>
+        {
+            if (toggleSelectionAction is not null)
+            {
+                toggleSelectionAction(this);
+            }
+        });
     }
 
     public string FilePath { get; }
@@ -63,6 +80,10 @@ public partial class ProjectOverviewImageViewModel : ObservableObject, IDisposab
             return Thumbnail is not null;
         }
     }
+
+    public IRelayCommand FocusCommand { get; }
+
+    public IRelayCommand ToggleSelectionCommand { get; }
 
     partial void OnTagsChanged(IReadOnlyList<string> value)
     {

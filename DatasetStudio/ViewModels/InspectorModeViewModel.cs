@@ -1,4 +1,5 @@
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -55,8 +56,8 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
 
         Stages = new ObservableCollection<ProjectOverviewStageViewModel>();
         ImageList = new ObservableCollection<ImageEntry>();
-        AppliedTags = new ObservableCollection<string>();
-        AutoSuggestTags = new ObservableCollection<string>();
+        AppliedTags = new ObservableCollection<InspectorTagRowViewModel>();
+        AutoSuggestTags = new ObservableCollection<InspectorTagRowViewModel>();
         StatusText = "Open an image from Project Overview to inspect it.";
 
         messenger.Register<InspectorModeViewModel, AiTaggingCompletedMessage>(this, static (recipient, message) =>
@@ -104,13 +105,13 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
     private ObservableCollection<string> prefixTags = new ObservableCollection<string>();
 
     [ObservableProperty]
-    private ObservableCollection<string> appliedTags;
+    private ObservableCollection<InspectorTagRowViewModel> appliedTags;
 
     [ObservableProperty]
     private string tagInputText = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> autoSuggestTags;
+    private ObservableCollection<InspectorTagRowViewModel> autoSuggestTags;
 
     [ObservableProperty]
     private bool isSuggestOpen;
@@ -201,9 +202,9 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             return;
         }
 
-        if (!AppliedTags.Any(existingTag => string.Equals(existingTag, resolvedTag, StringComparison.OrdinalIgnoreCase)))
+        if (!AppliedTags.Any(existingTag => string.Equals(existingTag.Tag, resolvedTag, StringComparison.OrdinalIgnoreCase)))
         {
-            AppliedTags.Add(resolvedTag);
+            AppliedTags.Add(CreateAppliedTagRow(resolvedTag));
         }
 
         await PersistCurrentTagsAsync().ConfigureAwait(true);
@@ -220,8 +221,8 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         }
 
         string removedTag = tag.Trim();
-        string? existingTag = AppliedTags.FirstOrDefault(candidate =>
-            string.Equals(candidate, removedTag, StringComparison.OrdinalIgnoreCase));
+        InspectorTagRowViewModel? existingTag = AppliedTags.FirstOrDefault(candidate =>
+            string.Equals(candidate.Tag, removedTag, StringComparison.OrdinalIgnoreCase));
         if (existingTag is null)
         {
             return;
@@ -305,7 +306,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         }
 
         List<string> fullTagSet = currentProject.PrefixTags
-            .Concat(AppliedTags)
+            .Concat(GetAppliedTagValues())
             .Where(tag => !string.IsNullOrWhiteSpace(tag))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -330,7 +331,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         }
 
         List<string> normalizedTags = NormalizeAppliedTags(clipboardTags);
-        AppliedTags = new ObservableCollection<string>(normalizedTags);
+        AppliedTags = CreateAppliedTagRows(normalizedTags);
         await PersistCurrentTagsAsync().ConfigureAwait(true);
         StatusText = string.Format("Pasted {0} tag{1} onto {2}.", normalizedTags.Count, normalizedTags.Count == 1 ? string.Empty : "s", CurrentImage.FileName);
     }
@@ -439,8 +440,8 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             CurrentImage = null;
             FileName = string.Empty;
             CurrentStatus = TagStatus.Untagged;
-            AppliedTags = new ObservableCollection<string>();
-            AutoSuggestTags = new ObservableCollection<string>();
+            AppliedTags = new ObservableCollection<InspectorTagRowViewModel>();
+            AutoSuggestTags = new ObservableCollection<InspectorTagRowViewModel>();
             IsSuggestOpen = false;
             TagInputText = string.Empty;
             StatusText = string.Format("{0} is empty.", stage.DisplayName);
@@ -533,7 +534,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         }
 
         IReadOnlyList<string> fileTags = await tagFileService.ReadTagsAsync(image.TagFilePath).ConfigureAwait(true);
-        AppliedTags = new ObservableCollection<string>(fileTags);
+        AppliedTags = CreateAppliedTagRows(fileTags);
         AutoSuggestTags.Clear();
         IsSuggestOpen = false;
 
@@ -697,7 +698,10 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
                 return;
             }
 
-            await RefreshFromProjectWatcherAsync().ConfigureAwait(false);
+            Dispatcher.UIThread.Post(() =>
+            {
+                _ = RefreshFromProjectWatcherAsync();
+            });
         });
     }
 
@@ -761,7 +765,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             return;
         }
 
-        List<string> normalizedTags = NormalizeAppliedTags(AppliedTags);
+        List<string> normalizedTags = NormalizeAppliedTags(GetAppliedTagValues());
         await tagFileService.WriteTagsAsync(CurrentImage.TagFilePath, normalizedTags).ConfigureAwait(true);
 
         CurrentImage.Tags = normalizedTags;
@@ -809,6 +813,40 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         return normalizedTags;
     }
 
+    private ObservableCollection<InspectorTagRowViewModel> CreateAppliedTagRows(IEnumerable<string> sourceTags)
+    {
+        ObservableCollection<InspectorTagRowViewModel> tagRows = new ObservableCollection<InspectorTagRowViewModel>();
+
+        foreach (string sourceTag in sourceTags)
+        {
+            tagRows.Add(CreateAppliedTagRow(sourceTag));
+        }
+
+        return tagRows;
+    }
+
+    private ObservableCollection<InspectorTagRowViewModel> CreateSuggestionTagRows(IEnumerable<string> sourceTags)
+    {
+        ObservableCollection<InspectorTagRowViewModel> tagRows = new ObservableCollection<InspectorTagRowViewModel>();
+
+        foreach (string sourceTag in sourceTags)
+        {
+            tagRows.Add(new InspectorTagRowViewModel(sourceTag, UseSuggestionAsync));
+        }
+
+        return tagRows;
+    }
+
+    private InspectorTagRowViewModel CreateAppliedTagRow(string tag)
+    {
+        return new InspectorTagRowViewModel(tag, RemoveTagAsync);
+    }
+
+    private IEnumerable<string> GetAppliedTagValues()
+    {
+        return AppliedTags.Select(appliedTag => appliedTag.Tag);
+    }
+
     private async Task RefreshSuggestionsAsync(string queryText)
     {
         if (currentProject is null)
@@ -832,10 +870,10 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
 
         List<string> filteredSuggestions = suggestedTags
             .Where(suggestedTag => !AppliedTags.Any(appliedTag =>
-                string.Equals(appliedTag, suggestedTag, StringComparison.OrdinalIgnoreCase)))
+                string.Equals(appliedTag.Tag, suggestedTag, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
-        AutoSuggestTags = new ObservableCollection<string>(filteredSuggestions);
+        AutoSuggestTags = CreateSuggestionTagRows(filteredSuggestions);
         IsSuggestOpen = filteredSuggestions.Count > 0;
     }
 
@@ -937,7 +975,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         }
 
         IsBusy = false;
-        AppliedTags = new ObservableCollection<string>(normalizedTags);
+        AppliedTags = CreateAppliedTagRows(normalizedTags);
         CurrentStatus = image.Status;
         StatusText = string.Format("AI tags refreshed for {0}.", image.FileName);
     }

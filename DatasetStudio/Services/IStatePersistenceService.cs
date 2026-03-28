@@ -12,6 +12,8 @@ public interface IStatePersistenceService
 
     Task<AppState> UpdateAppStateAsync(Action<AppState> updateAction);
 
+    Task<AppState> UpdateAppStateImmediatelyAsync(Action<AppState> updateAction);
+
     Task SaveProjectStateAsync(string projectId, ProjectState state);
 
     Task<ProjectState> LoadProjectStateAsync(string projectId);

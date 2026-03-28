@@ -92,7 +92,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
     [RelayCommand]
     private async Task LoadProjectsAsync()
     {
-        await LoadProjectsFromServiceAsync().ConfigureAwait(false);
+        await LoadProjectsFromServiceAsync();
     }
 
     [RelayCommand]
@@ -115,17 +115,17 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
 
         try
         {
-            IReadOnlyList<string> projectFolders = await fileSystemService.DiscoverProjectFoldersAsync(MasterRootPath).ConfigureAwait(false);
+            IReadOnlyList<string> projectFolders = await fileSystemService.DiscoverProjectFoldersAsync(MasterRootPath);
             List<ProjectsHubProjectCardViewModel> cards = new();
 
             foreach (string projectFolderPath in projectFolders)
             {
-                Project project = await LoadProjectFromFolderAsync(projectFolderPath).ConfigureAwait(false);
-                ProjectsHubProjectCardViewModel card = await BuildCardAsync(project).ConfigureAwait(false);
+                Project project = await LoadProjectFromFolderAsync(projectFolderPath);
+                ProjectsHubProjectCardViewModel card = await BuildCardAsync(project);
                 cards.Add(card);
             }
 
-            await ReplaceProjectsAsync(cards).ConfigureAwait(false);
+            await ReplaceProjectsAsync(cards);
             StatusText = string.Format("Found {0} project{1} in {2}.", cards.Count, cards.Count == 1 ? string.Empty : "s", MasterRootPath);
         }
         catch (Exception exception)
@@ -152,8 +152,8 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
 
         try
         {
-            Project project = await projectService.CreateProjectAsync(projectName, newProjectFolderPath).ConfigureAwait(false);
-            ProjectsHubProjectCardViewModel card = await BuildCardAsync(project).ConfigureAwait(false);
+            Project project = await projectService.CreateProjectAsync(projectName, newProjectFolderPath);
+            ProjectsHubProjectCardViewModel card = await BuildCardAsync(project);
             Projects.Insert(0, card);
             UpdateProjectVisibility();
             StatusText = string.Format("Created {0}. Finish configuring it in the modal.", project.Name);
@@ -186,22 +186,22 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
 
         try
         {
-            AppState appState = await statePersistenceService.LoadAppStateAsync().ConfigureAwait(false);
+            AppState appState = await statePersistenceService.LoadAppStateAsync();
             if (!string.IsNullOrWhiteSpace(appState.LastMasterRootDirectory))
             {
                 MasterRootPath = appState.LastMasterRootDirectory;
             }
 
-            IReadOnlyList<Project> projects = await projectService.LoadProjectsAsync().ConfigureAwait(false);
+            IReadOnlyList<Project> projects = await projectService.LoadProjectsAsync();
             List<ProjectsHubProjectCardViewModel> cards = new();
 
             foreach (Project project in projects)
             {
-                ProjectsHubProjectCardViewModel card = await BuildCardAsync(project).ConfigureAwait(false);
+                ProjectsHubProjectCardViewModel card = await BuildCardAsync(project);
                 cards.Add(card);
             }
 
-            await ReplaceProjectsAsync(cards).ConfigureAwait(false);
+            await ReplaceProjectsAsync(cards);
             StatusText = string.Format("Loaded {0} project{1}.", cards.Count, cards.Count == 1 ? string.Empty : "s");
         }
         catch (Exception exception)
@@ -341,12 +341,12 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
         }
 
         UpdateProjectVisibility();
-        await Task.CompletedTask.ConfigureAwait(false);
+        await Task.CompletedTask;
     }
 
     private async Task RefreshAfterProjectConfigSavedAsync(string projectId)
     {
-        await LoadProjectsFromServiceAsync().ConfigureAwait(false);
+        await LoadProjectsFromServiceAsync();
         StatusText = string.Format("Project configuration saved for {0}.", projectId);
     }
 
@@ -411,7 +411,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
                 {
                     appState.LastOpenedProjectId = null;
                 }
-            }).ConfigureAwait(false);
+            });
         }
         catch (Exception exception)
         {
@@ -427,7 +427,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
             {
                 appState.LastOpenedProjectId = project.Id;
                 appState.LastMasterRootDirectory = Path.GetDirectoryName(project.RootFolderPath);
-            }).ConfigureAwait(false);
+            });
         }
         catch (Exception exception)
         {

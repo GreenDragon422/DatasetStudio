@@ -77,7 +77,7 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
             return;
         }
 
-        IReadOnlyList<TagDictionaryEntry> entries = await tagDictionaryService.GetAllEntriesAsync(CurrentProjectId).ConfigureAwait(false);
+        IReadOnlyList<TagDictionaryEntry> entries = await tagDictionaryService.GetAllEntriesAsync(CurrentProjectId);
         List<TagsOverviewRowViewModel> rowViewModels = entries
             .OrderBy(entry => entry.CanonicalName, StringComparer.OrdinalIgnoreCase)
             .Select(entry => new TagsOverviewRowViewModel(entry))
@@ -161,19 +161,19 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
 
         if (entry.IsNewEntry)
         {
-            await tagDictionaryService.RenameTagAsync(CurrentProjectId, sanitizedCanonicalName, sanitizedCanonicalName).ConfigureAwait(false);
+            await tagDictionaryService.RenameTagAsync(CurrentProjectId, sanitizedCanonicalName, sanitizedCanonicalName);
         }
         else if (!string.Equals(entry.OriginalCanonicalName, sanitizedCanonicalName, StringComparison.OrdinalIgnoreCase))
         {
-            await tagDictionaryService.RenameTagAsync(CurrentProjectId, entry.OriginalCanonicalName, sanitizedCanonicalName).ConfigureAwait(false);
+            await tagDictionaryService.RenameTagAsync(CurrentProjectId, entry.OriginalCanonicalName, sanitizedCanonicalName);
         }
 
-        await tagDictionaryService.SetAliasesAsync(CurrentProjectId, sanitizedCanonicalName, entry.Aliases).ConfigureAwait(false);
+        await tagDictionaryService.SetAliasesAsync(CurrentProjectId, sanitizedCanonicalName, entry.Aliases);
         entry.IsEditing = false;
         entry.IsNewEntry = false;
         pendingMergeSourceEntry = null;
         messenger.Send(new TagDictionaryChangedMessage(CurrentProjectId));
-        await LoadEntriesAsync().ConfigureAwait(false);
+        await LoadEntriesAsync();
         StatusText = string.Format("Saved tag entry {0}.", sanitizedCanonicalName);
     }
 
@@ -198,10 +198,10 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
             return;
         }
 
-        await tagDictionaryService.MergeTagsAsync(CurrentProjectId, pendingMergeSourceEntry.CanonicalName, entry.CanonicalName).ConfigureAwait(false);
+        await tagDictionaryService.MergeTagsAsync(CurrentProjectId, pendingMergeSourceEntry.CanonicalName, entry.CanonicalName);
         pendingMergeSourceEntry = null;
         messenger.Send(new TagDictionaryChangedMessage(CurrentProjectId));
-        await LoadEntriesAsync().ConfigureAwait(false);
+        await LoadEntriesAsync();
         StatusText = "Tags merged successfully.";
     }
 
@@ -212,10 +212,10 @@ public partial class TagsOverviewViewModel : ScreenViewModelBase, INavigationAwa
             return;
         }
 
-        await tagDictionaryService.DeleteTagAsync(CurrentProjectId, entry.CanonicalName, removeFromFiles).ConfigureAwait(false);
+        await tagDictionaryService.DeleteTagAsync(CurrentProjectId, entry.CanonicalName, removeFromFiles);
         pendingMergeSourceEntry = null;
         messenger.Send(new TagDictionaryChangedMessage(CurrentProjectId));
-        await LoadEntriesAsync().ConfigureAwait(false);
+        await LoadEntriesAsync();
         StatusText = removeFromFiles
             ? string.Format("Deleted {0} and removed it from tag files.", entry.CanonicalName)
             : string.Format("Deleted {0} from the dictionary.", entry.CanonicalName);

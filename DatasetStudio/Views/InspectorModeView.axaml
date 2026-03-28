@@ -94,12 +94,11 @@
                                 IsVisible="{Binding IsSuggestOpen}">
                             <ItemsControl ItemsSource="{Binding AutoSuggestTags}">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="x:String">
+                                    <DataTemplate x:DataType="vm:InspectorTagRowViewModel">
                                         <Button Classes="chromeless"
-                                                Command="{Binding #InspectorRoot.((vm:InspectorModeViewModel)DataContext).UseSuggestionCommand}"
-                                                CommandParameter="{Binding}">
+                                                Command="{Binding Command}">
                                             <Border Classes="suggestion-row">
-                                                <TextBlock Text="{Binding}"
+                                                <TextBlock Text="{Binding Tag}"
                                                            Classes="mono" />
                                             </Border>
                                         </Button>
@@ -122,9 +121,9 @@
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <controls:TagPill Tag="{Binding}"
-                                                                  RemoveCommand="{Binding DataContext.RemoveTagCommand, ElementName=InspectorRoot}" />
+                                            <DataTemplate x:DataType="vm:InspectorTagRowViewModel">
+                                                <controls:TagPill Tag="{Binding Tag}"
+                                                                  RemoveCommand="{Binding Command}" />
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using DatasetStudio.Messages;
@@ -85,7 +86,13 @@ public partial class MainWindowViewModel : ViewModelBase
             || eventArgs.PropertyName == nameof(ViewModelBase.StatusText)
             || eventArgs.PropertyName == nameof(ViewModelBase.TopBarContent))
         {
-            SyncShellFromActiveView();
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                SyncShellFromActiveView();
+                return;
+            }
+
+            Dispatcher.UIThread.Post(SyncShellFromActiveView);
         }
     }
 

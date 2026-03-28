@@ -50,6 +50,11 @@ public class ProjectServiceTests
             return Task.FromResult(AppState);
         }
 
+        public Task<AppState> UpdateAppStateImmediatelyAsync(Action<AppState> updateAction)
+        {
+            return UpdateAppStateAsync(updateAction);
+        }
+
         public Task<ProjectState> LoadProjectStateAsync(string projectId)
         {
             return Task.FromResult(new ProjectState());

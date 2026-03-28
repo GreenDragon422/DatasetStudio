@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DatasetStudio.Models;
 using System;
 using System.Text.RegularExpressions;
@@ -8,12 +9,19 @@ namespace DatasetStudio.ViewModels;
 public partial class ProjectConfigurationStageViewModel : ObservableObject
 {
     private static readonly Regex NumericPrefixPattern = new(@"^(?<order>\d+)[_-](?<name>.+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private Action<ProjectConfigurationStageViewModel>? moveStageUpAction;
+    private Action<ProjectConfigurationStageViewModel>? moveStageDownAction;
+    private Action<ProjectConfigurationStageViewModel>? removeStageAction;
 
     public ProjectConfigurationStageViewModel()
     {
+        MoveStageUpCommand = new RelayCommand(ExecuteMoveStageUp);
+        MoveStageDownCommand = new RelayCommand(ExecuteMoveStageDown);
+        RemoveStageCommand = new RelayCommand(ExecuteRemoveStage);
     }
 
     public ProjectConfigurationStageViewModel(WorkflowStage stage)
+        : this()
     {
         if (stage is null)
         {
@@ -42,10 +50,26 @@ public partial class ProjectConfigurationStageViewModel : ObservableObject
         }
     }
 
+    public IRelayCommand MoveStageUpCommand { get; }
+
+    public IRelayCommand MoveStageDownCommand { get; }
+
+    public IRelayCommand RemoveStageCommand { get; }
+
     partial void OnOrderChanged(int value)
     {
         _ = value;
         OnPropertyChanged(nameof(OrderDisplay));
+    }
+
+    public void ConfigureCommands(
+        Action<ProjectConfigurationStageViewModel> moveStageUpAction,
+        Action<ProjectConfigurationStageViewModel> moveStageDownAction,
+        Action<ProjectConfigurationStageViewModel> removeStageAction)
+    {
+        this.moveStageUpAction = moveStageUpAction ?? throw new ArgumentNullException(nameof(moveStageUpAction));
+        this.moveStageDownAction = moveStageDownAction ?? throw new ArgumentNullException(nameof(moveStageDownAction));
+        this.removeStageAction = removeStageAction ?? throw new ArgumentNullException(nameof(removeStageAction));
     }
 
     public void NormalizeFolderName()
@@ -84,5 +108,29 @@ public partial class ProjectConfigurationStageViewModel : ObservableObject
         }
 
         return match.Groups["name"].Value.Trim();
+    }
+
+    private void ExecuteMoveStageUp()
+    {
+        if (moveStageUpAction is not null)
+        {
+            moveStageUpAction(this);
+        }
+    }
+
+    private void ExecuteMoveStageDown()
+    {
+        if (moveStageDownAction is not null)
+        {
+            moveStageDownAction(this);
+        }
+    }
+
+    private void ExecuteRemoveStage()
+    {
+        if (removeStageAction is not null)
+        {
+            removeStageAction(this);
+        }
     }
 }

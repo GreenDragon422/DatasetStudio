@@ -116,7 +116,7 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
 
         foreach (WorkflowStage stage in orderedStages)
         {
-            Stages.Add(new ProjectConfigurationStageViewModel(stage));
+            Stages.Add(CreateStageViewModel(stage));
         }
 
         NormalizeStages();
@@ -231,25 +231,17 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
     [RelayCommand]
     private void AddStage()
     {
-        ProjectConfigurationStageViewModel stage = new()
-        {
-            FolderName = "Stage",
-            DisplayName = "Stage",
-        };
+        ProjectConfigurationStageViewModel stage = CreateStageViewModel();
+        stage.FolderName = "Stage";
+        stage.DisplayName = "Stage";
 
         Stages.Add(stage);
         NormalizeStages();
         OnPropertyChanged(nameof(CanSave));
     }
 
-    [RelayCommand]
-    private void RemoveStage(ProjectConfigurationStageViewModel? stage)
+    private void RemoveStage(ProjectConfigurationStageViewModel stage)
     {
-        if (stage is null)
-        {
-            return;
-        }
-
         if (!Stages.Remove(stage))
         {
             return;
@@ -259,14 +251,8 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         OnPropertyChanged(nameof(CanSave));
     }
 
-    [RelayCommand]
-    private void MoveStageUp(ProjectConfigurationStageViewModel? stage)
+    private void MoveStageUp(ProjectConfigurationStageViewModel stage)
     {
-        if (stage is null)
-        {
-            return;
-        }
-
         int stageIndex = Stages.IndexOf(stage);
         if (stageIndex <= 0)
         {
@@ -277,14 +263,8 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
         NormalizeStages();
     }
 
-    [RelayCommand]
-    private void MoveStageDown(ProjectConfigurationStageViewModel? stage)
+    private void MoveStageDown(ProjectConfigurationStageViewModel stage)
     {
-        if (stage is null)
-        {
-            return;
-        }
-
         int stageIndex = Stages.IndexOf(stage);
         if (stageIndex < 0 || stageIndex >= Stages.Count - 1)
         {
@@ -351,12 +331,12 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
                 }
             }
 
-            await projectService.SaveProjectAsync(project).ConfigureAwait(false);
+            await projectService.SaveProjectAsync(project);
 
             foreach (WorkflowStage stage in project.Stages)
             {
                 string stageFolderPath = Path.Combine(project.RootFolderPath, stage.FolderName);
-                await fileSystemService.EnsureFolderExistsAsync(stageFolderPath).ConfigureAwait(false);
+                await fileSystemService.EnsureFolderExistsAsync(stageFolderPath);
             }
 
             workingProject = CloneProject(project);
@@ -576,6 +556,20 @@ public partial class ProjectConfigurationViewModel : ScreenViewModelBase
             Stages[index].Order = index;
             Stages[index].NormalizeFolderName();
         }
+    }
+
+    private ProjectConfigurationStageViewModel CreateStageViewModel()
+    {
+        ProjectConfigurationStageViewModel stage = new ProjectConfigurationStageViewModel();
+        stage.ConfigureCommands(MoveStageUp, MoveStageDown, RemoveStage);
+        return stage;
+    }
+
+    private ProjectConfigurationStageViewModel CreateStageViewModel(WorkflowStage workflowStage)
+    {
+        ProjectConfigurationStageViewModel stage = new ProjectConfigurationStageViewModel(workflowStage);
+        stage.ConfigureCommands(MoveStageUp, MoveStageDown, RemoveStage);
+        return stage;
     }
 
     private static Project CloneProject(Project project)

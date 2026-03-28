@@ -169,18 +169,15 @@
                                                 <Button Classes="icon-button"
                                                         Content="↑"
                                                         ToolTip.Tip="Move stage up"
-                                                        Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).MoveStageUpCommand}"
-                                                        CommandParameter="{Binding}" />
+                                                        Command="{Binding MoveStageUpCommand}" />
                                                 <Button Classes="icon-button"
                                                         Content="↓"
                                                         ToolTip.Tip="Move stage down"
-                                                        Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).MoveStageDownCommand}"
-                                                        CommandParameter="{Binding}" />
+                                                        Command="{Binding MoveStageDownCommand}" />
                                                 <Button Classes="icon-button"
                                                         Content="✕"
                                                         ToolTip.Tip="Delete stage"
-                                                        Command="{Binding #Root.((vm:ProjectConfigurationViewModel)DataContext).RemoveStageCommand}"
-                                                        CommandParameter="{Binding}" />
+                                                        Command="{Binding RemoveStageCommand}" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>

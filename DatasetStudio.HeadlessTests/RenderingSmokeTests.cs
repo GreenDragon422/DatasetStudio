@@ -1075,6 +1075,11 @@ public class RenderingSmokeTests
             return Task.FromResult(CloneAppState(appState));
         }
 
+        public Task<AppState> UpdateAppStateImmediatelyAsync(Action<AppState> updateAction)
+        {
+            return UpdateAppStateAsync(updateAction);
+        }
+
         public Task SaveProjectStateAsync(string projectId, ProjectState state)
         {
             projectStatesById[projectId] = CloneProjectState(state);
