@@ -394,6 +394,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - Progress note (2026-03-27): Another theme sweep consolidated recurring screen/header/form/footer structure into shared classes like `screen-header-layout`, `screen-title-stack`, `stage-sidebar-layout`, `form-row`, `info-bar-layout`, `flow-actions`, `inline-glyph`, and `trailing-meta`. Current screens now compose those generic building blocks instead of re-styling the same layout chrome in each view, and the remaining base control leaks were narrowed with shared `ComboBox`, `CheckBox`, `ScrollViewer`, and `ScrollBar` theming.
   - Progress note (2026-03-28): All five screens now render and navigate correctly under the shared shell. The screens checkpoint includes the virtualized Project Overview layout, popup/overlay headless coverage for batch add/remove and AI processing, and Inspector suggestion-popup rendering alongside the end-to-end navigation verification.
   - Progress note (2026-03-28): The shared Hint Bar template now applies matching top and bottom row spacing so the shell footer keeps balanced breathing room around the key area without relying on per-screen spacing tweaks.
+  - Progress note (2026-03-28): The Project Overview thumbnail selector was rebuilt as a dedicated shared selection badge instead of a stock checkbox skin. The overlay now uses a compact round badge with explicit hover, checked, and focus-visible states, while preserving the same checkbox semantics and keyboard behavior.
 
 
 ## Phase 4 — Integration Wiring (Single Agent, Sequential)
