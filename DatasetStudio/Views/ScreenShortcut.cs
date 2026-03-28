@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Input;
+using DatasetStudio.ViewModels;
 
 namespace DatasetStudio.Views;
 
@@ -63,6 +64,11 @@ public sealed class ScreenShortcut
     public string ToHintSegment()
     {
         return string.Format("{0} {1}", GestureText, Description);
+    }
+
+    public HintBarItemViewModel ToHintItem()
+    {
+        return new HintBarItemViewModel(GestureText, Description);
     }
 
     public void Execute()

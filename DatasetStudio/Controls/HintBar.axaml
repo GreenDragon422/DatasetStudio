@@ -1,20 +1,52 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:DatasetStudio.Controls"
+             xmlns:viewModels="using:DatasetStudio.ViewModels"
              x:Class="DatasetStudio.Controls.HintBar"
              x:Name="Root"
-             x:DataType="controls:HintBar">
-  <Border Classes="chrome-shell input">
-    <Grid ColumnDefinitions="Auto,*"
-          Classes="info-bar-layout">
-      <Border Classes="label-badge keys">
-        <TextBlock Text="KEYS"
-                   Classes="mono label-badge-text" />
-      </Border>
-      <TextBlock Grid.Column="1"
-                 Text="{Binding #Root.Text}"
-                 Classes="shell-bar-text"
-                 TextTrimming="CharacterEllipsis" />
-    </Grid>
+             x:DataType="viewModels:ViewModelBase">
+  <Border Classes="chrome-shell panel shortcut-bar-shell">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Disabled">
+      <ItemsControl Classes="shortcut-items"
+                    ItemsSource="{Binding HintItems}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal"
+                        Spacing="18" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="viewModels:HintBarItemViewModel">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="10"
+                        VerticalAlignment="Center">
+              <Border Background="{StaticResource BrushButtonFace}"
+                      BorderBrush="{StaticResource BrushSurfaceElevated}"
+                      BorderThickness="{StaticResource BorderThicknessThin}"
+                      CornerRadius="6"
+                      MinWidth="34"
+                      MinHeight="26"
+                      Padding="10,4"
+                      VerticalAlignment="Center">
+                <TextBlock FontFamily="{StaticResource FontFamilyMono}"
+                           FontSize="{StaticResource FontSizeMeta}"
+                           FontWeight="Medium"
+                           Foreground="{StaticResource BrushTextStrong}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           VerticalAlignment="Center"
+                           Text="{Binding KeyText}" />
+              </Border>
+              <TextBlock FontSize="{StaticResource FontSizeBody}"
+                         FontWeight="Medium"
+                         Foreground="{StaticResource BrushTextStrong}"
+                         VerticalAlignment="Center"
+                         Text="{Binding Description}" />
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
   </Border>
 </UserControl>

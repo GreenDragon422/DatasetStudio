@@ -541,6 +541,11 @@
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
     </Style>
 
+    <Style Selector="Border.shortcut-bar-shell">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="14,6" />
+    </Style>
+
     <Style Selector="Border.label-badge">
         <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
@@ -557,6 +562,7 @@
         <Setter Property="Background" Value="{StaticResource BrushAccentSoft}" />
         <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}" />
     </Style>
+
 
     <Style Selector="Border.status-dot">
         <Setter Property="CornerRadius" Value="6" />

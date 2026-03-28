@@ -48,8 +48,7 @@
             </Border>
         </Grid>
 
-        <controls:HintBar Grid.Row="2"
-                          Text="{Binding HintText}" />
+        <controls:HintBar Grid.Row="2" />
         <controls:StatusBar Grid.Row="3"
                             Text="{Binding StatusText}" />
     </Grid>

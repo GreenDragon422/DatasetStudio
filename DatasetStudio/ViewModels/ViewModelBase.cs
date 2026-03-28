@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
@@ -15,6 +17,9 @@ public partial class ViewModelBase : ObservableRecipient
 
     [ObservableProperty]
     private string statusText = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<HintBarItemViewModel> hintItems = Array.Empty<HintBarItemViewModel>();
 
     [ObservableProperty]
     private object? topBarContent;

@@ -5,6 +5,7 @@ using DatasetStudio.Models;
 using DatasetStudio.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace DatasetStudio.ViewModels;
@@ -80,6 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _ = sender;
 
         if (eventArgs.PropertyName == nameof(ViewModelBase.HintText)
+            || eventArgs.PropertyName == nameof(ViewModelBase.HintItems)
             || eventArgs.PropertyName == nameof(ViewModelBase.StatusText)
             || eventArgs.PropertyName == nameof(ViewModelBase.TopBarContent))
         {
@@ -103,14 +105,40 @@ public partial class MainWindowViewModel : ViewModelBase
         if (activeShellViewModel is null)
         {
             TopBarContent = null;
-            HintText = "No active screen.";
-            StatusText = string.Empty;
+            if (HintText != "No active screen.")
+            {
+                HintText = "No active screen.";
+            }
+
+            IReadOnlyList<HintBarItemViewModel> emptyHintItems = Array.Empty<HintBarItemViewModel>();
+            if (!HintBarItemListComparer.AreEquivalent(HintItems, emptyHintItems))
+            {
+                HintItems = emptyHintItems;
+            }
+
+            if (StatusText.Length > 0)
+            {
+                StatusText = string.Empty;
+            }
+
             return;
         }
 
         TopBarContent = activeShellViewModel.TopBarContent;
-        HintText = activeShellViewModel.HintText;
-        StatusText = activeShellViewModel.StatusText;
+        if (HintText != activeShellViewModel.HintText)
+        {
+            HintText = activeShellViewModel.HintText;
+        }
+
+        if (!HintBarItemListComparer.AreEquivalent(HintItems, activeShellViewModel.HintItems))
+        {
+            HintItems = activeShellViewModel.HintItems;
+        }
+
+        if (StatusText != activeShellViewModel.StatusText)
+        {
+            StatusText = activeShellViewModel.StatusText;
+        }
     }
 
     private void UpdateObservedShellViewModel()

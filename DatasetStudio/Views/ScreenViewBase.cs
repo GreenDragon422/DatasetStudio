@@ -150,17 +150,39 @@ public abstract class ScreenViewBase<TViewModel> : UserControl, IScreenView
         IReadOnlyList<ScreenShortcut> visibleShortcuts = GetVisibleShortcuts();
         if (visibleShortcuts.Count == 0)
         {
-            viewModel.HintText = string.Empty;
+            if (viewModel.HintText.Length > 0)
+            {
+                viewModel.HintText = string.Empty;
+            }
+
+            IReadOnlyList<HintBarItemViewModel> emptyHintItems = Array.Empty<HintBarItemViewModel>();
+            if (!HintBarItemListComparer.AreEquivalent(viewModel.HintItems, emptyHintItems))
+            {
+                viewModel.HintItems = emptyHintItems;
+            }
+
             return;
         }
 
         string[] hintSegments = new string[visibleShortcuts.Count];
+        HintBarItemViewModel[] hintItems = new HintBarItemViewModel[visibleShortcuts.Count];
         for (int index = 0; index < visibleShortcuts.Count; index++)
         {
-            hintSegments[index] = visibleShortcuts[index].ToHintSegment();
+            ScreenShortcut shortcut = visibleShortcuts[index];
+            hintSegments[index] = shortcut.ToHintSegment();
+            hintItems[index] = shortcut.ToHintItem();
         }
 
-        viewModel.HintText = string.Join("  |  ", hintSegments);
+        string hintText = string.Join("  |  ", hintSegments);
+        if (viewModel.HintText != hintText)
+        {
+            viewModel.HintText = hintText;
+        }
+
+        if (!HintBarItemListComparer.AreEquivalent(viewModel.HintItems, hintItems))
+        {
+            viewModel.HintItems = hintItems;
+        }
     }
 
     protected virtual bool ShouldOfferLeaveFieldShortcut()

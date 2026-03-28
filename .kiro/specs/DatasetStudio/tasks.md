@@ -99,6 +99,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 - [x] 10. Create shared UI controls
   - [x] 10.1 Create `Controls/WorkflowStageList.axaml` — reusable ListBox showing workflow folders with stripped numeric prefixes and image counts, bindable ItemsSource and SelectedItem
   - [x] 10.2 Create `Controls/HintBar.axaml` — 24px-height bar, IBM Plex Mono, content bound to HintText property
+    - [x] 10.2.a Updated the shared HintBar to render structured keyboard-shortcut keycaps plus labels from the active screen’s centralized shortcut registration, so the shell visual style can be changed once without per-screen restyling
   - [x] 10.3 Create `Controls/StatusBar.axaml` — 24px-height display-only bar, bound to StatusText property
   - [x] 10.4 Create `Controls/TagPill.axaml` — Border with tag text (IBM Plex Mono) + `x` remove button, Background `#EBDBB2`, border `1px solid #D5C4A1`, exposes Tag (string) and RemoveCommand
   - [x] 10.5 Create `Controls/StatusDot.axaml` — 12px circle, color bound to TagStatus enum (Red=#CC241D, Yellow=#D79921, Green=#98971A)
