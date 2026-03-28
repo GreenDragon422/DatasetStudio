@@ -1,5 +1,8 @@
 [
-  { "repositoryId": "fancyfeast/llama-joycaption-beta-one-hf-llava" },
+  {
+    "displayName": "JoyCaption Beta One",
+    "repositoryId": "fancyfeast/llama-joycaption-beta-one-hf-llava"
+  },
   {
     "displayName": "JoyTag",
     "repositoryId": "fancyfeast/joytag",
@@ -20,12 +23,22 @@
     "repositoryId": "SmilingWolf/wd-convnext-tagger-v3",
     "includePatterns": [ "model.onnx", "selected_tags.csv" ]
   },
-  { "repositoryId": "microsoft/Florence-2-large-ft" },
-  { "repositoryId": "microsoft/Florence-2-large" },
-  { "repositoryId": "microsoft/Florence-2-base-ft" },
-  { "repositoryId": "microsoft/Florence-2-base" },
-  { "repositoryId": "MiaoshouAI/Florence-2-large-PromptGen-v2.0" },
-  { "repositoryId": "MiaoshouAI/Florence-2-base-PromptGen-v2.0" },
+  {
+    "displayName": "WD ViT Large Tagger v3",
+    "repositoryId": "SmilingWolf/wd-vit-large-tagger-v3",
+    "includePatterns": [ "model.onnx", "selected_tags.csv" ]
+  },
+  {
+    "displayName": "WD ViT Tagger v3",
+    "repositoryId": "SmilingWolf/wd-vit-tagger-v3",
+    "includePatterns": [ "model.onnx", "selected_tags.csv" ]
+  },
+  { "displayName": "Florence-2 Large FT", "repositoryId": "microsoft/Florence-2-large-ft" },
+  { "displayName": "Florence-2 Large", "repositoryId": "microsoft/Florence-2-large" },
+  { "displayName": "Florence-2 Base FT", "repositoryId": "microsoft/Florence-2-base-ft" },
+  { "displayName": "Florence-2 Base", "repositoryId": "microsoft/Florence-2-base" },
+  { "displayName": "Florence-2 Large PromptGen v2.0", "repositoryId": "MiaoshouAI/Florence-2-large-PromptGen-v2.0" },
+  { "displayName": "Florence-2 Base PromptGen v2.0", "repositoryId": "MiaoshouAI/Florence-2-base-PromptGen-v2.0" },
   { "repositoryId": "microsoft/Phi-3-vision-128k-instruct" },
   { "repositoryId": "llava-hf/llava-v1.6-mistral-7b-hf" },
   { "repositoryId": "llava-hf/llava-v1.6-vicuna-7b-hf" },
@@ -34,8 +47,6 @@
   { "repositoryId": "xtuner/llava-llama-3-8b-v1_1-transformers" },
   { "repositoryId": "vikhyatk/moondream2" },
   { "repositoryId": "vikhyatk/moondream1" },
-  { "repositoryId": "SmilingWolf/wd-vit-large-tagger-v3" },
-  { "repositoryId": "SmilingWolf/wd-vit-tagger-v3" },
   { "repositoryId": "SmilingWolf/wd-v1-4-moat-tagger-v2" },
   { "repositoryId": "SmilingWolf/wd-v1-4-swinv2-tagger-v2" },
   { "repositoryId": "SmilingWolf/wd-v1-4-convnext-tagger-v2" },
