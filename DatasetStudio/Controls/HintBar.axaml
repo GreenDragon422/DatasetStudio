@@ -6,36 +6,33 @@
              x:Name="Root"
              x:DataType="viewModels:ViewModelBase">
   <Border Classes="chrome-shell panel shortcut-bar-shell">
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                  VerticalScrollBarVisibility="Disabled">
-      <ItemsControl Classes="shortcut-items"
-                    ItemsSource="{Binding HintItems}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <StackPanel Orientation="Horizontal"
-                        Spacing="18" />
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="viewModels:HintBarItemViewModel">
-            <StackPanel Orientation="Horizontal"
-                        Spacing="10"
-                        VerticalAlignment="Center">
-              <Border Classes="shortcut-keycap"
+    <ItemsControl Classes="shortcut-items"
+                  ItemsSource="{Binding HintItems}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="viewModels:HintBarItemViewModel">
+          <StackPanel Orientation="Horizontal"
+                      Spacing="10"
+                      Margin="0,0,18,6"
                       VerticalAlignment="Center">
-                <TextBlock Classes="shortcut-keycap-text"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           VerticalAlignment="Center"
-                           Text="{Binding KeyText}" />
-              </Border>
-              <TextBlock Classes="shortcut-description"
+            <Border Classes="shortcut-keycap"
+                    VerticalAlignment="Center">
+              <TextBlock Classes="shortcut-keycap-text"
+                         HorizontalAlignment="Center"
+                         TextAlignment="Center"
                          VerticalAlignment="Center"
-                         Text="{Binding Description}" />
-            </StackPanel>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
+                         Text="{Binding KeyText}" />
+            </Border>
+            <TextBlock Classes="shortcut-description"
+                       VerticalAlignment="Center"
+                       Text="{Binding Description}" />
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
   </Border>
 </UserControl>

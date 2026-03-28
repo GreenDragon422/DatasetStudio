@@ -565,7 +565,7 @@
     </Style>
 
     <Style Selector="Border.shortcut-bar-shell">
-        <Setter Property="Height" Value="40" />
+        <Setter Property="MinHeight" Value="40" />
         <Setter Property="Padding" Value="14,6" />
     </Style>
 
