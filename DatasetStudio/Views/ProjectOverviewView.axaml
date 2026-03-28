@@ -145,9 +145,12 @@
                                                     <Grid RowDefinitions="Auto,*,Auto">
                                                         <Grid ColumnDefinitions="Auto,*"
                                                               Classes="thumbnail-header-row">
-                                                            <CheckBox Command="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ToggleSelectionCommand}"
-                                                                      CommandParameter="{Binding}"
-                                                                      IsChecked="{Binding IsSelected, Mode=OneWay}" />
+                                                            <Button Command="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ToggleSelectionCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Classes="thumbnail-select-chip"
+                                                                    Classes.selected="{Binding IsSelected}"
+                                                                    Content="{Binding SelectionChipText}"
+                                                                    ToolTip.Tip="Toggle batch selection for this image" />
                                                             <TextBlock Grid.Column="1"
                                                                        Text="{Binding FileName}"
                                                                        TextTrimming="CharacterEllipsis"

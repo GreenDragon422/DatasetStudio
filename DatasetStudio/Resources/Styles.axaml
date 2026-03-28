@@ -762,6 +762,36 @@
         <Setter Property="Margin" Value="0,8,0,8" />
     </Style>
 
+    <Style Selector="Button.thumbnail-select-chip">
+        <Setter Property="Background" Value="{StaticResource BrushSurfaceInput}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceElevated}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThicknessThin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSharp}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="MinWidth" Value="64" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.thumbnail-select-chip:pointerover:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushSelectionSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushSelectionBorder}" />
+    </Style>
+
+    <Style Selector="Button.thumbnail-select-chip:pressed:not(:disabled)">
+        <Setter Property="Background" Value="{StaticResource BrushSelection}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushPrimaryDeep}" />
+    </Style>
+
+    <Style Selector="Button.thumbnail-select-chip.selected">
+        <Setter Property="Background" Value="{StaticResource BrushAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}" />
+        <Setter Property="Foreground" Value="{StaticResource BrushTextStrong}" />
+    </Style>
+
     <Style Selector="ListBox.stage-editor-list">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
