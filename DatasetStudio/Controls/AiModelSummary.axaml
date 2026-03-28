@@ -4,24 +4,18 @@
              x:Class="DatasetStudio.Controls.AiModelSummary"
              x:Name="Root"
              x:DataType="controls:AiModelSummary">
-    <Border Classes="ai-model-summary">
-        <StackPanel Classes="ai-model-summary-stack">
-            <StackPanel Classes="inline-status-row">
-                <TextBlock Text="{Binding #Root.Summary.DisplayName}"
-                           Classes="ai-model-summary-name" />
+    <WrapPanel Classes="ai-model-summary">
+        <TextBlock Text="{Binding #Root.ModelName}"
+                   Classes="ai-model-summary-name"
+                   VerticalAlignment="Center" />
 
-                <Border Classes="ai-model-summary-chip"
-                        Classes.installed="{Binding #Root.Summary.IsInstalled}"
-                        IsVisible="{Binding #Root.Summary.ShowBadge}">
-                    <TextBlock Text="{Binding #Root.Summary.BadgeText}"
-                               Classes="ai-model-summary-chip-text" />
-                </Border>
-            </StackPanel>
-
-            <TextBlock Text="{Binding #Root.Summary.DetailText}"
-                       Classes="mono-caption ai-model-summary-detail"
-                       IsVisible="{Binding #Root.Summary.ShowDetailText}"
-                       TextWrapping="Wrap" />
-        </StackPanel>
-    </Border>
+        <Border Classes="ai-model-summary-chip"
+                Classes.installed="{Binding #Root.IsInstalled}"
+                Classes.busy="{Binding #Root.IsBusy}"
+                Classes.attention="{Binding #Root.IsAttention}"
+                IsVisible="{Binding #Root.HasStatus}">
+            <TextBlock Text="{Binding #Root.StatusText}"
+                       Classes="ai-model-summary-chip-text" />
+        </Border>
+    </WrapPanel>
 </UserControl>
