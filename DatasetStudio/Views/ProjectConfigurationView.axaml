@@ -17,9 +17,6 @@
                     Classes="section-stack tight">
             <TextBlock Text="Project Configuration"
                        Classes="heading-large" />
-            <TextBlock Text="Update the project folder, AI model, prefix tags, and workflow stages."
-                       Classes="mono screen-subtitle"
-                       TextWrapping="Wrap" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"

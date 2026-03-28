@@ -18,9 +18,6 @@
                 <StackPanel Classes="screen-title-stack">
                     <TextBlock Text="Tags Overview"
                                Classes="heading-medium" />
-                    <TextBlock Text="Review aliases, frequencies, and tag cleanup actions across the active project."
-                               Classes="mono screen-subtitle"
-                               TextWrapping="Wrap" />
                 </StackPanel>
                 <TextBox x:Name="SearchTextBox"
                          Grid.Column="1"

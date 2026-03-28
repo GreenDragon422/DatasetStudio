@@ -42,15 +42,11 @@
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*,320"
               Classes="content-columns">
-            <Grid RowDefinitions="Auto,Auto,*"
+            <Grid RowDefinitions="Auto,*"
                   Classes="stage-sidebar-layout">
                 <TextBlock Text="Workflow stages"
                            Classes="heading-medium" />
-                <TextBlock Grid.Row="1"
-                           Text="Choose a stage, then keep moving through the dataset with the keyboard."
-                           Classes="mono screen-subtitle"
-                           TextWrapping="Wrap" />
-                <controls:WorkflowStageList Grid.Row="2"
+                <controls:WorkflowStageList Grid.Row="1"
                                             ItemsSource="{Binding Stages}"
                                             SelectedItem="{Binding ActiveStage, Mode=TwoWay}" />
             </Grid>

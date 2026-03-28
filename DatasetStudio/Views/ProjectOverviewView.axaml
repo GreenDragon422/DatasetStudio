@@ -21,9 +21,6 @@
                 <StackPanel Classes="screen-title-stack">
                     <TextBlock Text="{Binding ProjectName}"
                                Classes="heading-medium" />
-                    <TextBlock Text="Project Overview · choose a workflow stage, review staged images, filter by tags, and prepare batch tag edits."
-                               Classes="mono screen-subtitle"
-                               TextWrapping="Wrap" />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1"
@@ -94,15 +91,11 @@
         <Grid Grid.Row="1"
               ColumnDefinitions="240,*"
               Classes="content-columns">
-            <Grid RowDefinitions="Auto,Auto,*"
+            <Grid RowDefinitions="Auto,*"
                   Classes="stage-sidebar-layout">
                 <TextBlock Text="Workflow stages"
                            Classes="heading-medium" />
-                <TextBlock Grid.Row="1"
-                           Text="Pick the current folder/stage to review or retag."
-                           Classes="mono screen-subtitle"
-                           TextWrapping="Wrap" />
-                <controls:WorkflowStageList Grid.Row="2"
+                <controls:WorkflowStageList Grid.Row="1"
                                             ItemsSource="{Binding Stages}"
                                             SelectedItem="{Binding ActiveStage, Mode=TwoWay}" />
             </Grid>
