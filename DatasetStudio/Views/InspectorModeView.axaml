@@ -66,16 +66,18 @@
                             </Border>
                         </Viewbox>
 
-                        <Button Content="Prev"
-                                Classes="edge-nav inset"
+                        <Button Content="←"
+                                Classes="edge-nav inset icon-button"
                                 Command="{Binding NavigatePreviousCommand}"
                                 HorizontalAlignment="Left"
+                                ToolTip.Tip="Previous image"
                                 VerticalAlignment="Center" />
 
-                        <Button Content="Next"
-                                Classes="edge-nav inset"
+                        <Button Content="→"
+                                Classes="edge-nav inset icon-button"
                                 Command="{Binding NavigateNextCommand}"
                                 HorizontalAlignment="Right"
+                                ToolTip.Tip="Next image"
                                 VerticalAlignment="Center" />
                     </Grid>
 
