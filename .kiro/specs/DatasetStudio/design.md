@@ -25,11 +25,11 @@ DatasetStudio uses Avalonia's native MVVM architecture with CommunityToolkit.Mvv
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                      Views (XAML)                        │
-│  ProjectsHubView │ LibraryGridView │ InspectorModeView  │
+│  ProjectsHubView │ ProjectOverviewView │ InspectorModeView  │
 │  ProjectConfigView │ TagDictionaryView                   │
 ├─────────────────────────────────────────────────────────┤
 │                   ViewModels (C#)                        │
-│  ProjectsHubVM │ LibraryGridVM │ InspectorModeVM         │
+│  ProjectsHubVM │ ProjectOverviewVM │ InspectorModeVM         │
 │  ProjectConfigVM │ TagDictionaryVM │ MainWindowVM         │
 ├─────────────────────────────────────────────────────────┤
 │                   Services (C#)                          │
@@ -54,7 +54,7 @@ Screen navigation is managed by a `NavigationService` that swaps the `ContentCon
 
 ```mermaid
 graph LR
-    A[ProjectsHub] -->|Click Project Card| B[LibraryGrid]
+    A[ProjectsHub] -->|Click Project Card| B[ProjectOverview]
     B -->|Double-click Thumbnail| C[InspectorMode]
     C -->|Back button| B
     B -->|Tag Dictionary nav| D[TagDictionary]
@@ -92,8 +92,8 @@ public record ProjectConfigSavedMessage(string ProjectId);
 **Side Effects Rule** — All side effects (refreshing folder counts, updating status dots, recalculating tag frequencies, updating progress bars) MUST occur as reactions to messenger events or through Avalonia data binding. Side effects MUST NEVER be performed by directly manipulating View elements from code-behind or ViewModel logic. When a ViewModel receives a message, it updates its own observable properties, and the View reacts through binding. This is the ONLY permitted pattern.
 
 **Example flow:**
-1. `LibraryGridVM` moves an image → publishes `ImageMovedMessage`
-2. `LibraryGridVM` (sidebar section) subscribes → updates folder counts via its own `[ObservableProperty]`
+1. `ProjectOverviewVM` moves an image → publishes `ImageMovedMessage`
+2. `ProjectOverviewVM` (sidebar section) subscribes → updates folder counts via its own `[ObservableProperty]`
 3. `InspectorModeVM` subscribes → refreshes if the moved image was current
 4. The View updates automatically through Avalonia data binding — no imperative View manipulation
 
@@ -112,7 +112,7 @@ MainWindow
 │   └── Screen-specific controls (injected per ViewModel)
 ├── ContentArea (swapped by NavigationService)
 │   ├── ProjectsHubView
-│   ├── LibraryGridView
+│   ├── ProjectOverviewView
 │   ├── InspectorModeView
 │   └── TagDictionaryView
 ├── ProjectConfigOverlay (modal, toggled visibility)
@@ -131,9 +131,9 @@ ProjectsHubView
 └── HintBar
 ```
 
-#### LibraryGridView
+#### ProjectOverviewView
 ```
-LibraryGridView
+ProjectOverviewView
 ├── TopBar (64px)
 │   ├── ProjectName (TextBlock, 18px IBM Plex Sans 600)
 │   ├── AiModelDropdown (ComboBox)
@@ -194,7 +194,7 @@ TagDictionaryView
 
 | Component | Description |
 |---|---|
-| `WorkflowStageList` | Reusable ListBox showing workflow folders with stripped numeric prefixes and image counts. Used in LibraryGrid and InspectorMode sidebars. |
+| `WorkflowStageList` | Reusable ListBox showing workflow folders with stripped numeric prefixes and image counts. Used in ProjectOverview and InspectorMode sidebars. |
 | `HintBar` | 24px-height bar displaying context-sensitive keyboard shortcuts in monospace. Content bound to current ViewModel's `HintText` property. |
 | `StatusBar` | 24px-height bar at the bottom of every screen for displaying feedback messages and contextual status information. Display only, no input. |
 | `TagPill` | Inline control: `Border` containing tag text (IBM Plex Mono) + `x` remove button. Background `#EBDBB2`, border `1px solid #D5C4A1`. |
@@ -653,19 +653,19 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant User
-    participant LibraryGridVM
+    participant ProjectOverviewVM
     participant FileSystemService
     participant TagFileService
     participant Messenger
 
-    User->>LibraryGridVM: Press ']' (move to next stage)
-    LibraryGridVM->>LibraryGridVM: Determine target stage from current + 1
-    LibraryGridVM->>FileSystemService: MoveFileAsync(image, targetFolder)
-    LibraryGridVM->>FileSystemService: MoveFileAsync(tagFile, targetFolder)
-    FileSystemService-->>LibraryGridVM: Move complete
-    LibraryGridVM->>LibraryGridVM: Remove image from current folder list
-    LibraryGridVM->>Messenger: Send ImageMovedMessage
-    Messenger->>LibraryGridVM: Refresh folder counts in sidebar
+    User->>ProjectOverviewVM: Press ']' (move to next stage)
+    ProjectOverviewVM->>ProjectOverviewVM: Determine target stage from current + 1
+    ProjectOverviewVM->>FileSystemService: MoveFileAsync(image, targetFolder)
+    ProjectOverviewVM->>FileSystemService: MoveFileAsync(tagFile, targetFolder)
+    FileSystemService-->>ProjectOverviewVM: Move complete
+    ProjectOverviewVM->>ProjectOverviewVM: Remove image from current folder list
+    ProjectOverviewVM->>Messenger: Send ImageMovedMessage
+    Messenger->>ProjectOverviewVM: Refresh folder counts in sidebar
 ```
 
 ### Data Flow: Delete to Recycle Bin
@@ -694,21 +694,21 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant User
-    participant LibraryGridVM
+    participant ProjectOverviewVM
     participant TagFileService
     participant Messenger
 
-    User->>LibraryGridVM: Press '+', type tag, press Enter
-    LibraryGridVM->>LibraryGridVM: Resolve alias via DictionaryService
-    LibraryGridVM->>LibraryGridVM: Get target images (selection or full folder)
+    User->>ProjectOverviewVM: Press '+', type tag, press Enter
+    ProjectOverviewVM->>ProjectOverviewVM: Resolve alias via DictionaryService
+    ProjectOverviewVM->>ProjectOverviewVM: Get target images (selection or full folder)
     loop For each target image
-        LibraryGridVM->>TagFileService: ReadTagsAsync(tagFilePath)
-        TagFileService-->>LibraryGridVM: existing tags
-        LibraryGridVM->>LibraryGridVM: Skip if tag already present (dedup)
-        LibraryGridVM->>TagFileService: WriteTagsAsync(tagFilePath, updatedTags)
+        ProjectOverviewVM->>TagFileService: ReadTagsAsync(tagFilePath)
+        TagFileService-->>ProjectOverviewVM: existing tags
+        ProjectOverviewVM->>ProjectOverviewVM: Skip if tag already present (dedup)
+        ProjectOverviewVM->>TagFileService: WriteTagsAsync(tagFilePath, updatedTags)
     end
-    LibraryGridVM->>Messenger: Send TagsChangedMessage (batch)
-    LibraryGridVM->>LibraryGridVM: Close popup, update status dots
+    ProjectOverviewVM->>Messenger: Send TagsChangedMessage (batch)
+    ProjectOverviewVM->>ProjectOverviewVM: Close popup, update status dots
 ```
 
 

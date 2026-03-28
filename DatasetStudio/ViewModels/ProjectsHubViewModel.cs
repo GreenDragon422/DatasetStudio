@@ -173,7 +173,7 @@ public partial class ProjectsHubViewModel : ScreenViewModelBase, IDisposable, IN
             return;
         }
 
-        navigationService.NavigateTo<LibraryGridViewModel>(projectCard.Project);
+        navigationService.NavigateTo<ProjectOverviewViewModel>(projectCard.Project);
         messenger.Send(new ProjectOpenedMessage(projectCard.ProjectId));
         _ = PersistLastOpenedProjectAsync(projectCard.Project);
         StatusText = string.Format("Project selected: {0}", projectCard.Name);

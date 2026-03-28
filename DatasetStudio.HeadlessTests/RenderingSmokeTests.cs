@@ -56,10 +56,10 @@ public class RenderingSmokeTests
     }
 
     [AvaloniaTest]
-    public async Task LibraryGridSlashShortcutFocusesFilterTextBox()
+    public async Task ProjectOverviewSlashShortcutFocusesFilterTextBox()
     {
         using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
-        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel projectOverviewViewModel = new ProjectOverviewViewModel(
             scenario.FileSystemService,
             scenario.TagFileService,
             scenario.TagDictionaryService,
@@ -70,9 +70,9 @@ public class RenderingSmokeTests
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
-        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+        projectOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
-        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        MainWindow window = scenario.CreateMainWindow(projectOverviewViewModel);
         window.Show();
         await Task.Delay(500).ConfigureAwait(true);
 
@@ -90,10 +90,10 @@ public class RenderingSmokeTests
     }
 
     [AvaloniaTest]
-    public async Task LibraryGridGlobalCopyShortcutCopiesFocusedImageTags()
+    public async Task ProjectOverviewGlobalCopyShortcutCopiesFocusedImageTags()
     {
         using CaptureScenario scenario = await CaptureScenario.CreateAsync().ConfigureAwait(true);
-        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel projectOverviewViewModel = new ProjectOverviewViewModel(
             scenario.FileSystemService,
             scenario.TagFileService,
             scenario.TagDictionaryService,
@@ -104,13 +104,13 @@ public class RenderingSmokeTests
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
-        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+        projectOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
-        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        MainWindow window = scenario.CreateMainWindow(projectOverviewViewModel);
         window.Show();
         await Task.Delay(500).ConfigureAwait(true);
 
-        IReadOnlyList<string> expectedTags = libraryGridViewModel.Images[libraryGridViewModel.FocusedImageIndex].Tags;
+        IReadOnlyList<string> expectedTags = projectOverviewViewModel.Images[projectOverviewViewModel.FocusedImageIndex].Tags;
         bool didFocusWindow = window.Focus();
         _ = didFocusWindow;
         window.KeyPress(Key.C, RawInputModifiers.Control | RawInputModifiers.Shift, PhysicalKey.C, "c");
@@ -374,7 +374,7 @@ public class RenderingSmokeTests
 
     private static async Task CaptureProjectOverviewAsync(CaptureScenario scenario, string outputFolder)
     {
-        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel projectOverviewViewModel = new ProjectOverviewViewModel(
             scenario.FileSystemService,
             scenario.TagFileService,
             scenario.TagDictionaryService,
@@ -385,15 +385,15 @@ public class RenderingSmokeTests
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
-        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+        projectOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
-        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        MainWindow window = scenario.CreateMainWindow(projectOverviewViewModel);
         await CaptureWindowAsync(window, outputFolder, "project-overview.png", 500).ConfigureAwait(true);
     }
 
     private static async Task CaptureProjectOverviewBatchAddPopupAsync(CaptureScenario scenario, string outputFolder)
     {
-        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel projectOverviewViewModel = new ProjectOverviewViewModel(
             scenario.FileSystemService,
             scenario.TagFileService,
             scenario.TagDictionaryService,
@@ -404,21 +404,21 @@ public class RenderingSmokeTests
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
-        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+        projectOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
-        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        MainWindow window = scenario.CreateMainWindow(projectOverviewViewModel);
         window.Show();
         await Task.Delay(500).ConfigureAwait(true);
 
-        libraryGridViewModel.OpenBatchAddCommand.Execute(null);
-        await WaitForConditionAsync(() => libraryGridViewModel.IsBatchAddOpen).ConfigureAwait(true);
-        Assert.That(libraryGridViewModel.IsBatchAddOpen, Is.True);
+        projectOverviewViewModel.OpenBatchAddCommand.Execute(null);
+        await WaitForConditionAsync(() => projectOverviewViewModel.IsBatchAddOpen).ConfigureAwait(true);
+        Assert.That(projectOverviewViewModel.IsBatchAddOpen, Is.True);
         await CaptureOpenWindowAsync(window, outputFolder, "project-overview-batch-add.png").ConfigureAwait(true);
     }
 
     private static async Task CaptureProjectOverviewBatchRemovePopupAsync(CaptureScenario scenario, string outputFolder)
     {
-        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel projectOverviewViewModel = new ProjectOverviewViewModel(
             scenario.FileSystemService,
             scenario.TagFileService,
             scenario.TagDictionaryService,
@@ -429,21 +429,21 @@ public class RenderingSmokeTests
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
-        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+        projectOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
-        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        MainWindow window = scenario.CreateMainWindow(projectOverviewViewModel);
         window.Show();
         await Task.Delay(500).ConfigureAwait(true);
 
-        libraryGridViewModel.OpenBatchRemoveCommand.Execute(null);
-        await WaitForConditionAsync(() => libraryGridViewModel.IsBatchRemoveOpen).ConfigureAwait(true);
-        Assert.That(libraryGridViewModel.IsBatchRemoveOpen, Is.True);
+        projectOverviewViewModel.OpenBatchRemoveCommand.Execute(null);
+        await WaitForConditionAsync(() => projectOverviewViewModel.IsBatchRemoveOpen).ConfigureAwait(true);
+        Assert.That(projectOverviewViewModel.IsBatchRemoveOpen, Is.True);
         await CaptureOpenWindowAsync(window, outputFolder, "project-overview-batch-remove.png").ConfigureAwait(true);
     }
 
     private static async Task CaptureProjectOverviewAiProcessingAsync(CaptureScenario scenario, string outputFolder)
     {
-        LibraryGridViewModel libraryGridViewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel projectOverviewViewModel = new ProjectOverviewViewModel(
             scenario.FileSystemService,
             scenario.TagFileService,
             scenario.TagDictionaryService,
@@ -454,15 +454,15 @@ public class RenderingSmokeTests
             new BatchTagOperationService(scenario.TagFileService, scenario.TagDictionaryService, scenario.Messenger),
             scenario.Messenger,
             scenario.StatePersistenceService);
-        libraryGridViewModel.OnNavigatedTo(scenario.PrimaryProject);
+        projectOverviewViewModel.OnNavigatedTo(scenario.PrimaryProject);
 
-        MainWindow window = scenario.CreateMainWindow(libraryGridViewModel);
+        MainWindow window = scenario.CreateMainWindow(projectOverviewViewModel);
         window.Show();
         await Task.Delay(500).ConfigureAwait(true);
 
-        Assert.That(libraryGridViewModel.Images.Count, Is.GreaterThan(0));
-        libraryGridViewModel.Images[0].IsAiProcessing = true;
-        Assert.That(libraryGridViewModel.Images[0].IsAiProcessing, Is.True);
+        Assert.That(projectOverviewViewModel.Images.Count, Is.GreaterThan(0));
+        projectOverviewViewModel.Images[0].IsAiProcessing = true;
+        Assert.That(projectOverviewViewModel.Images[0].IsAiProcessing, Is.True);
         await Task.Delay(75).ConfigureAwait(true);
         await CaptureOpenWindowAsync(window, outputFolder, "project-overview-ai-processing.png").ConfigureAwait(true);
     }

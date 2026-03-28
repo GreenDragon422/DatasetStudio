@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAware
+public partial class ProjectOverviewViewModel : ScreenViewModelBase, INavigationAware
 {
     private readonly IFileSystemService fileSystemService;
     private readonly ITagFileService tagFileService;
@@ -27,7 +27,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     private readonly BatchTagOperationService batchTagOperationService;
     private readonly IMessenger messenger;
     private readonly IStatePersistenceService statePersistenceService;
-    private readonly List<LibraryGridImageViewModel> allImages;
+    private readonly List<ProjectOverviewImageViewModel> allImages;
     private readonly object projectWatcherStateGate;
 
     private Project? currentProject;
@@ -37,7 +37,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     private bool isRestoringPersistedProjectState;
     private HashSet<string> pendingThumbnailInvalidationPaths;
 
-    public LibraryGridViewModel(
+    public ProjectOverviewViewModel(
         IFileSystemService fileSystemService,
         ITagFileService tagFileService,
         ITagDictionaryService tagDictionaryService,
@@ -61,55 +61,55 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
-        allImages = new List<LibraryGridImageViewModel>();
+        allImages = new List<ProjectOverviewImageViewModel>();
         projectWatcherStateGate = new object();
         pendingThumbnailInvalidationPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        Stages = new ObservableCollection<LibraryGridStageViewModel>();
-        Images = new ObservableCollection<LibraryGridImageViewModel>();
-        ImageRows = new ObservableCollection<LibraryGridImageRowViewModel>();
-        SelectedImages = new ObservableCollection<LibraryGridImageViewModel>();
+        Stages = new ObservableCollection<ProjectOverviewStageViewModel>();
+        Images = new ObservableCollection<ProjectOverviewImageViewModel>();
+        ImageRows = new ObservableCollection<ProjectOverviewImageRowViewModel>();
+        SelectedImages = new ObservableCollection<ProjectOverviewImageViewModel>();
         AiModels = new ObservableCollection<AiModelInfo>();
         BatchAddSuggestions = new ObservableCollection<BatchTagSuggestionViewModel>();
         BatchRemoveSuggestions = new ObservableCollection<BatchTagSuggestionViewModel>();
         ZoomValue = 160;
         StatusText = "Open a project to load Project Overview.";
 
-        messenger.Register<LibraryGridViewModel, TagsChangedMessage>(this, static (recipient, message) =>
+        messenger.Register<ProjectOverviewViewModel, TagsChangedMessage>(this, static (recipient, message) =>
         {
             recipient.UpdateImageTags(message.ImagePath, message.NewTags, TagStatus.Ready);
         });
-        messenger.Register<LibraryGridViewModel, ImageDeletedMessage>(this, static (recipient, message) =>
+        messenger.Register<ProjectOverviewViewModel, ImageDeletedMessage>(this, static (recipient, message) =>
         {
             recipient.HandleImageDeleted(message);
         });
-        messenger.Register<LibraryGridViewModel, ImageMovedMessage>(this, static (recipient, message) =>
+        messenger.Register<ProjectOverviewViewModel, ImageMovedMessage>(this, static (recipient, message) =>
         {
             recipient.HandleImageMoved(message);
         });
-        messenger.Register<LibraryGridViewModel, AiTaggingCompletedMessage>(this, static (recipient, message) =>
+        messenger.Register<ProjectOverviewViewModel, AiTaggingCompletedMessage>(this, static (recipient, message) =>
         {
             recipient.UpdateImageTags(message.ImagePath, message.GeneratedTags, TagStatus.AutoTagged);
         });
-        messenger.Register<LibraryGridViewModel, AiTaggingFailedMessage>(this, static (recipient, message) =>
+        messenger.Register<ProjectOverviewViewModel, AiTaggingFailedMessage>(this, static (recipient, message) =>
         {
             recipient.HandleAiTaggingFailed(message);
         });
     }
 
     [ObservableProperty]
-    private ObservableCollection<LibraryGridStageViewModel> stages;
+    private ObservableCollection<ProjectOverviewStageViewModel> stages;
 
     [ObservableProperty]
-    private LibraryGridStageViewModel? activeStage;
+    private ProjectOverviewStageViewModel? activeStage;
 
     [ObservableProperty]
-    private ObservableCollection<LibraryGridImageViewModel> images;
+    private ObservableCollection<ProjectOverviewImageViewModel> images;
 
     [ObservableProperty]
-    private ObservableCollection<LibraryGridImageRowViewModel> imageRows;
+    private ObservableCollection<ProjectOverviewImageRowViewModel> imageRows;
 
     [ObservableProperty]
-    private ObservableCollection<LibraryGridImageViewModel> selectedImages;
+    private ObservableCollection<ProjectOverviewImageViewModel> selectedImages;
 
     [ObservableProperty]
     private int focusedImageIndex = -1;
@@ -190,26 +190,26 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     }
 
     [RelayCommand]
-    private Task SelectStageAsync(LibraryGridStageViewModel? stage)
+    private Task SelectStageAsync(ProjectOverviewStageViewModel? stage)
     {
         return SelectStageCoreAsync(stage);
     }
 
     [RelayCommand]
-    private void FocusImage(LibraryGridImageViewModel? image)
+    private void FocusImage(ProjectOverviewImageViewModel? image)
     {
         SetFocusedImage(image, updateStatusText: true);
     }
 
     [RelayCommand]
-    private void OpenInspector(LibraryGridImageViewModel? image)
+    private void OpenInspector(ProjectOverviewImageViewModel? image)
     {
         if (currentProject is null)
         {
             return;
         }
 
-        LibraryGridImageViewModel? targetImage = image ?? GetFocusedImage();
+        ProjectOverviewImageViewModel? targetImage = image ?? GetFocusedImage();
         if (targetImage is null)
         {
             return;
@@ -221,7 +221,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     }
 
     [RelayCommand]
-    private void ToggleSelection(LibraryGridImageViewModel? image)
+    private void ToggleSelection(ProjectOverviewImageViewModel? image)
     {
         if (image is null)
         {
@@ -285,24 +285,24 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
 
         IReadOnlyList<WorkflowStage> workflowStages = GetWorkflowStages(currentProject);
-        List<LibraryGridStageViewModel> stageViewModels = new List<LibraryGridStageViewModel>();
+        List<ProjectOverviewStageViewModel> stageViewModels = new List<ProjectOverviewStageViewModel>();
 
         foreach (WorkflowStage workflowStage in workflowStages)
         {
             string folderPath = GetStageFolderPath(currentProject, workflowStage);
             IReadOnlyList<string> imageFiles = await fileSystemService.GetImageFilesAsync(folderPath).ConfigureAwait(true);
-            stageViewModels.Add(new LibraryGridStageViewModel(workflowStage, folderPath, imageFiles.Count));
+            stageViewModels.Add(new ProjectOverviewStageViewModel(workflowStage, folderPath, imageFiles.Count));
         }
 
-        Stages = new ObservableCollection<LibraryGridStageViewModel>(stageViewModels);
+        Stages = new ObservableCollection<ProjectOverviewStageViewModel>(stageViewModels);
 
-        LibraryGridStageViewModel? preferredStage = stageViewModels.FirstOrDefault(stage =>
+        ProjectOverviewStageViewModel? preferredStage = stageViewModels.FirstOrDefault(stage =>
             string.Equals(stage.FolderName, currentProject.State.ActiveStageFolderName, StringComparison.OrdinalIgnoreCase));
         ActiveStage = preferredStage ?? stageViewModels.FirstOrDefault();
 
         if (ActiveStage is null)
         {
-            ReplaceImages(Array.Empty<LibraryGridImageViewModel>());
+            ReplaceImages(Array.Empty<ProjectOverviewImageViewModel>());
             StatusText = "No workflow stages were found for this project.";
             return;
         }
@@ -310,7 +310,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         StatusText = string.Format("Loaded {0} workflow stage{1}.", Stages.Count, Stages.Count == 1 ? string.Empty : "s");
     }
 
-    private async Task SelectStageCoreAsync(LibraryGridStageViewModel? stage)
+    private async Task SelectStageCoreAsync(ProjectOverviewStageViewModel? stage)
     {
         if (stage is null || currentProject is null)
         {
@@ -328,7 +328,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         StatusText = string.Format("Loading images from {0}...", stage.DisplayName);
 
         IReadOnlyList<string> imageFilePaths = await fileSystemService.GetImageFilesAsync(stage.FolderPath).ConfigureAwait(true);
-        List<LibraryGridImageViewModel> imageViewModels = new List<LibraryGridImageViewModel>();
+        List<ProjectOverviewImageViewModel> imageViewModels = new List<ProjectOverviewImageViewModel>();
 
         foreach (string imageFilePath in imageFilePaths)
         {
@@ -338,7 +338,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             Bitmap? thumbnail = await LoadThumbnailAsync(imageFilePath).ConfigureAwait(true);
             TagStatus status = fileTags.Count == 0 ? TagStatus.Untagged : TagStatus.Ready;
 
-            LibraryGridImageViewModel imageViewModel = new(
+            ProjectOverviewImageViewModel imageViewModel = new(
                 imageFilePath,
                 Path.GetFileName(imageFilePath),
                 tagFilePath,
@@ -488,7 +488,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        IReadOnlyList<LibraryGridImageViewModel> targetImages = GetBatchScopeImages();
+        IReadOnlyList<ProjectOverviewImageViewModel> targetImages = GetBatchScopeImages();
         if (targetImages.Count == 0)
         {
             StatusText = "There are no images available for batch add.";
@@ -519,7 +519,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        IReadOnlyList<LibraryGridImageViewModel> targetImages = GetBatchScopeImages();
+        IReadOnlyList<ProjectOverviewImageViewModel> targetImages = GetBatchScopeImages();
         if (targetImages.Count == 0)
         {
             StatusText = "There are no images available for batch remove.";
@@ -550,7 +550,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        IReadOnlyList<LibraryGridImageViewModel> selectedImagesSnapshot = GetStrictSelectedImages();
+        IReadOnlyList<ProjectOverviewImageViewModel> selectedImagesSnapshot = GetStrictSelectedImages();
         if (selectedImagesSnapshot.Count == 0)
         {
             StatusText = "Select one or more images before moving them.";
@@ -564,12 +564,12 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        LibraryGridStageViewModel targetStage = Stages[targetStageIndex];
+        ProjectOverviewStageViewModel targetStage = Stages[targetStageIndex];
         isIgnoringInternalImageMovedMessages = true;
 
         try
         {
-            foreach (LibraryGridImageViewModel image in selectedImagesSnapshot)
+            foreach (ProjectOverviewImageViewModel image in selectedImagesSnapshot)
             {
                 await fileSystemService.MoveFileAsync(image.FilePath, targetStage.FolderPath).ConfigureAwait(true);
 
@@ -598,14 +598,14 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
     private async Task DeleteImageCoreAsync()
     {
-        IReadOnlyList<LibraryGridImageViewModel> selectedImagesSnapshot = GetStrictSelectedImages();
+        IReadOnlyList<ProjectOverviewImageViewModel> selectedImagesSnapshot = GetStrictSelectedImages();
         if (selectedImagesSnapshot.Count == 0)
         {
             StatusText = "Select one or more images before deleting them.";
             return;
         }
 
-        foreach (LibraryGridImageViewModel image in selectedImagesSnapshot)
+        foreach (ProjectOverviewImageViewModel image in selectedImagesSnapshot)
         {
             string folderPath = Path.GetDirectoryName(image.FilePath) ?? string.Empty;
             await fileSystemService.RecycleFileAsync(image.FilePath).ConfigureAwait(true);
@@ -633,7 +633,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
     private async Task CopyTagsCoreAsync()
     {
-        LibraryGridImageViewModel? focusedImage = GetFocusedImage();
+        ProjectOverviewImageViewModel? focusedImage = GetFocusedImage();
         if (focusedImage is null)
         {
             return;
@@ -650,7 +650,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        LibraryGridImageViewModel? focusedImage = GetFocusedImage();
+        ProjectOverviewImageViewModel? focusedImage = GetFocusedImage();
         if (focusedImage is null)
         {
             return;
@@ -673,7 +673,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             focusedImage.FileName);
     }
 
-    partial void OnActiveStageChanged(LibraryGridStageViewModel? value)
+    partial void OnActiveStageChanged(ProjectOverviewStageViewModel? value)
     {
         if (value is not null)
         {
@@ -753,7 +753,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
     }
 
-    private void SetFocusedImage(LibraryGridImageViewModel? image, bool updateStatusText)
+    private void SetFocusedImage(ProjectOverviewImageViewModel? image, bool updateStatusText)
     {
         if (image is null)
         {
@@ -791,7 +791,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
     private void ClearFocusState()
     {
-        foreach (LibraryGridImageViewModel image in Images)
+        foreach (ProjectOverviewImageViewModel image in Images)
         {
             image.IsFocused = false;
         }
@@ -1014,7 +1014,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
     {
         string? preferredFocusedImagePath = GetFocusedImage()?.FilePath;
         int previousFocusedImageIndex = FocusedImageIndex;
-        IEnumerable<LibraryGridImageViewModel> filteredImages = allImages;
+        IEnumerable<ProjectOverviewImageViewModel> filteredImages = allImages;
 
         if (!string.IsNullOrWhiteSpace(FilterText))
         {
@@ -1023,7 +1023,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
                 || image.TagsPreview.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
         }
 
-        Images = new ObservableCollection<LibraryGridImageViewModel>(filteredImages);
+        Images = new ObservableCollection<ProjectOverviewImageViewModel>(filteredImages);
         HasImages = Images.Count > 0;
         RebuildImageRows();
 
@@ -1033,7 +1033,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        LibraryGridImageViewModel? preferredImage = preferredFocusedImagePath is null
+        ProjectOverviewImageViewModel? preferredImage = preferredFocusedImagePath is null
             ? null
             : Images.FirstOrDefault(image =>
                 string.Equals(image.FilePath, preferredFocusedImagePath, StringComparison.OrdinalIgnoreCase));
@@ -1046,7 +1046,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         if (currentProject is not null && !string.IsNullOrWhiteSpace(currentProject.State.LastInspectedImagePath))
         {
-            LibraryGridImageViewModel? lastInspectedImage = Images.FirstOrDefault(image =>
+            ProjectOverviewImageViewModel? lastInspectedImage = Images.FirstOrDefault(image =>
                 string.Equals(image.FilePath, currentProject.State.LastInspectedImagePath, StringComparison.OrdinalIgnoreCase));
 
             if (lastInspectedImage is not null)
@@ -1070,9 +1070,9 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         SetFocusedImage(Images[clampedIndex], updateStatusText: false);
     }
 
-    private void ReplaceImages(IReadOnlyList<LibraryGridImageViewModel> imageViewModels)
+    private void ReplaceImages(IReadOnlyList<ProjectOverviewImageViewModel> imageViewModels)
     {
-        foreach (LibraryGridImageViewModel existingImage in allImages)
+        foreach (ProjectOverviewImageViewModel existingImage in allImages)
         {
             existingImage.Dispose();
         }
@@ -1081,7 +1081,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         SelectedImages.Clear();
         FocusedImageIndex = -1;
 
-        foreach (LibraryGridImageViewModel imageViewModel in imageViewModels)
+        foreach (ProjectOverviewImageViewModel imageViewModel in imageViewModels)
         {
             allImages.Add(imageViewModel);
         }
@@ -1097,14 +1097,14 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             effectiveItemsPerRow = 1;
         }
 
-        List<LibraryGridImageRowViewModel> rows = new List<LibraryGridImageRowViewModel>();
+        List<ProjectOverviewImageRowViewModel> rows = new List<ProjectOverviewImageRowViewModel>();
         for (int index = 0; index < Images.Count; index += effectiveItemsPerRow)
         {
-            IEnumerable<LibraryGridImageViewModel> rowImages = Images.Skip(index).Take(effectiveItemsPerRow);
-            rows.Add(new LibraryGridImageRowViewModel(rowImages));
+            IEnumerable<ProjectOverviewImageViewModel> rowImages = Images.Skip(index).Take(effectiveItemsPerRow);
+            rows.Add(new ProjectOverviewImageRowViewModel(rowImages));
         }
 
-        ImageRows = new ObservableCollection<LibraryGridImageRowViewModel>(rows);
+        ImageRows = new ObservableCollection<ProjectOverviewImageRowViewModel>(rows);
     }
 
     private async Task LoadAiModelChoicesAsync(Project project)
@@ -1154,11 +1154,11 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         }
     }
 
-    private int QueueAiTaggingForImages(IEnumerable<LibraryGridImageViewModel> images)
+    private int QueueAiTaggingForImages(IEnumerable<ProjectOverviewImageViewModel> images)
     {
         int queuedImageCount = 0;
 
-        foreach (LibraryGridImageViewModel image in images)
+        foreach (ProjectOverviewImageViewModel image in images)
         {
             if (QueueAiTaggingIfNeeded(image))
             {
@@ -1169,7 +1169,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         return queuedImageCount;
     }
 
-    private bool QueueAiTaggingIfNeeded(LibraryGridImageViewModel image)
+    private bool QueueAiTaggingIfNeeded(ProjectOverviewImageViewModel image)
     {
         if (currentProject is null)
         {
@@ -1351,7 +1351,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         return trimmedQuery;
     }
 
-    private IReadOnlyList<LibraryGridImageViewModel> GetBatchScopeImages()
+    private IReadOnlyList<ProjectOverviewImageViewModel> GetBatchScopeImages()
     {
         if (SelectedImages.Count > 0)
         {
@@ -1361,12 +1361,12 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         return allImages.ToList();
     }
 
-    private IReadOnlyList<LibraryGridImageViewModel> GetStrictSelectedImages()
+    private IReadOnlyList<ProjectOverviewImageViewModel> GetStrictSelectedImages()
     {
         return SelectedImages.ToList();
     }
 
-    private LibraryGridImageViewModel? GetFocusedImage()
+    private ProjectOverviewImageViewModel? GetFocusedImage()
     {
         if (FocusedImageIndex < 0 || FocusedImageIndex >= Images.Count)
         {
@@ -1381,7 +1381,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
         return Path.Combine(destinationFolder, Path.GetFileName(sourceImagePath));
     }
 
-    private void UpdateLastInspectedImagePathForMovedImage(LibraryGridImageViewModel image, string destinationFolder)
+    private void UpdateLastInspectedImagePathForMovedImage(ProjectOverviewImageViewModel image, string destinationFolder)
     {
         if (currentProject is null)
         {
@@ -1408,7 +1408,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
             return;
         }
 
-        LibraryGridImageViewModel? image = allImages.FirstOrDefault(candidate =>
+        ProjectOverviewImageViewModel? image = allImages.FirstOrDefault(candidate =>
             string.Equals(candidate.FilePath, imagePath, StringComparison.OrdinalIgnoreCase));
 
         if (image is null)
@@ -1424,7 +1424,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
     private void HandleImageDeleted(ImageDeletedMessage message)
     {
-        LibraryGridImageViewModel? image = allImages.FirstOrDefault(candidate =>
+        ProjectOverviewImageViewModel? image = allImages.FirstOrDefault(candidate =>
             string.Equals(candidate.FilePath, message.ImagePath, StringComparison.OrdinalIgnoreCase));
 
         if (image is null)
@@ -1468,7 +1468,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
     private void HandleAiTaggingFailed(AiTaggingFailedMessage message)
     {
-        LibraryGridImageViewModel? image = allImages.FirstOrDefault(candidate =>
+        ProjectOverviewImageViewModel? image = allImages.FirstOrDefault(candidate =>
             string.Equals(candidate.FilePath, message.ImagePath, StringComparison.OrdinalIgnoreCase));
 
         if (image is null)
@@ -1551,7 +1551,7 @@ public partial class LibraryGridViewModel : ScreenViewModelBase, INavigationAwar
 
         Dictionary<string, int> frequencyByTag = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (LibraryGridImageViewModel image in allImages)
+        foreach (ProjectOverviewImageViewModel image in allImages)
         {
             IReadOnlyList<string> fileTags = await tagFileService.ReadTagsAsync(image.TagFilePath).ConfigureAwait(true);
             HashSet<string> normalizedTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

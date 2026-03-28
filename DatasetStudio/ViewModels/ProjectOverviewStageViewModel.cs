@@ -4,9 +4,9 @@ using System;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class LibraryGridStageViewModel : ObservableObject
+public partial class ProjectOverviewStageViewModel : ObservableObject
 {
-    public LibraryGridStageViewModel(WorkflowStage stage, string folderPath, int imageCount)
+    public ProjectOverviewStageViewModel(WorkflowStage stage, string folderPath, int imageCount)
     {
         Stage = stage ?? throw new ArgumentNullException(nameof(stage));
         FolderPath = folderPath ?? throw new ArgumentNullException(nameof(folderPath));

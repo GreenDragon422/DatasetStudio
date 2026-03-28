@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace DatasetStudio.ViewModels;
 
-public sealed class LibraryGridImageRowViewModel
+public sealed class ProjectOverviewImageRowViewModel
 {
-    public LibraryGridImageRowViewModel(IEnumerable<LibraryGridImageViewModel> images)
+    public ProjectOverviewImageRowViewModel(IEnumerable<ProjectOverviewImageViewModel> images)
     {
         if (images is null)
         {
@@ -16,5 +16,5 @@ public sealed class LibraryGridImageRowViewModel
         Images = images.ToArray();
     }
 
-    public IReadOnlyList<LibraryGridImageViewModel> Images { get; }
+    public IReadOnlyList<ProjectOverviewImageViewModel> Images { get; }
 }

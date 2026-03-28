@@ -6,9 +6,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="DatasetStudio.Views.LibraryGridView"
+             x:Class="DatasetStudio.Views.ProjectOverviewView"
              x:Name="Root"
-             x:DataType="vm:LibraryGridViewModel"
+             x:DataType="vm:ProjectOverviewViewModel"
              x:CompileBindings="True"
              d:DesignWidth="1440"
              d:DesignHeight="860">
@@ -110,7 +110,7 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:LibraryGridImageRowViewModel">
+                                <DataTemplate x:DataType="vm:ProjectOverviewImageRowViewModel">
                                     <ItemsControl ItemsSource="{Binding Images}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -118,13 +118,13 @@
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:LibraryGridImageViewModel">
-                                                <Border MinWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                            <DataTemplate x:DataType="vm:ProjectOverviewImageViewModel">
+                                                <Border MinWidth="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}"
                                                         Classes="surface-card thumbnail-tile pad-8">
                                                     <Grid RowDefinitions="Auto,*,Auto">
                                                         <Grid ColumnDefinitions="Auto,*"
                                                               Classes="thumbnail-header-row">
-                                                            <CheckBox Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ToggleSelectionCommand}"
+                                                            <CheckBox Command="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ToggleSelectionCommand}"
                                                                       CommandParameter="{Binding}"
                                                                       IsChecked="{Binding IsSelected, Mode=OneWay}" />
                                                             <TextBlock Grid.Column="1"
@@ -135,11 +135,11 @@
 
                                                         <Button Grid.Row="1"
                                                                 Classes="chromeless thumbnail-button"
-                                                                Command="{Binding #Root.((vm:LibraryGridViewModel)DataContext).FocusImageCommand}"
+                                                                Command="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).FocusImageCommand}"
                                                                 CommandParameter="{Binding}"
                                                                 DoubleTapped="OnThumbnailDoubleTapped">
-                                                            <Grid Width="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
-                                                                  Height="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}">
+                                                            <Grid Width="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}"
+                                                                  Height="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}">
                                                                 <Border Classes="thumbnail-placeholder" />
                                                                 <Image Source="{Binding Thumbnail}"
                                                                        Stretch="UniformToFill"
@@ -173,7 +173,7 @@
                                                         <TextBlock Grid.Row="2"
                                                                    Text="{Binding TagsPreview}"
                                                                    Classes="mono meta-text"
-                                                                   MaxWidth="{Binding #Root.((vm:LibraryGridViewModel)DataContext).ZoomValue}"
+                                                                   MaxWidth="{Binding #Root.((vm:ProjectOverviewViewModel)DataContext).ZoomValue}"
                                                                    MaxLines="2"
                                                                    TextWrapping="Wrap"
                                                                    TextTrimming="CharacterEllipsis" />

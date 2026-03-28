@@ -74,7 +74,7 @@ public partial class App : Application
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<ProjectsHubViewModel>();
         services.AddTransient<ProjectConfigurationViewModel>();
-        services.AddTransient<LibraryGridViewModel>();
+        services.AddTransient<ProjectOverviewViewModel>();
         services.AddTransient<InspectorModeViewModel>();
         services.AddTransient<TagDictionaryViewModel>();
     }
@@ -94,7 +94,7 @@ public partial class App : Application
 
                 if (startupProject is not null)
                 {
-                    navigationService.NavigateTo<LibraryGridViewModel>(startupProject);
+                    navigationService.NavigateTo<ProjectOverviewViewModel>(startupProject);
                     return;
                 }
             }

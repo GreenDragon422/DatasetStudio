@@ -274,7 +274,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 32.3 Implement `LoadProjectsCommand` — call IProjectService.LoadProjectsAsync, populate Projects collection with card data (name, path, image count, tagged percentage)
   - [x] 32.4 Implement `ScanMasterRootCommand` — call IFileSystemService.DiscoverProjectFoldersAsync, auto-create Project entries for discovered subfolders
   - [x] 32.5 Implement `NewProjectCommand` — create new Project via IProjectService, signal MainWindowVM to open ProjectConfig modal
-  - [x] 32.6 Implement `OpenProjectCommand` — navigate to LibraryGrid with selected project, publish ProjectOpenedMessage
+  - [x] 32.6 Implement `OpenProjectCommand` — navigate to ProjectOverview with selected project, publish ProjectOpenedMessage
   - [x] 32.7 Create `Views/ProjectsHubView.axaml` — 64px top bar with MasterRootDirectoryPicker (TextBox + Browse button) and NewProject button
   - [x] 32.8 Implement ProjectCardGrid — ItemsControl with WrapPanel, each card showing name, path, image count, progress bar, hover border (1px solid Primary)
   - [x] 32.9 Implement empty state placeholder — dashed border, centered text "No datasets found. Create your first project or point to a master folder.", bound to HasProjects
@@ -295,7 +295,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 8.5_
 
 - [x] 34. Implement Project Overview screen
-  - [x] 34.1 Create `ViewModels/LibraryGridViewModel.cs` — inject IFileSystemService, ITagFileService, ITagDictionaryService, IThumbnailCacheService, IClipboardService, INavigationService, IMessenger
+  - [x] 34.1 Create `ViewModels/ProjectOverviewViewModel.cs` — inject IFileSystemService, ITagFileService, ITagDictionaryService, IThumbnailCacheService, IClipboardService, INavigationService, IMessenger
   - [x] 34.2 Implement observable properties: Stages (ObservableCollection), ActiveStage (WorkflowStage), Images (ObservableCollection<ImageEntry>), SelectedImages (ObservableCollection), FocusedImageIndex (int), FilterText (string), ZoomValue (int, default 160), IsBatchAddOpen (bool), IsBatchRemoveOpen (bool), ProjectName (string), AiModels (ObservableCollection), SelectedAiModel (AiModelInfo)
   - [x] 34.3 Implement `LoadStagesCommand` — parse workflow stages from disk using WorkflowStageParser, populate sidebar
   - [x] 34.4 Implement `SelectStageCommand` — load images for selected folder via IFileSystemService.GetImageFilesAsync, build ImageEntry list with tag status
@@ -311,7 +311,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 34.14 Implement `OpenInspectorCommand` — double-click navigates to InspectorMode with selected image
   - [x] 34.15 Implement quick filter logic — filter Images collection by tag content matching FilterText
   - [x] 34.17 Subscribe to messenger events — ImageMovedMessage (refresh folder counts), ImageDeletedMessage (remove from grid), TagsChangedMessage (update status dots), AiTaggingCompletedMessage (update status to Yellow)
-  - [x] 34.18 Create `Views/LibraryGridView.axaml` — three-column layout: 240px left sidebar, fluid center, 64px top bar
+  - [x] 34.18 Create `Views/ProjectOverviewView.axaml` — three-column layout: 240px left sidebar, fluid center, 64px top bar
   - [x] 34.19 Implement top bar — ProjectName TextBlock (18px IBM Plex Sans 600), AI model ComboBox, QuickFilterBar TextBox (IBM Plex Mono)
   - [x] 34.20 Implement left sidebar — WorkflowStageList shared control bound to Stages/ActiveStage
   - [x] 34.21 Implement center grid — virtualization-friendly image grid (prefer `ItemsRepeater` or an equivalent virtualizing layout over a fully materialized WrapPanel for large folders), min cell size bound to ZoomValue, each item: 1:1 square crop thumbnail, StatusDot bottom-right, hover checkbox top-left, ActiveFocusFrame on focused item
@@ -322,7 +322,8 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 34.26 Wire HintBar and StatusBar at bottom
   - [x] 34.27 Implement Escape key handling — dismiss popup → unfocus TextBox → no-op (in priority order)
   - Progress note (2026-03-27): Project Overview now supports keyboard-driven batch add/remove popups anchored from the filter bar, selection-scoped or folder-wide batch tag operations, selected-image move/delete behavior, focused-image clipboard copy/paste, and popup-priority Escape handling. This slice is unit-tested for batch scope, move behavior, and clipboard normalization.
-  - Progress note (2026-03-28): The center pane now uses a virtualized row list instead of a fully materialized thumbnail WrapPanel. `LibraryGridView` calculates an items-per-row estimate from the viewport width and zoom value, `LibraryGridViewModel` groups filtered images into row viewmodels for a virtualized `ListBox`, keyboard navigation scrolls the target row into view, and the headless smoke suite now captures the batch popups, AI-processing overlay, and Inspector suggestion-popup states.
+  - Progress note (2026-03-28): The center pane now uses a virtualized row list instead of a fully materialized thumbnail WrapPanel. `ProjectOverviewView` calculates an items-per-row estimate from the viewport width and zoom value, `ProjectOverviewViewModel` groups filtered images into row viewmodels for a virtualized `ListBox`, keyboard navigation scrolls the target row into view, and the headless smoke suite now captures the batch popups, AI-processing overlay, and Inspector suggestion-popup states.
+  - Progress note (2026-03-28): The remaining rename cleanup is complete. The view, viewmodel, helper types, test class, and tracked file names now all use the `ProjectOverview*` naming, and the `.kiro` task/design docs reference the renamed view and viewmodel paths.
   - _Requirements: 2.1–2.22, 9.1, 9.4, 9.5_
 
 - [x] 35. Implement Inspector Mode screen
@@ -335,7 +336,7 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 35.7 Implement `MoveImageCommand` — `[`/`]` move current image to prev/next stage, publish ImageMovedMessage, auto-advance
   - [x] 35.8 Implement `DeleteImageCommand` — Delete key: recycle current image + tag file, publish ImageDeletedMessage, auto-advance
   - [x] 35.9 Implement `CopyTagsCommand` / `PasteTagsCommand` — Ctrl+Shift+C/V via IClipboardService
-  - [x] 35.10 Implement `GoBackCommand` — Escape navigates back to LibraryGrid
+  - [x] 35.10 Implement `GoBackCommand` — Escape navigates back to ProjectOverview
   - [x] 35.11 Implement auto-suggest — on TagInputText change, query ITagDictionaryService.SearchTagsAsync, populate AutoSuggestTags
   - [x] 35.12 Implement auto-focus — any letter key focuses tag input (handled in View code-behind, delegates to ViewModel)
   - [x] 35.13 Subscribe to messenger events — AiTaggingCompletedMessage (refresh tags if current image), ImageMovedMessage (refresh if current image moved externally)
@@ -404,16 +405,16 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
 
 - [x] 40. Wire AI tagger background processing
   - [x] 40.1 On folder load — scan for images without .txt files, queue them for AI tagging via IAiTaggerService
-  - [x] 40.2 Wire processing indicator — set ImageEntry.IsAiProcessing=true while processing, bind to spinner overlay in LibraryGrid thumbnails and InspectorMode tag area
+  - [x] 40.2 Wire processing indicator — set ImageEntry.IsAiProcessing=true while processing, bind to spinner overlay in ProjectOverview thumbnails and InspectorMode tag area
   - [x] 40.3 On AiTaggingCompletedMessage — create tag file via ITagFileService, set status to Yellow (AutoTagged), refresh UI
-  - [x] 40.4 Wire AI model selection — sync dropdown in LibraryGrid top bar and ProjectConfig modal to IAiTaggerService active model
+  - [x] 40.4 Wire AI model selection — sync dropdown in ProjectOverview top bar and ProjectConfig modal to IAiTaggerService active model
   - Progress note (2026-03-27): Project Overview and Inspector Mode now queue missing-tag images in the background using the configured AI model, shared processing overlays render while tagging is active, and a singleton `AiTaggingCoordinator` persists generated `.txt` files before publishing `AiTaggingCompletedMessage` back into the screen layer. Project Overview also now loads the shared AI model registry into its top-bar dropdown. Coverage was expanded with queueing tests plus a coordinator persistence/message test, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 2.21, 3.13_
 
 - [x] 41. Wire FileSystemWatcher for live updates
   - [x] 41.1 On project open — start FileSystemWatcher on project root via IFileSystemService.WatchFolder
   - [x] 41.2 On folder structure change (subfolder add/remove/rename) — refresh WorkflowStage list in sidebar
-  - [x] 41.3 On file change in active folder (image add/remove) — refresh image list in LibraryGrid
+  - [x] 41.3 On file change in active folder (image add/remove) — refresh image list in ProjectOverview
   - [x] 41.4 On source image modification — invalidate thumbnail cache via IThumbnailCacheService.InvalidateAsync
   - [x] 41.5 On project close/switch — dispose previous FileSystemWatcher
   - Progress note (2026-03-28): Project Overview and Inspector Mode now attach debounced project-root watchers while active, refresh stage and image state on folder/image/tag/config changes, and detach those watchers again through the shared screen activation lifecycle when navigation moves away. Project Overview also invalidates changed image thumbnails before reloading. Coverage was expanded with screen activation tests plus watcher-driven stage/image refresh tests in both viewmodel suites, and the full solution verifies cleanly with `dotnet test DatasetStudio.sln`.

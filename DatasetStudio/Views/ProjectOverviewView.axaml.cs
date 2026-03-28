@@ -11,21 +11,21 @@ using DatasetStudio.ViewModels;
 
 namespace DatasetStudio.Views;
 
-public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
+public partial class ProjectOverviewView : ScreenViewBase<ProjectOverviewViewModel>
 {
-    private LibraryGridViewModel? observedViewModel;
+    private ProjectOverviewViewModel? observedViewModel;
 
-    public LibraryGridView()
+    public ProjectOverviewView()
     {
         InitializeComponent();
-        DataContextChanged += OnLibraryGridDataContextChanged;
-        DetachedFromVisualTree += OnLibraryGridDetachedFromVisualTree;
+        DataContextChanged += OnProjectOverviewDataContextChanged;
+        DetachedFromVisualTree += OnProjectOverviewDetachedFromVisualTree;
         ImageRowsListBox.SizeChanged += OnImageRowsListBoxSizeChanged;
     }
 
     protected override IReadOnlyList<ScreenShortcut> BuildScreenShortcuts()
     {
-        LibraryGridViewModel? viewModel = ViewModel;
+        ProjectOverviewViewModel? viewModel = ViewModel;
         if (viewModel is null)
         {
             return [];
@@ -364,7 +364,7 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
             return;
         }
 
-        LibraryGridImageViewModel focusedImage = ViewModel.Images[ViewModel.FocusedImageIndex];
+        ProjectOverviewImageViewModel focusedImage = ViewModel.Images[ViewModel.FocusedImageIndex];
         foreach (Avalonia.Visual visual in this.GetVisualDescendants())
         {
             if (visual is not Control control)
@@ -382,7 +382,7 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
         }
     }
 
-    private void OnLibraryGridDataContextChanged(object? sender, EventArgs eventArgs)
+    private void OnProjectOverviewDataContextChanged(object? sender, EventArgs eventArgs)
     {
         _ = sender;
         _ = eventArgs;
@@ -390,7 +390,7 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
         Dispatcher.UIThread.Post(UpdateItemsPerRowEstimate, DispatcherPriority.Loaded);
     }
 
-    private void OnLibraryGridDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs eventArgs)
+    private void OnProjectOverviewDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs eventArgs)
     {
         _ = sender;
         _ = eventArgs;
@@ -401,14 +401,14 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
     {
         _ = sender;
 
-        if (eventArgs.PropertyName == nameof(LibraryGridViewModel.ZoomValue)
-            || eventArgs.PropertyName == nameof(LibraryGridViewModel.HasImages))
+        if (eventArgs.PropertyName == nameof(ProjectOverviewViewModel.ZoomValue)
+            || eventArgs.PropertyName == nameof(ProjectOverviewViewModel.HasImages))
         {
             Dispatcher.UIThread.Post(UpdateItemsPerRowEstimate, DispatcherPriority.Loaded);
         }
     }
 
-    private void AttachObservedViewModel(LibraryGridViewModel? viewModel)
+    private void AttachObservedViewModel(ProjectOverviewViewModel? viewModel)
     {
         if (ReferenceEquals(observedViewModel, viewModel))
         {
@@ -487,7 +487,7 @@ public partial class LibraryGridView : ScreenViewBase<LibraryGridViewModel>
             return;
         }
 
-        if (inputElement.DataContext is not LibraryGridImageViewModel image)
+        if (inputElement.DataContext is not ProjectOverviewImageViewModel image)
         {
             return;
         }

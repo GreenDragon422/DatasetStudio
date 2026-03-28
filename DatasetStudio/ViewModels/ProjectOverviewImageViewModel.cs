@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace DatasetStudio.ViewModels;
 
-public partial class LibraryGridImageViewModel : ObservableObject, IDisposable
+public partial class ProjectOverviewImageViewModel : ObservableObject, IDisposable
 {
-    public LibraryGridImageViewModel(
+    public ProjectOverviewImageViewModel(
         string filePath,
         string fileName,
         string tagFilePath,

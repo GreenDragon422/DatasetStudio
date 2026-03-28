@@ -95,7 +95,7 @@ public sealed class FinalIntegrationTests
         services.AddSingleton<INavigationService>(serviceProvider => serviceProvider.GetRequiredService<NavigationService>());
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<ProjectsHubViewModel>();
-        services.AddTransient<LibraryGridViewModel>();
+        services.AddTransient<ProjectOverviewViewModel>();
         services.AddTransient<InspectorModeViewModel>();
 
         ServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -123,21 +123,21 @@ public sealed class FinalIntegrationTests
 
             await WaitForConditionAsync(() =>
             {
-                if (mainWindowViewModel.CurrentView is not LibraryGridViewModel currentLibraryGridViewModel)
+                if (mainWindowViewModel.CurrentView is not ProjectOverviewViewModel currentProjectOverviewViewModel)
                 {
                     return false;
                 }
 
-                return currentLibraryGridViewModel.Images.Count == 2
-                    && currentLibraryGridViewModel.FocusedImageIndex >= 0;
+                return currentProjectOverviewViewModel.Images.Count == 2
+                    && currentProjectOverviewViewModel.FocusedImageIndex >= 0;
             }).ConfigureAwait(false);
 
             AppState persistedAppState = statePersistenceService.GetAppState();
             Assert.That(persistedAppState.LastOpenedProjectId, Is.EqualTo(project.Id));
 
-            LibraryGridViewModel libraryGridViewModel = (LibraryGridViewModel)mainWindowViewModel.CurrentView!;
-            LibraryGridImageViewModel dogImage = libraryGridViewModel.Images.Single(image => string.Equals(image.FileName, "dog.png", StringComparison.Ordinal));
-            libraryGridViewModel.OpenInspectorCommand.Execute(dogImage);
+            ProjectOverviewViewModel projectOverviewViewModel = (ProjectOverviewViewModel)mainWindowViewModel.CurrentView!;
+            ProjectOverviewImageViewModel dogImage = projectOverviewViewModel.Images.Single(image => string.Equals(image.FileName, "dog.png", StringComparison.Ordinal));
+            projectOverviewViewModel.OpenInspectorCommand.Execute(dogImage);
 
             await WaitForConditionAsync(() =>
             {
@@ -154,8 +154,8 @@ public sealed class FinalIntegrationTests
             Assert.That(persistedProjectState.LastInspectedImagePath, Is.EqualTo(dogImagePath));
 
             navigationService.GoBack();
-            Assert.That(mainWindowViewModel.CurrentView, Is.SameAs(libraryGridViewModel));
-            Assert.That(libraryGridViewModel.Images[libraryGridViewModel.FocusedImageIndex].FilePath, Is.EqualTo(dogImagePath));
+            Assert.That(mainWindowViewModel.CurrentView, Is.SameAs(projectOverviewViewModel));
+            Assert.That(projectOverviewViewModel.Images[projectOverviewViewModel.FocusedImageIndex].FilePath, Is.EqualTo(dogImagePath));
 
             navigationService.GoBack();
             Assert.That(mainWindowViewModel.CurrentView, Is.SameAs(projectsHubViewModel));

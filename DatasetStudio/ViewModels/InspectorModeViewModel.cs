@@ -53,7 +53,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         this.statePersistenceService = statePersistenceService ?? throw new ArgumentNullException(nameof(statePersistenceService));
 
-        Stages = new ObservableCollection<LibraryGridStageViewModel>();
+        Stages = new ObservableCollection<ProjectOverviewStageViewModel>();
         ImageList = new ObservableCollection<ImageEntry>();
         AppliedTags = new ObservableCollection<string>();
         AutoSuggestTags = new ObservableCollection<string>();
@@ -74,10 +74,10 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
     }
 
     [ObservableProperty]
-    private ObservableCollection<LibraryGridStageViewModel> stages;
+    private ObservableCollection<ProjectOverviewStageViewModel> stages;
 
     [ObservableProperty]
-    private LibraryGridStageViewModel? activeStage;
+    private ProjectOverviewStageViewModel? activeStage;
 
     [ObservableProperty]
     private ObservableCollection<ImageEntry> imageList;
@@ -149,7 +149,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         DetachProjectWatcher();
     }
 
-    partial void OnActiveStageChanged(LibraryGridStageViewModel? value)
+    partial void OnActiveStageChanged(ProjectOverviewStageViewModel? value)
     {
         if (value is null || isSynchronizingStageSelection)
         {
@@ -363,18 +363,18 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         _ = await tagDictionaryService.GetAllEntriesAsync(currentProject.Id).ConfigureAwait(true);
 
         IReadOnlyList<WorkflowStage> workflowStages = GetWorkflowStages(currentProject);
-        List<LibraryGridStageViewModel> stageViewModels = new List<LibraryGridStageViewModel>();
+        List<ProjectOverviewStageViewModel> stageViewModels = new List<ProjectOverviewStageViewModel>();
 
         foreach (WorkflowStage workflowStage in workflowStages)
         {
             string folderPath = GetStageFolderPath(currentProject, workflowStage);
             IReadOnlyList<string> imageFiles = await fileSystemService.GetImageFilesAsync(folderPath).ConfigureAwait(true);
-            stageViewModels.Add(new LibraryGridStageViewModel(workflowStage, folderPath, imageFiles.Count));
+            stageViewModels.Add(new ProjectOverviewStageViewModel(workflowStage, folderPath, imageFiles.Count));
         }
 
-        Stages = new ObservableCollection<LibraryGridStageViewModel>(stageViewModels);
+        Stages = new ObservableCollection<ProjectOverviewStageViewModel>(stageViewModels);
 
-        LibraryGridStageViewModel? selectedStage = stageViewModels.FirstOrDefault(stage =>
+        ProjectOverviewStageViewModel? selectedStage = stageViewModels.FirstOrDefault(stage =>
             string.Equals(stage.FolderName, preferredStageFolderName, StringComparison.OrdinalIgnoreCase))
             ?? stageViewModels.FirstOrDefault(stage =>
                 string.Equals(stage.FolderName, currentProject.State.ActiveStageFolderName, StringComparison.OrdinalIgnoreCase))
@@ -394,7 +394,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
         await LoadStageImagesAsync(selectedStage, preferredImagePath, preferredIndex).ConfigureAwait(true);
     }
 
-    private async Task LoadStageImagesAsync(LibraryGridStageViewModel stage, string? preferredImagePath, int? preferredIndex)
+    private async Task LoadStageImagesAsync(ProjectOverviewStageViewModel stage, string? preferredImagePath, int? preferredIndex)
     {
         if (currentProject is null)
         {
@@ -876,7 +876,7 @@ public partial class InspectorModeViewModel : ScreenViewModelBase, INavigationAw
             return;
         }
 
-        LibraryGridStageViewModel targetStage = Stages[targetStageIndex];
+        ProjectOverviewStageViewModel targetStage = Stages[targetStageIndex];
         ImageEntry movedImage = CurrentImage;
         string sourceFolder = ActiveStage.FolderPath;
         int preferredIndex = CurrentIndex;

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace DatasetStudio.Tests;
 
 [TestFixture]
-public class LibraryGridViewModelTests
+public class ProjectOverviewViewModelTests
 {
     [Test]
     public async Task OnNavigatedTo_LoadsConfiguredStageImagesAndAppliesFilter()
@@ -24,7 +24,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -94,7 +94,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -165,7 +165,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -229,7 +229,7 @@ public class LibraryGridViewModelTests
         TestAiTaggerService aiTaggerService = new TestAiTaggerService();
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -309,7 +309,7 @@ public class LibraryGridViewModelTests
         };
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -375,7 +375,7 @@ public class LibraryGridViewModelTests
         };
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -433,7 +433,7 @@ public class LibraryGridViewModelTests
         TestAiTaggerService aiTaggerService = new TestAiTaggerService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -489,7 +489,7 @@ public class LibraryGridViewModelTests
         TestAiTaggerService aiTaggerService = new TestAiTaggerService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -548,7 +548,7 @@ public class LibraryGridViewModelTests
         TestAiTaggerService aiTaggerService = new TestAiTaggerService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -617,7 +617,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -671,7 +671,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -731,7 +731,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -789,7 +789,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -848,7 +848,7 @@ public class LibraryGridViewModelTests
         TestTagDictionaryService tagDictionaryService = new TestTagDictionaryService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,
@@ -906,7 +906,7 @@ public class LibraryGridViewModelTests
         TestClipboardService clipboardService = new TestClipboardService();
         BatchTagOperationService batchTagOperationService = new BatchTagOperationService(tagFileService, tagDictionaryService, messenger);
         TestStatePersistenceService statePersistenceService = new TestStatePersistenceService();
-        LibraryGridViewModel viewModel = new LibraryGridViewModel(
+        ProjectOverviewViewModel viewModel = new ProjectOverviewViewModel(
             fileSystemService,
             tagFileService,
             tagDictionaryService,

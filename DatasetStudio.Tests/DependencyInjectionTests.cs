@@ -33,7 +33,7 @@ public class DependencyInjectionTests
         Assert.That(serviceProvider.GetService<MainWindowViewModel>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<ProjectsHubViewModel>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<ProjectConfigurationViewModel>(), Is.Not.Null);
-        Assert.That(serviceProvider.GetService<LibraryGridViewModel>(), Is.Not.Null);
+        Assert.That(serviceProvider.GetService<ProjectOverviewViewModel>(), Is.Not.Null);
         Assert.That(serviceProvider.GetService<TagDictionaryViewModel>(), Is.Not.Null);
     }
 }
