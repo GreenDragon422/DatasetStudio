@@ -349,14 +349,15 @@ Build a keyboard-first Avalonia/XAML (C#, .NET 10) desktop application for curat
   - [x] 35.12 Implement auto-focus — any letter key focuses tag input (handled in View code-behind, delegates to ViewModel)
   - [x] 35.13 Subscribe to messenger events — AiTaggingCompletedMessage (refresh tags if current image), ImageMovedMessage (refresh if current image moved externally)
   - [x] 35.14 Create `Views/InspectorModeView.axaml` — three-column layout: 240px left sidebar (WorkflowStageList), fluid center (Viewbox with image + 2px Warning border), 320px right sidebar
-  - [x] 35.15 Implement top bar — back button, image filename TextBlock, StatusDot badge
+  - [x] 35.15 Implement top bar — image filename TextBlock and StatusDot badge
   - [x] 35.16 Implement center pane — Viewbox preserving aspect ratio with keyboard-driven left/right navigation
-  - [x] 35.17 Implement right sidebar — PrefixTags block (read-only, IBM Plex Mono, Surface Elevated bg), 32px TagInput TextBox with auto-suggest Popup, AppliedTagsList WrapPanel of TagPill controls, "Commit & Next" button
+  - [x] 35.17 Implement right sidebar — PrefixTags block (read-only, IBM Plex Mono, Surface Elevated bg), 32px TagInput TextBox with auto-suggest Popup, AppliedTagsList WrapPanel of TagPill controls
   - [x] 35.18 Implement AI processing spinner overlay on tag list area
   - [x] 35.19 Wire HintBar and StatusBar at bottom
   - [x] 35.20 Implement letter key auto-focus in code-behind — PreviewKeyDown handler checks if letter key and no TextBox focused, then focuses TagInput
   - Note (2026-03-27): Prev/next navigation is fully keyboard-driven and functional, but it currently switches images immediately instead of animating the transition. If we want literal sliding motion from Requirement 3.9, that is now a polish pass rather than a missing workflow.
   - Progress note (2026-03-28): Removed the temporary left/right overlay nav buttons from Inspector Mode so the screen matches the intended keyboard-driven workflow again. Left/right image navigation remains available through the existing keyboard command path and the footer hints.
+  - Progress note (2026-03-28): Removed the remaining visible `Back` and `Commit & Next` buttons from Inspector Mode. The screen now exposes commit, navigation, and back behavior only through the shared keyboard shortcut contract and persistent footer hints, matching the intended flow-first workflow.
   - _Requirements: 3.1–3.15, 9.1, 9.5_
 
 - [x] 36. Implement Tags Overview screen

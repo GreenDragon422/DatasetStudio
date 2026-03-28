@@ -12,14 +12,9 @@
           Classes="screen-root">
         <Border Grid.Row="0"
                 Classes="screen-header-bar">
-            <Grid ColumnDefinitions="Auto,*,Auto"
+            <Grid ColumnDefinitions="*,Auto"
                   Classes="screen-header-layout">
-                <Button Content="Back"
-                        Classes="header-control"
-                        Command="{Binding GoBackCommand}"
-                        />
-
-                <StackPanel Grid.Column="1"
+                <StackPanel Grid.Column="0"
                             Classes="screen-title-stack">
                     <TextBlock Text="{Binding FileName}"
                                Classes="heading-medium"
@@ -29,7 +24,7 @@
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="2"
+                <StackPanel Grid.Column="1"
                             Classes="inline-status-row">
                     <controls:StatusDot Status="{Binding CurrentStatus}"
                                         VerticalAlignment="Center" />
@@ -75,7 +70,7 @@
 
             <Border Grid.Column="2"
                     Classes="surface-card pad-16">
-                <Grid RowDefinitions="Auto,Auto,*,Auto"
+                <Grid RowDefinitions="Auto,Auto,*"
                       Classes="standard-rows">
                     <Border Classes="surface-panel-card pad-12">
                         <StackPanel Classes="section-stack">
@@ -149,11 +144,6 @@
                             </StackPanel>
                         </Border>
                     </Grid>
-
-                    <Button Grid.Row="3"
-                            Classes="primary"
-                            Content="Commit &amp; Next"
-                            Command="{Binding CommitTagCommand}" />
                 </Grid>
             </Border>
         </Grid>

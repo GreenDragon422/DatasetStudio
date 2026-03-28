@@ -157,18 +157,15 @@ ProjectOverviewView
 #### InspectorModeView
 ```
 InspectorModeView
-├── TopBar (64px, back button + image identifier + status badge)
+├── TopBar (64px, image identifier + status badge)
 ├── ThreeColumnLayout
 │   ├── LeftSidebar (240px, WorkflowStageList — shared component)
 │   ├── CenterPane (fluid)
-│   │   ├── ImageViewer (Viewbox, preserves aspect ratio)
-│   │   ├── PrevImageButton (overlay, left)
-│   │   └── NextImageButton (overlay, right)
+│   │   └── ImageViewer (Viewbox, preserves aspect ratio)
 │   └── RightSidebar (320px)
 │       ├── PrefixTagsBlock (read-only, IBM Plex Mono, Surface Elevated bg)
 │       ├── TagInput (32px TextBox, persistent focus, auto-suggest Popup)
-│       ├── AppliedTagsList (WrapPanel of TagPill controls)
-│       └── CommitButton ("Commit & Next")
+│       └── AppliedTagsList (WrapPanel of TagPill controls)
 ├── HintBar
 └── StatusBar
 ```
@@ -416,7 +413,7 @@ Each screen exposes a `HintText` string property on its ViewModel. The `HintBar`
 | `↑` `↓` | Navigate auto-suggest dropdown | `↑↓: Suggestions` |
 | `Escape` | Navigate back to Project Overview | `Esc: Back to Overview` |
 
-**HintBar:** `Enter: Commit & Next  ↑↓: Suggestions  Esc: Back to Grid`
+**HintBar:** `Enter: Commit & Next  ↑↓: Suggestions  Esc: Back to Overview`
 
 #### Inspector Mode — Image Navigation (tag input not focused)
 
