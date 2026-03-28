@@ -1,5 +1,6 @@
 [
   { "repositoryId": "fancyfeast/llama-joycaption-beta-one-hf-llava" },
+  { "displayName": "JoyTag", "repositoryId": "fancyfeast/joytag" },
   { "repositoryId": "microsoft/Florence-2-large-ft" },
   { "repositoryId": "microsoft/Florence-2-large" },
   { "repositoryId": "microsoft/Florence-2-base-ft" },
